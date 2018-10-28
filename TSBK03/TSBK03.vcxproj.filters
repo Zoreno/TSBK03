@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Library">
+      <UniqueIdentifier>{1d529c42-be18-4b5e-bd59-5d19294e92ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Library\IMGUI">
+      <UniqueIdentifier>{245a046c-943b-4426-98fa-6eef4324c533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{98a45d3d-3d08-47a6-8504-c235a0e7fd7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Lights">
+      <UniqueIdentifier>{215b2b58-8aa8-415f-a37c-02e9baeab905}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Renderer">
+      <UniqueIdentifier>{bf3c97bc-2c1f-4e06-b0c9-aa07902329b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Library">
+      <UniqueIdentifier>{d58555ac-746b-4c35-843c-9ee79588c921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Library\IMGUI">
+      <UniqueIdentifier>{f2f9d619-020a-4dd7-a3e2-04b26efc3383}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine">
+      <UniqueIdentifier>{af3ac212-3f68-4768-a557-556153a1189e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Renderer">
+      <UniqueIdentifier>{e319cb47-537e-4b91-8ca4-f5d2e12a8d50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\SceneGraph">
+      <UniqueIdentifier>{2fa5d1f4-9f04-4f72-b6e6-bccd513a9090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Lights">
+      <UniqueIdentifier>{803c1783-93d4-4915-9d65-1a8dae14b42d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Model">
+      <UniqueIdentifier>{c8c45013-7b03-4e81-aad8-d8a1af20d07e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Model">
+      <UniqueIdentifier>{a9c503a1-e5e5-4524-97a8-cc11d51ef125}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Shader">
+      <UniqueIdentifier>{2d10bf86-e8de-43cd-a1b2-d360a21a8c33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\GLSLShader">
+      <UniqueIdentifier>{4aae1dce-3f22-4227-bf1b-38b8ec6ace46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Utils">
+      <UniqueIdentifier>{8b869eff-20aa-45cb-b7a5-9d4bbb994b69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Utils">
+      <UniqueIdentifier>{8f079714-eb47-445d-bbe7-a664b0c84b3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2939689b-6518-4a32-a524-467cc5be70e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Utils\Random">
+      <UniqueIdentifier>{5dad06e1-ea52-426b-973a-6ae6fe218571}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Utils\Random">
+      <UniqueIdentifier>{17659a6c-b08d-4d55-8d39-8f89b0789ef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Texture">
+      <UniqueIdentifier>{13e8ddb2-7d89-4168-8800-966836b77485}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Texture">
+      <UniqueIdentifier>{8462ec57-c1e7-41a7-a328-3bcbf9b44e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Utils\Types">
+      <UniqueIdentifier>{8b04556d-22d8-4d42-9edc-5fa9f5f16e9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Asset Manager">
+      <UniqueIdentifier>{225e9189-a4a8-4f2a-b00c-a168cb8d48dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Scene Graph">
+      <UniqueIdentifier>{92dbf1a2-67cc-4079-b723-8b25a50b3880}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Asset Manager">
+      <UniqueIdentifier>{0a4a6f41-eb10-4958-88aa-2bfd770f5ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Physics">
+      <UniqueIdentifier>{f5a2861b-9ad2-4be6-9655-db774664029b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Physics">
+      <UniqueIdentifier>{d50915f5-c4ee-41f6-9570-37fbbe30a818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Terrain">
+      <UniqueIdentifier>{de2738ef-1b73-4d79-aac9-1eb3dcaa07e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Terrain">
+      <UniqueIdentifier>{a20b2744-cfd6-4100-99f1-6326fe4d7e48}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_glfw.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Source Files\Engine\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Source Files\Engine\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Source Files\Engine\SceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightSceneNode.cpp">
+      <Filter>Source Files\Engine\SceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightSceneNode.cpp">
+      <Filter>Source Files\Engine\SceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files\Engine\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLVertexShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLFragmentShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticModelSceneNode.cpp">
+      <Filter>Source Files\Engine\SceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArrayObject.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferObject.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="MersenneDevice.cpp">
+      <Filter>Source Files\Engine\Utils\Random</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Source Files\Engine\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="TGA.cpp">
+      <Filter>Source Files\Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="BMP.cpp">
+      <Filter>Source Files\Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>Source Files\Engine\Asset Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBoneData.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationChannel.cpp">
+      <Filter>Source Files\Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Source Files\Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainSceneNode.cpp">
+      <Filter>Source Files\Engine\SceneGraph</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imconfig.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_glfw.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_opengl3.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_rectpack.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_textedit.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_truetype.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>Header Files\Engine\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Engine\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNodeType.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightSceneNode.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLightSceneNode.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLVertexShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLFragmentShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLShaderMethodNotImplementedException.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLShaderCompilationException.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticModelSceneNode.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArrayObject.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferObject.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomGenerator.h">
+      <Filter>Header Files\Engine\Utils\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomDevice.h">
+      <Filter>Header Files\Engine\Utils\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="MersenneDevice.h">
+      <Filter>Header Files\Engine\Utils\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Header Files\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureFile.h">
+      <Filter>Header Files\Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="TGA.h">
+      <Filter>Header Files\Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelInfo.h">
+      <Filter>Header Files\Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="BMP.h">
+      <Filter>Header Files\Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererPickingInfo.h">
+      <Filter>Header Files\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetBase.h">
+      <Filter>Header Files\Engine\Asset Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetPool.h">
+      <Filter>Header Files\Engine\Asset Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>Header Files\Engine\Asset Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBoneData.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneInfo.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationChannelVectorKey.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationChannelQuaternionKey.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationChannel.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelNode.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Header Files\Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainSceneNode.h">
+      <Filter>Header Files\Engine\Scene Graph</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="blur.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="blur.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="hdr.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="hdr.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="picking.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="picking.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skinnedshader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skybox.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skybox.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="outlinesBox.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="outlinesBox.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="csm.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="csm.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="godrayOcclusion.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="godrayOcclusion.frag">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
