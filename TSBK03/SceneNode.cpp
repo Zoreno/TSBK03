@@ -71,7 +71,7 @@ glm::mat4 SceneNode::getLocalTransformationMatrix() const
 	glm::mat4 result{ 1.f };
 
 	result = glm::translate(result, _position);
-
+	
 	result = glm::rotate(result, glm::radians(_rotation.x), glm::vec3{ 1.f, 0.f, 0.f });
 	result = glm::rotate(result, glm::radians(_rotation.y), glm::vec3{ 0.f, 1.f, 0.f });
 	result = glm::rotate(result, glm::radians(_rotation.z), glm::vec3{ 0.f, 0.f, 1.f });
@@ -169,4 +169,32 @@ SceneNode * SceneNode::findNodeByID(unsigned int id) const
 	}
 
 	return nullptr;
+}
+
+void SceneNode::removeChild(
+	SceneNode *child)
+{
+	for(auto it = _children.begin(); it != _children.end(); ++it)
+	{
+		if(*it == child)
+		{
+			delete child;
+			it = _children.erase(it);
+
+			return;
+		}
+	}
+}
+
+void SceneNode::removeAllChilds()
+{
+	while (!_children.empty())
+	{
+		SceneNode *it = _children.back();
+
+		delete it;
+
+		_children.pop_back();
+
+	}
 }

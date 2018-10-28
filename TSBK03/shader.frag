@@ -52,6 +52,8 @@ in vec2 texCoords;
 in vec4 lightSpacePos[NUM_CASCADES * MAX_LIGHTS];
 in float clipSpaceZ;
 
+flat in float terrainHeight;
+
 //=============================================================================
 // Uniforms
 //=============================================================================
@@ -76,6 +78,8 @@ uniform bool useTexture = true;
 uniform float CSMEndClipSpace[NUM_CASCADES + 1];
 
 uniform sampler2DShadow shadowMap[NUM_CASCADES * MAX_LIGHTS];
+
+uniform bool terrain = false;
 
 //=============================================================================
 // Outputs
@@ -297,7 +301,7 @@ void main()
 		mat.specular = vec3(1.0, 1.0, 1.0);
 		mat.exponent = 64;
 	}
-	else
+	else if(!terrain)
 	{
 		objColor = color.xyz;
 
@@ -305,6 +309,53 @@ void main()
 
 		mat.exponent = 8;
 	}
+	else
+	{
+		objColor = color.xyz;
+
+		float height = terrainHeight;
+
+		if(height > -1 && height < 12)
+		{
+			mat.ambient = vec3(0.1, 0.1, 0.1);
+			mat.diffuse = vec3(0.93, 0.78, 0.68);
+			mat.specular = vec3(0.1, 0.1, 0.1);
+			mat.exponent = 4;
+		}
+		else if(height >= 12 && height < 30)
+		{
+			mat.ambient = vec3(0.1, 0.1, 0.1);
+			mat.diffuse = vec3(1.0, 166.0, 17.0)  / 256.0;
+			mat.specular = vec3(0.1, 0.1, 0.1);
+			mat.exponent = 4;
+		}
+		else if(height >= 30 && height < 40)
+		{
+			mat.ambient = vec3(0.1, 0.1, 0.1);
+			mat.diffuse = vec3(185.0, 195.0, 205.0) / 256.0;
+			mat.specular = vec3(0.1, 0.1, 0.1);
+			mat.exponent = 4;
+		}
+		else if(height >= 40 && height < 60)
+		{
+			mat.ambient = vec3(0.1, 0.1, 0.1);
+			mat.diffuse = vec3(1.0, 1.0, 1.0) * 1.2;
+			mat.specular = vec3(0.1, 0.1, 0.1);
+			mat.exponent = 4;
+		}
+		else
+		{
+			mat = material;
+		}
+	}
+
+	
+
+	vec3 norm = normalize(normal);
+	vec3 up = vec3(0.0, 1.0, 0.0);
+
+	// Snow
+	//mat.diffuse = mix(mat.diffuse, vec3(1.0, 1.0, 1.0), max(0.0, dot(norm, up)));
 
 	vec3 lightColor = calculateLight(mat);
 

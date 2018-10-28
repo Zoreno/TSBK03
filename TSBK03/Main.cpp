@@ -124,6 +124,29 @@ void char_callback(GLFWwindow *window, unsigned int c)
 
 void drawSceneNode(SceneNode *scene, AssetManager *assetManager)
 {
+	static int i = 0;
+	ImGui::PushID(scene->getID());
+	if (ImGui::Button("Add"))
+	{
+		scene->addChild(new StaticModelSceneNode("palm1", std::string{ "object" } + std::to_string(i++)));
+	}
+
+	SceneNode *parent = scene->getParent();
+
+	if (parent)
+	{
+		ImGui::SameLine();
+
+		if (ImGui::Button("Remove"))
+		{
+			parent->removeChild(scene);
+
+			ImGui::PopID();
+
+			return;
+		}
+	}
+
 	if (ImGui::TreeNode(scene->getTag().c_str()))
 	{
 		ImGui::Text("Name: %s", scene->getTag().c_str());
@@ -503,6 +526,8 @@ void drawSceneNode(SceneNode *scene, AssetManager *assetManager)
 
 		ImGui::TreePop();
 	}
+
+	ImGui::PopID();
 }
 
 void drawAssetList(AssetManager *assetManager)
@@ -689,10 +714,12 @@ int main()
 	assetManager.load<Model>("palm1", "Prop_Tree_Palm_1.obj");
 	//assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
 	//assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
-	assetManager.load<Model>("warrior", "model.dae");
+	Model *characterModel = assetManager.load<Model>("warrior", "model.dae");
+
+	characterModel->setCorrectionRotation(glm::vec3(-90.f, 0.f, -90.f));
 
 	std::vector<std::string> terrains;
-	terrains.push_back("fft-terrain.tga");
+	terrains.push_back("NvF5e.tga");
 
 	std::vector<glm::vec3> offsets;
 	offsets.push_back(glm::vec3{ 0.f, 0.f, 0.f });
@@ -730,6 +757,9 @@ int main()
 	Scene scene{ SceneNodeType::ROOT, "ROOT" };
 
 	TerrainSceneNode *terrainNode = new TerrainSceneNode("terrain", "terrain");
+	terrainNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
+	terrainNode->setRotation(glm::vec3{ 0.f, 0.f, 0.f });
+	terrainNode->setScale(glm::vec3{ 1.f, 1.f, 1.f });
 
 	scene.addChild(terrainNode);
 
@@ -740,14 +770,14 @@ int main()
 	sceneNode0->setScale(glm::vec3{ 1.f, 1.f, 1.f });
 	sceneNode0->setTexture("");
 
-	scene.addChild(sceneNode0);
+	//scene.addChild(sceneNode0);
 
-	StaticModelSceneNode *sceneNode1 = new StaticModelSceneNode{ "palm1", "Player" };
+	StaticModelSceneNode *sceneNode1 = new StaticModelSceneNode{ "warrior", "Player" };
 
 	sceneNode1->setPosition(glm::vec3{ 0.f, 1.f, 0.f });
 	sceneNode1->setRotation(glm::vec3{ 0.f, 0.f, 0.f });
 	sceneNode1->setScale(glm::vec3{ 0.3f, 0.3f, 0.3f });
-	sceneNode1->setTexture("");
+	sceneNode1->setTexture("char");
 	//sceneNode1->setCurrentAnimation(assetManager.fetch<Model>(sceneNode1->getModel())->getDefaultAnimation());
 
 	scene.addChild(sceneNode1);
@@ -783,13 +813,17 @@ int main()
 		float time = glfwGetTime();
 
 		directionalLight1->getDirectionalLight().setDirection(
-			3.f * glm::vec3{ glm::cos(time / 10.f), -0.5f - 0.5f * glm::cos(time / 20.f), glm::sin(time / 10.f) });
+			3.f * glm::vec3{ glm::cos(time / 10.f), 0 ? -0.5f - 0.5f * glm::cos(time / 20.f) : -1.f, glm::sin(time / 10.f) });
+
+#if 0
 
 		directionalLight1->getDirectionalLight().setDiffuse(
 			glm::vec3(
 				0.95f,
 				0.95f * (0.5f * glm::cos(time / 20.f) + 0.5f),
 				0.95f * (0.5f * glm::cos(time / 20.f) + 0.5f)));
+
+#endif
 
 		if (wireframe)
 		{
@@ -844,30 +878,7 @@ int main()
 
 			if (currentTab == 0)
 			{
-				if (ImGui::TreeNode("Model"))
-				{
-					if (ImGui::Checkbox("Wireframe", &wireframe))
-					{
-						if (wireframe)
-						{
-							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						}
-						else
-						{
-							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						}
-					}
-					ImGui::TreePop();
-				}
 
-				if (ImGui::TreeNode("Camera"))
-				{
-					ImGui::InputFloat3("Camera Position", glm::value_ptr(cameraPos));
-					ImGui::InputFloat3("Camera Target", glm::value_ptr(cameraCenter));
-					ImGui::InputFloat3("Camera Up", glm::value_ptr(cameraUp));
-
-					ImGui::TreePop();
-				}
 			}
 			else if (currentTab == 1)
 			{
@@ -963,7 +974,9 @@ int main()
 
 				ImGui::Separator();
 
-				ImGui::Text("Last Rendering Time [GPU]: %.3fms", renderer.getLastGPURenderTime());
+				float fps = 1000.f / renderer.getLastGPURenderTime();
+
+				ImGui::Text("Last Rendering Time [GPU]: %.3fms (%.0f FPS)", renderer.getLastGPURenderTime(), fps);
 
 				static float timeAccumulator = 0.f;
 				static float lastTime = glfwGetTime();
@@ -1007,7 +1020,7 @@ int main()
 
 				float godrayDensity = renderer.getGodrayDensity();
 				float godrayWeight = renderer.getGodrayWeight();
-				float godrayDecay =renderer.getGodrayDecay();
+				float godrayDecay = renderer.getGodrayDecay();
 				float godrayExposure = renderer.getGodrayExposure();
 				float godrayNumSamples = renderer.getGodrayNumSamples();
 
@@ -1096,14 +1109,15 @@ int main()
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 
-			if(rClick)
+			if (rClick)
 			{
 				lockFacing = true;
 			}
 		}
 
-		static float x = 0;
-		static float z = 0;
+		static float x = 179;
+		static float z = 168;
+		bool walking = false;
 		glm::vec3 delta = glm::vec3{ 0.f };
 		static float speed = 0.1f;
 		static float rotationSpeed = 0.05f;
@@ -1134,22 +1148,25 @@ int main()
 			{
 				delta.x -= glm::cos(facing);
 				delta.z += glm::sin(facing);
+				walking = true;
 			}
 			if (glfwGetKey(window, GLFW_KEY_S))
 			{
 				delta.x += glm::cos(facing);
 				delta.z -= glm::sin(facing);
+				walking = true;
 			}
 			if (glfwGetKey(window, GLFW_KEY_A))
 			{
 				if (!lockFacing)
 				{
-					facing += rotationSpeed;	
+					facing += rotationSpeed;
 				}
 				else
 				{
 					delta.x += glm::sin(facing);
 					delta.z += glm::cos(facing);
+					walking = true;
 				}
 			}
 			if (glfwGetKey(window, GLFW_KEY_D))
@@ -1162,6 +1179,7 @@ int main()
 				{
 					delta.x -= glm::sin(facing);
 					delta.z -= glm::cos(facing);
+					walking = true;
 				}
 			}
 		}
@@ -1181,12 +1199,21 @@ int main()
 
 		sceneNode1->setPosition(glm::vec3{ x, height, z });
 
-		if(lockFacing)
+		if (lockFacing)
 		{
 			facing = -phi;
 		}
 
 		sceneNode1->setRotation(glm::vec3{ 0.f, glm::degrees(facing), 1.f });
+
+		if (walking)
+		{
+			sceneNode1->setCurrentAnimation("anim0");
+		}
+		else
+		{
+			sceneNode1->setCurrentAnimation("idle");
+		}
 
 		glm::vec3 center = sceneNode1->getPosition() + glm::vec3{ 0.f, 2.f, 0.f };
 		glm::vec3 eye;
@@ -1194,6 +1221,13 @@ int main()
 		eye.x = center.x + radius * glm::cos(phi) * glm::cos(theta);
 		eye.y = center.y + radius * glm::sin(theta);
 		eye.z = center.z + radius * glm::sin(phi) * glm::cos(theta);
+
+		float heightAtCamera = assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(eye.x, eye.z);
+
+		if (eye.y <= heightAtCamera + 1.f)
+		{
+			eye.y = heightAtCamera + 1.f;
+		}
 
 		//glm::mat4 view = glm::lookAt(cameraPos, cameraCenter, cameraUp);
 		glm::mat4 view = glm::lookAt(eye, center, cameraUp);

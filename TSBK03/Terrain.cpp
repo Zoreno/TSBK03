@@ -10,82 +10,110 @@ TerrainChunk::TerrainChunk(
 	_offsetZ{ offsetZ },
 	_vao{},
 	_vertices(VertexBufferObjectTarget::ARRAY_BUFFER),
-	_normals(VertexBufferObjectTarget::ARRAY_BUFFER),
-	_indices(VertexBufferObjectTarget::ELEMENT_BUFFER)
+	_normals(VertexBufferObjectTarget::ARRAY_BUFFER)
 {
 	TGA file{ filePath.c_str() };
 
 	_width = file.getWidth();
 	_height = file.getHeight();
 
-	int vertexCount = _width * _height;
 	_triangleCount = (_width - 1) * (_height - 1) * 2;
 
 	_heights.resize(_width * _height);
 
 	int bpp = file.hasAlpha() ? 4 : 3;
 
-	GLfloat *vertexArray = static_cast<GLfloat *>(malloc(sizeof(GLfloat) * 3 * vertexCount));
-	GLfloat *normalArray = static_cast<GLfloat *>(malloc(sizeof(GLfloat) * 3 * vertexCount));
-	GLuint *indexArray = static_cast<GLuint *>(malloc(sizeof(GLuint) * 3 * _triangleCount));
+	GLfloat *vertexArray = static_cast<GLfloat *>(malloc(sizeof(GLfloat) * 3 * 3 * _triangleCount));
+	GLfloat *normalArray = static_cast<GLfloat *>(malloc(sizeof(GLfloat) * 3 * 3 * _triangleCount));
 
-	for (unsigned int x = 0; x < _width; ++x)
-	{
-		for (unsigned int z = 0; z < _height; ++z)
-		{
-			unsigned int vertexOffset = x + z * _width;
+	unsigned int offset = 0;
 
-			float height = static_cast<float>(file.getPixels().at(vertexOffset * bpp));
-
-			_heights[vertexOffset] = height / 10.f;
-
-			vertexArray[3 * vertexOffset + 0] = x;
-			vertexArray[3 * vertexOffset + 1] = height / 10.f;
-			vertexArray[3 * vertexOffset + 2] = z;
-
-			glm::vec3 normal{ 0.f, 1.f, 0.f };
-
-			// Last row don't need normals
-			if (z < _height - 1)
-			{
-				// Provoking vertex for the first triangle
-				if (vertexOffset % 2 == 0)
-				{
-					glm::vec3 ab = glm::normalize(getVector(x, z, x + 1, z, file));
-					glm::vec3 ac = glm::normalize(getVector(x, z, x + 1, z + 1, file));
-
-					normal = glm::cross(ab, ac);
-				}
-				else
-				{
-					glm::vec3 ab = glm::normalize(getVector(x + 1, z, x, z + 1, file));
-					glm::vec3 ac = glm::normalize(getVector(x + 1, z, x + 1, z + 1, file));
-
-					normal = glm::cross(ab, ac);
-				}
-			}
-			
-			normalArray[3 * vertexOffset + 0] = normal.x;
-			normalArray[3 * vertexOffset + 1] = normal.y;
-			normalArray[3 * vertexOffset + 2] = normal.z;
-		}
-	}
+	unsigned int last_x = 0;
 
 	for (unsigned int x = 0; x < _width - 1; ++x)
 	{
+		last_x = x;
+
 		for (unsigned int z = 0; z < _height - 1; ++z)
 		{
-			unsigned int indexOffset = (x + z * (_width - 1)) * 6;
+			float divisor = 5.f;
 
-			// Triangle 1
-			indexArray[indexOffset + 0] = x + z * _width;
-			indexArray[indexOffset + 1] = x + (z + 1) * _width;
-			indexArray[indexOffset + 2] = (x + 1) + z * _width;
+			glm::vec3 normal;
 
-			// Triangle 2
-			indexArray[indexOffset + 3] = (x + 1) + z * _width;
-			indexArray[indexOffset + 4] = x + (z + 1) * _width;
-			indexArray[indexOffset + 5] = (x + 1) + (z + 1) * _width;
+			unsigned int p0 = x + z * _width;
+			unsigned int p1 = (x + 1) + z * _width;
+			unsigned int p2 = x + (z + 1) * _width;
+			unsigned int p3 = (x + 1) + (z + 1) * _width;
+
+			// First Triangle P0-P1-P2
+
+			vertexArray[3 * 6 * offset + 0] = x;
+			vertexArray[3 * 6 * offset + 1] = static_cast<float>(file.getPixels().at(p0 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 2] = z;
+
+			vertexArray[3 * 6 * offset + 3] = x;
+			vertexArray[3 * 6 * offset + 4] = static_cast<float>(file.getPixels().at(p2 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 5] = z + 1;
+
+			vertexArray[3 * 6 * offset + 6] = x + 1;
+			vertexArray[3 * 6 * offset + 7] = static_cast<float>(file.getPixels().at(p1 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 8] = z;
+
+			glm::vec3 ab = glm::normalize(getVector(x, z, x + 1, z, file, divisor));
+			glm::vec3 ac = glm::normalize(getVector(x, z, x, z + 1, file, divisor));
+
+			normal = glm::cross(ac, ab);
+
+			normalArray[3 * 6 * offset + 0] = normal.x;
+			normalArray[3 * 6 * offset + 1] = normal.y;
+			normalArray[3 * 6 * offset + 2] = normal.z;
+
+			normalArray[3 * 6 * offset + 3] = normal.x;
+			normalArray[3 * 6 * offset + 4] = normal.y;
+			normalArray[3 * 6 * offset + 5] = normal.z;
+
+			normalArray[3 * 6 * offset + 6] = normal.x;
+			normalArray[3 * 6 * offset + 7] = normal.y;
+			normalArray[3 * 6 * offset + 8] = normal.z;
+
+			// Second Triangle P1-P2-P3
+
+			vertexArray[3 * 6 * offset + 9] = x + 1;
+			vertexArray[3 * 6 * offset + 10] = static_cast<float>(file.getPixels().at(p1 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 11] = z;
+
+			vertexArray[3 * 6 * offset + 12] = x;
+			vertexArray[3 * 6 * offset + 13] = static_cast<float>(file.getPixels().at(p2 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 14] = z + 1;
+
+			vertexArray[3 * 6 * offset + 15] = x + 1;
+			vertexArray[3 * 6 * offset + 16] = static_cast<float>(file.getPixels().at(p3 * bpp)) / divisor;
+			vertexArray[3 * 6 * offset + 17] = z + 1;
+
+
+			ab = glm::normalize(getVector(x + 1, z, x, z + 1, file, divisor));
+			ac = glm::normalize(getVector(x + 1, z, x + 1, z + 1, file, divisor));
+
+			normal = glm::cross(ab, ac);
+
+			normalArray[3 * 6 * offset + 9] = normal.x;
+			normalArray[3 * 6 * offset + 10] = normal.y;
+			normalArray[3 * 6 * offset + 11] = normal.z;
+
+			normalArray[3 * 6 * offset + 12] = normal.x;
+			normalArray[3 * 6 * offset + 13] = normal.y;
+			normalArray[3 * 6 * offset + 14] = normal.z;
+
+			normalArray[3 * 6 * offset + 15] = normal.x;
+			normalArray[3 * 6 * offset + 16] = normal.y;
+			normalArray[3 * 6 * offset + 17] = normal.z;
+
+			offset += 1;
+
+			_heights[p0] = static_cast<float>(file.getPixels().at(p0 * bpp)) / divisor;
+			_heights[p1] = static_cast<float>(file.getPixels().at(p1 * bpp)) / divisor;
+			_heights[p2] = static_cast<float>(file.getPixels().at(p2 * bpp)) / divisor;
+			_heights[p3] = static_cast<float>(file.getPixels().at(p3 * bpp)) / divisor;
 		}
 	}
 
@@ -93,7 +121,7 @@ TerrainChunk::TerrainChunk(
 
 	_vertices.bind();
 	_vertices.storeData(
-		vertexCount * sizeof(GLfloat) * 3,
+		_triangleCount * sizeof(GLfloat) * 3 * 3,
 		vertexArray,
 		VertexBufferObjectUsage::STATIC_DRAW);
 
@@ -101,20 +129,14 @@ TerrainChunk::TerrainChunk(
 
 	_normals.bind();
 	_normals.storeData(
-		vertexCount * sizeof(GLfloat) * 3,
+		_triangleCount * sizeof(GLfloat) * 3 * 3,
 		normalArray,
 		VertexBufferObjectUsage::STATIC_DRAW);
 
 	_normals.setupVertexAttribPointer(1, 3, 3 * sizeof(GLfloat), 0);
 
-	_indices.storeData(
-		_triangleCount * sizeof(unsigned int) * 3,
-		indexArray,
-		VertexBufferObjectUsage::STATIC_DRAW);
-
 	free(vertexArray);
 	free(normalArray);
-	free(indexArray);
 }
 
 TerrainChunk::~TerrainChunk()
@@ -127,17 +149,14 @@ void TerrainChunk::render() const
 	_vao.bind();
 	_vertices.bind();
 	_normals.bind();
-	_indices.bind();
 
-	glDrawElements(
+	glDrawArrays(
 		GL_TRIANGLES,
-		_triangleCount * 3,
-		GL_UNSIGNED_INT,
-		nullptr);
+		0,
+		_triangleCount * 3);
 
 	_vertices.unbind();
 	_normals.unbind();
-	_indices.unbind();
 
 	VertexArrayObject::unbind();
 }
@@ -185,7 +204,7 @@ float TerrainChunk::getSizeX() const
 	return static_cast<float>(_width);
 }
 
-float TerrainChunk::getSizeZ() const 
+float TerrainChunk::getSizeZ() const
 {
 	return static_cast<float>(_height);
 }
@@ -212,10 +231,11 @@ glm::vec3 TerrainChunk::getVector(
 	int z1,
 	int x2,
 	int z2,
-	const TGA &tex)
+	const TGA &tex,
+	float divisor)
 {
-	float y1 = tex.getPixels()[(x1 + z1 * tex.getWidth()) * tex.hasAlpha() ? 4 : 3] / 10.f;
-	float y2 = tex.getPixels()[(x2 + z2 * tex.getWidth()) * tex.hasAlpha() ? 4 : 3] / 10.f;
+	float y1 = tex.getPixels()[(x1 + z1 * tex.getWidth()) * (tex.hasAlpha() ? 4 : 3)] / divisor;
+	float y2 = tex.getPixels()[(x2 + z2 * tex.getWidth()) * (tex.hasAlpha() ? 4 : 3)] / divisor;
 
 	glm::vec3 vec;
 
@@ -230,7 +250,7 @@ Terrain::Terrain(
 	const std::vector<std::string> &chunkPaths,
 	const std::vector<glm::vec3> &offsets)
 {
-	for(unsigned int i = 0; i < chunkPaths.size(); ++i)
+	for (unsigned int i = 0; i < chunkPaths.size(); ++i)
 	{
 		_chunks.push_back(new TerrainChunk{ chunkPaths[i], offsets[i].x, offsets[i].z });
 	}
@@ -238,7 +258,7 @@ Terrain::Terrain(
 
 Terrain::~Terrain()
 {
-	for(auto it : _chunks)
+	for (auto it : _chunks)
 	{
 		delete it;
 	}
@@ -250,12 +270,12 @@ float Terrain::getHeight(
 {
 	float maxHeight = 0;
 
-	for(auto it : _chunks)
+	for (auto it : _chunks)
 	{
 		float x1 = x - it->getOffsetX();
 		float z1 = z - it->getOffsetZ();
 
-		if(x1 > 0 && x1 < it->getSizeX() &&
+		if (x1 > 0 && x1 < it->getSizeX() &&
 			z1 > 0 && z1 < it->getSizeZ())
 		{
 			maxHeight = glm::max(maxHeight, it->getHeight(x1, z1));

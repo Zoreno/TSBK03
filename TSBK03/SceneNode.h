@@ -36,7 +36,7 @@ public:
 	void setScale(const glm::vec3& newScale);
 
 	glm::mat4 getLocalTransformationMatrix() const;
-	glm::mat4 getTransformationMatrix() const;
+	virtual glm::mat4 getTransformationMatrix() const;
 
 	SceneNode *getParent() const;
 	void setParent(SceneNode *newParent);
@@ -55,6 +55,9 @@ public:
 	unsigned int getID() const;
 
 	SceneNode *findNodeByID(unsigned int id) const;
+
+	void removeChild(SceneNode *child);
+	void removeAllChilds();
 protected:
 
 	SceneNodeType _type{ SceneNodeType::INVALID };
@@ -66,7 +69,7 @@ protected:
 	glm::vec3 _position{ 0.f, 0.f, 0.f };
 
 	// TODO: Change rotation representation to Quaternions
-	glm::vec3 _rotation{ 1.f, 0.f, 0.f };
+	glm::vec3 _rotation{ 0.f, 0.f, 0.f };
 
 	glm::vec3 _scale{ 1.f, 1.f, 1.f };
 

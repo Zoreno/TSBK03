@@ -43,6 +43,8 @@ out vec2 texCoords;
 out vec4 lightSpacePos[NUM_CASCADES * MAX_LIGHTS];
 out float clipSpaceZ;
 
+flat out float terrainHeight;
+
 //=============================================================================
 // Variables
 //=============================================================================
@@ -83,6 +85,9 @@ void main()
 
 	// Calculate the object's Z position in the clip space.
 	clipSpaceZ = gl_Position.z;
+
+	// Output the terrain height
+	terrainHeight = fragPos.y;
 }
 
 //=============================================================================

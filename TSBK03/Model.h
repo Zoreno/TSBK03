@@ -46,10 +46,17 @@ public:
 	int getVertexCount() const;
 	int getIndicesCount() const;
 
+	glm::vec3 getCorrectionRotation() const;
+	void setCorrectionRotation(const glm::vec3& newRotation);
+
+	glm::mat4 getCorrectionTransform() const;
+
 	const std::string& getDefaultAnimation() const;
 
 	const std::vector<Mesh *>& getMeshes() const;
 private:
+
+	glm::vec3 _correctionRotation{ 0.f, 0.f, 0.f };
 	
 	void loadModel(const std::string& fileName);
 

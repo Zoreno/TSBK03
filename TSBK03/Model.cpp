@@ -120,6 +120,28 @@ int Model::getIndicesCount() const
 	return i;
 }
 
+glm::vec3 Model::getCorrectionRotation() const
+{
+	return _correctionRotation;
+}
+
+void Model::setCorrectionRotation(
+	const glm::vec3 &newRotation)
+{
+	_correctionRotation = newRotation;
+}
+
+glm::mat4 Model::getCorrectionTransform() const
+{
+	glm::mat4 result;
+
+	result = glm::rotate(result, glm::radians(_correctionRotation.x), glm::vec3{ 1.f, 0.f, 0.f });
+	result = glm::rotate(result, glm::radians(_correctionRotation.y), glm::vec3{ 0.f, 1.f, 0.f });
+	result = glm::rotate(result, glm::radians(_correctionRotation.z), glm::vec3{ 0.f, 0.f, 1.f });
+
+	return result;
+}
+
 const std::string & Model::getDefaultAnimation() const
 {
 	return _animationMapping.begin()->first;

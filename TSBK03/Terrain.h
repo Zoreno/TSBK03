@@ -38,7 +38,6 @@ private:
 	VertexArrayObject _vao;
 	VertexBufferObject _vertices;
 	VertexBufferObject _normals;
-	VertexBufferObject _indices;
 
 	std::vector<float> _heights;
 
@@ -46,7 +45,13 @@ private:
 
 	float getGridHeight(int x, int z) const;
 
-	glm::vec3 getVector(int x1, int z1, int x2, int z2, const TGA& tex);
+	glm::vec3 getVector(
+		int x1,
+		int z1,
+		int x2,
+		int z2,
+		const TGA &tex,
+		float divisor);
 };
 
 class Terrain

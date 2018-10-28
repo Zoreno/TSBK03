@@ -1225,9 +1225,13 @@ void Renderer::renderScene(
 	{
 		const TerrainSceneNode *terrainNode = reinterpret_cast<const TerrainSceneNode *>(node);
 
-		if(pass == 0)
+		if (pass == 0)
 		{
 			renderTerrain(terrainNode);
+		}
+		else if (pass == 2)
+		{
+			renderTerrainCSM(terrainNode);
 		}
 	}
 
@@ -1257,7 +1261,7 @@ void Renderer::renderStaticModel(
 
 		if (modelNode->getCurrentAnimation() == "idle")
 		{
-			time = 0;
+			time = 1.52;
 		}
 
 		model->getBoneTransforms(time, transforms, modelNode->getCurrentAnimation());
@@ -1269,7 +1273,7 @@ void Renderer::renderStaticModel(
 		_shader.use();
 	}
 
-	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix();
+	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
 	for (unsigned int i = 0; i < _pointLights.size(); ++i)
 	{
@@ -1288,25 +1292,6 @@ void Renderer::renderStaticModel(
 		currentShader->uploadUniform("directionalLight[" + std::to_string(i) + "].diffuse", _directionalLights.at(i).first.getDiffuse());
 		currentShader->uploadUniform("directionalLight[" + std::to_string(i) + "].specular", _directionalLights.at(i).first.getSpecular());
 		currentShader->uploadUniform("directionalLight[" + std::to_string(i) + "].direction", _directionalLights.at(i).first.getDirection());
-
-		glm::mat4 lightView;
-
-		float dot = glm::dot(glm::normalize(_directionalLights[i].first.getDirection()), glm::vec3{ 0.f, 1.f, 0.f });
-
-		if (glm::abs(dot) > 0.995f)
-		{
-			lightView = glm::lookAt(
-				glm::vec3{ 0.f, 0.f, 0.f },
-				_directionalLights[i].first.getDirection(),
-				glm::vec3{ 0.f, 0.f, 1.f });
-		}
-		else
-		{
-			lightView = glm::lookAt(
-				glm::vec3{ 0.f, 0.f, 0.f },
-				_directionalLights[i].first.getDirection(),
-				glm::vec3{ 0.f, 1.f, 0.f });
-		}
 
 		for (unsigned int j = 0; j < NUM_CASCADES; ++j)
 		{
@@ -1334,7 +1319,7 @@ void Renderer::renderStaticModel(
 	currentShader->uploadUniform("celThresholds", _celThresholds);
 	currentShader->uploadUniform("color", _color);
 
-	currentShader->uploadUniform("model", modelNode->getTransformationMatrix());
+	currentShader->uploadUniform("model", modelNode->getTransformationMatrix() * model->getCorrectionTransform());
 	currentShader->uploadUniform("mvp", mvp);
 	currentShader->uploadUniform("texUnit", 0);
 
@@ -1369,6 +1354,8 @@ void Renderer::renderStaticModel(
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	_shader.uploadUniform("terrain", false);
+
 	for (unsigned int i = 0; i < model->getMeshes().size(); ++i)
 	{
 		unsigned int materialIndex = model->getMeshes().at(i)->getMaterialIndex();
@@ -1395,7 +1382,7 @@ void Renderer::renderStaticModel(
 	transform = glm::translate(transform, center);
 	transform = glm::scale(transform, size);
 
-	glm::mat4 modelToWorld = modelNode->getTransformationMatrix();
+	glm::mat4 modelToWorld = modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
 	_outlinesBoxShader.use();
 
@@ -1417,7 +1404,7 @@ void Renderer::renderStaticModelPicking(
 
 	const Model *model = _assetManager->fetch<Model>(modelTag);
 
-	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix();
+	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
 	_pickingShader.use();
 
@@ -1445,7 +1432,7 @@ void Renderer::renderStaticModelCSM(
 	glm::mat4 mvp =
 		_orthoProjections[_currentCascade] *
 		_lightViewMatrices[_currentCascade] *
-		modelNode->getTransformationMatrix();
+		modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
 	_csmShader.use();
 
@@ -1466,7 +1453,7 @@ void Renderer::renderStaticModelGodrayOcclusion(
 
 	const Model *model = _assetManager->fetch<Model>(modelTag);
 
-	const glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix();
+	const glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
 	_godrayOcclusionShader.use();
 
@@ -1528,14 +1515,108 @@ void Renderer::renderTerrain(
 
 	_shader.use();
 
-	for(auto it : terrain->getChunks())
+	for (auto it : terrain->getChunks())
 	{
 		glm::mat4 chunkOffset = glm::translate(glm::mat4{ 1.f }, glm::vec3{ it->getOffsetX(), 0.f, it->getOffsetZ() });
 
+		for (unsigned int i = 0; i < _pointLights.size(); ++i)
+		{
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].constant", _pointLights.at(i).first.getConstant());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].linear", _pointLights.at(i).first.getLinear());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].quadratic", _pointLights.at(i).first.getQuadratic());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].ambient", _pointLights.at(i).first.getAmbient());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].diffuse", _pointLights.at(i).first.getDiffuse());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].specular", _pointLights.at(i).first.getSpecular());
+			_shader.uploadUniform("pointLight[" + std::to_string(i) + "].position", _pointLights.at(i).second);
+		}
+
+		for (unsigned int i = 0; i < _directionalLights.size(); ++i)
+		{
+			_shader.uploadUniform("directionalLight[" + std::to_string(i) + "].ambient", _directionalLights.at(i).first.getAmbient());
+			_shader.uploadUniform("directionalLight[" + std::to_string(i) + "].diffuse", _directionalLights.at(i).first.getDiffuse());
+			_shader.uploadUniform("directionalLight[" + std::to_string(i) + "].specular", _directionalLights.at(i).first.getSpecular());
+			_shader.uploadUniform("directionalLight[" + std::to_string(i) + "].direction", _directionalLights.at(i).first.getDirection());
+
+			for (unsigned int j = 0; j < NUM_CASCADES; ++j)
+			{
+				glm::mat4 lightMVP = _orthoProjections[i * NUM_CASCADES + j] * _lightViewMatrices[i * NUM_CASCADES + j] * modelMatrix * chunkOffset;
+
+				_shader.uploadUniform("lightMVP[" + std::to_string(i * NUM_CASCADES + j) + "]", lightMVP);
+			}
+		}
+
+		const unsigned int CSMIndexStart = 4;
+
+		for (unsigned int i = 0; i < NUM_CASCADES * MAX_LIGHTS; ++i)
+		{
+			_shader.uploadUniform("shadowMap[" + std::to_string(i) + "]",
+				static_cast<int>(CSMIndexStart + i));
+
+			glActiveTexture(GL_TEXTURE0 + CSMIndexStart + i);
+			glBindTexture(GL_TEXTURE_2D, _csmTextures[i]);
+		}
+
+		_shader.uploadUniform("numPointLights", static_cast<int>(_pointLights.size()));
+		_shader.uploadUniform("numDirectionalLights", static_cast<int>(_directionalLights.size()));
+		_shader.uploadUniform("viewPos", _cameraPosition);
+		_shader.uploadUniform("celThresholds", _celThresholds);
+		_shader.uploadUniform("color", _color);
+
 		_shader.uploadUniform("mvp", mvp * chunkOffset);
+		_shader.uploadUniform("model", modelMatrix * chunkOffset);
+
+		for (unsigned int i = 0; i < NUM_CASCADES; ++i)
+		{
+			glm::vec4 cascadeEndVec{ 0.f, 0.f, _cascadeEnds[i + 1], 1.f };
+
+			glm::vec4 vClip = _projection * cascadeEndVec;
+
+			_shader.uploadUniform("CSMEndClipSpace[" + std::to_string(i) + "]", vClip.z);
+		}
+
+		_shader.uploadUniform("useTexture", 0);
+
+		Material material;
+
+		material.ambientColor = glm::vec3{ 0.2f, 0.2f, 0.2f };
+		material.diffuseColor = glm::vec3{ 0.3f, 0.8f, 0.3f };
+		material.specularColor = glm::vec3{ 0.f, 0.f, 0.f };
+		material.exponent = 4;
+
+		_shader.uploadUniform("material.ambient", material.ambientColor);
+		_shader.uploadUniform("material.diffuse", material.diffuseColor);
+		_shader.uploadUniform("material.specular", material.specularColor);
+		_shader.uploadUniform("material.exponent", material.exponent);
+
+		_shader.uploadUniform("terrain", true);
 
 		it->render();
 	}
 
 	GLSLShader::use(0);
+}
+
+void Renderer::renderTerrainCSM(
+	const TerrainSceneNode *terrainNode)
+{
+	glViewport(0, 0, _shadowSize, _shadowSize);
+
+	Terrain *terrain = _assetManager->fetch<Terrain>(terrainNode->getTerrain());
+
+	_csmShader.use();
+
+	for (auto it : terrain->getChunks())
+	{
+		glm::mat4 chunkOffset = glm::translate(glm::mat4{ 1.f }, glm::vec3{ it->getOffsetX(), 0.f, it->getOffsetZ() });
+
+		glm::mat4 mvp =
+			_orthoProjections[_currentCascade] *
+			_lightViewMatrices[_currentCascade] *
+			terrainNode->getTransformationMatrix() *
+			chunkOffset;
+
+		_csmShader.uploadUniform("mvp", mvp);
+
+		it->render();
+	}
 }
