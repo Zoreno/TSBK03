@@ -355,8 +355,8 @@ void main()
 	vec3 up = vec3(0.0, 1.0, 0.0);
 
 	// Snow
-	// mat.ambient = mix(mat.ambient, vec3(1.0, 1.0, 1.0), smoothstep(0.0, 0.2, max(0.0, dot(norm, up))));
-	// mat.diffuse = mix(mat.diffuse, vec3(1.0, 1.0, 1.0), smoothstep(0.0, 0.2, max(0.0, dot(norm, up))));
+	//mat.ambient = mix(mat.ambient, vec3(1.0, 1.0, 1.0), smoothstep(0.0, 0.2, max(0.0, dot(norm, up))));
+	//mat.diffuse = mix(mat.diffuse, vec3(1.0, 1.0, 1.0), smoothstep(0.0, 0.2, max(0.0, dot(norm, up))));
 
 	vec3 lightColor = calculateLight(mat);
 

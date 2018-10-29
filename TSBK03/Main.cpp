@@ -38,7 +38,6 @@
  *  - Window Manager
  *
  * Window abstraction
- * Terrain
  * Collision/Intersection
  * Sound managing
  * UI
@@ -62,7 +61,7 @@
 
 float FOV = 70.f;
 float nearPlane = 0.1f;
-float farPlane = 1000.f;
+float farPlane = 200.f;
 
 unsigned int windowWidth = 1280;
 unsigned int windowHeight = 768;
@@ -72,7 +71,7 @@ glm::vec3 cameraPos{ -4.f, 0.f, -4.f };
 glm::vec3 cameraCenter{ 0.f, 0.f, -2.f };
 glm::vec3 cameraUp{ 0.f, 1.f, 0.f };
 
-bool debugWindowActive = true;
+bool debugWindowActive = false;
 int currentTab = 0;
 
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
@@ -137,7 +136,7 @@ void drawSceneNode(SceneNode *scene, AssetManager *assetManager)
 	ImGui::PushID(scene->getID());
 	if (ImGui::Button("Add"))
 	{
-		scene->addChild(new StaticModelSceneNode("palm1", std::string{ "object" } + std::to_string(i++)));
+		scene->addChild(new StaticModelSceneNode("palm1", std::string{ "object" } +std::to_string(i++)));
 	}
 
 	SceneNode *parent = scene->getParent();
@@ -722,6 +721,8 @@ int main()
 	//Model *charModel = assetManager.load<Model>("char", "model.dae");
 	//assetManager.load<Model>("sylvanas", "sylvanas_obj.obj");
 	assetManager.load<Model>("palm1", "Prop_Tree_Palm_1.obj");
+	assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
+	assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
 	//assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
 	//assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
 	Model *characterModel = assetManager.load<Model>("warrior", "model.dae");
@@ -734,7 +735,7 @@ int main()
 	std::vector<glm::vec3> offsets;
 	offsets.push_back(glm::vec3{ 0.f, 0.f, 0.f });
 
-	assetManager.load<Terrain>("terrain", terrains, offsets);
+	Terrain *terrain = assetManager.load<Terrain>("terrain", terrains, offsets);
 
 	assetManager.load<Texture2D>("grass", "grass.tga");
 	assetManager.load<Texture2D>("char", "diffuse.tga");
@@ -748,12 +749,12 @@ int main()
 		"stormydays_lf.tga");
 
 	assetManager.load<TextureCubeMap>("skyboxTexture1",
-		"midnight-silence_ft.tga",
-		"midnight-silence_bk.tga",
-		"midnight-silence_dn.tga",
-		"midnight-silence_up.tga",
-		"midnight-silence_rt.tga",
-		"midnight-silence_lf.tga");
+		"purplenebula_ft.tga",
+		"purplenebula_bk.tga",
+		"purplenebula_dn.tga",
+		"purplenebula_up.tga",
+		"purplenebula_rt.tga",
+		"purplenebula_lf.tga");
 
 	glm::mat4 proj = glm::perspective(
 		glm::radians(FOV),
@@ -816,6 +817,47 @@ int main()
 
 	scene.addChild(directionalLight1);
 
+	RandomGenerator<MersenneDevice > randomGenerator{ static_cast<uint32_t>(time(NULL)) };
+
+	for (int i = 0; i < 100; ++i)
+	{
+		while (1)
+		{
+			float x = randomGenerator.randFloatRange(0.f, 512.f);
+			float z = randomGenerator.randFloatRange(0.f, 512.f);
+			float y = terrain->getHeight(x, z);
+
+			if (y >= 12 && y < 22)
+			{
+				float rotation = randomGenerator.randFloatRange(0.f, 360.f);
+
+				int tree = randomGenerator.randUint32Range(0, 2);
+
+				std::string treeStr;
+
+				switch(tree)
+				{
+				case 0:
+					treeStr = "palm1";
+					break;
+				case 1:
+					treeStr = "palm2";
+					break;
+				default:
+					treeStr = "palm3";
+					break;
+				}
+
+				SceneNode *node = new StaticModelSceneNode(treeStr, std::string{ "tree" } +std::to_string(i));
+				node->setPosition(glm::vec3{ x, y, z });
+				node->setRotation(glm::vec3{ 0.f, rotation, 0.f });
+
+				scene.addChild(node);
+				break;
+			}
+		}
+	}
+
 	while (!glfwWindowShouldClose(window))
 	{
 		static bool wireframe = false;
@@ -844,7 +886,7 @@ int main()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
-		if(frameBufferSizeChanged)
+		if (frameBufferSizeChanged)
 		{
 			if (windowWidth > 0 && windowHeight > 0)
 			{
@@ -868,6 +910,35 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		static bool portraitShown = true;
+
+		if (portraitShown)
+		{
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+			ImGui::SetNextWindowPos(ImVec2(20, 20));
+			ImGui::Begin("Portrait", &portraitShown, ImVec2(200.f, 140.f), 0.9f,
+			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+
+			ImGui::Text("%s", "Kalle Storfiskare");
+			ImGui::Text("Level %i", 60);
+			ImGui::Text("%s %s", "Human", "Fisherman");
+
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(1.f, 0.f, 0.f, 1.f));
+			ImGui::ProgressBar(1.f);
+			ImGui::PopStyleColor();
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.f, 1.f, 1.f));
+			ImGui::ProgressBar(0.5f);
+			ImGui::PopStyleColor();
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(200.f/256.f, 255.f/256.f, 121.f/256.f, 1.f));
+			ImGui::ProgressBar(0.5f);
+			ImGui::PopStyleColor();
+
+			ImGui::End();
+
+			//ImGui::PopStyleVar();
+		}
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -876,7 +947,7 @@ int main()
 		{
 			ImGui::Begin("Debug", &debugWindowActive, ImGuiWindowFlags_MenuBar);
 
-			if (ImGui::Button("General"))
+			if (ImGui::Button("OpenGL Info"))
 			{
 				currentTab = 0;
 			}
@@ -890,7 +961,7 @@ int main()
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("SceneGraph"))
+			if (ImGui::Button("Scene Graph"))
 			{
 				currentTab = 2;
 			}
@@ -906,7 +977,38 @@ int main()
 
 			if (currentTab == 0)
 			{
+				int majorVersion;
+				int minorVersion;
 
+				glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+				glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+
+
+
+				const char *str;
+
+				if (majorVersion >= 3)
+				{
+					str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+
+					ImGui::Text("OpenGL Version: %i.%i (%s)", majorVersion, minorVersion, str);
+				}
+				else
+				{
+					ImGui::Text("OpenGL Version: %i.%i", majorVersion, minorVersion);
+				}
+
+				str = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+
+				ImGui::Text("Vendor: %s", str);
+
+				str = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+
+				ImGui::Text("Renderer: %s", str);
+
+				str = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+				ImGui::Text("GLSL Version: %s", str);
 			}
 			else if (currentTab == 1)
 			{
@@ -1107,11 +1209,11 @@ int main()
 
 		glfwGetCursorPos(window, &currentMousePosX, &currentMousePosY);
 
+		bool lClick = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
+		bool rClick = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+
 		if (!ImGui::GetIO().WantCaptureMouse)
 		{
-			bool lClick = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
-			bool rClick = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-
 			if (lClick || rClick)
 			{
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -1143,13 +1245,13 @@ int main()
 			}
 		}
 
-		static float x = 179;
-		static float z = 168;
+		static float x = 210;
+		static float z = 215;
 		static float y = 0;
 		static float y_vel = 0;
 		bool walking = false;
 		glm::vec3 delta = glm::vec3{ 0.f };
-		static float speed = 0.02f;
+		static float speed = 0.3f;
 		static bool touchingGround = true;
 		static float rotationSpeed = 0.05f;
 
@@ -1175,7 +1277,7 @@ int main()
 					radius = 50.f;
 				}
 			}
-			if (glfwGetKey(window, GLFW_KEY_W))
+			if (glfwGetKey(window, GLFW_KEY_W) || (lClick && rClick))
 			{
 				delta.x -= glm::cos(facing);
 				delta.z += glm::sin(facing);
@@ -1217,7 +1319,7 @@ int main()
 			{
 				if (touchingGround)
 				{
-					y_vel = 0.2f;
+					y_vel = 0.11f;
 				}
 				touchingGround = false;
 			}
@@ -1244,9 +1346,9 @@ int main()
 			y = height;
 			touchingGround = true;
 		}
-		else if(!touchingGround || lastHeight > height)
+		else if (!touchingGround || lastHeight > height)
 		{
-			y_vel -= 9.82f / (60.f * 10.f);
+			y_vel -= 9.82f / (60.f * 20.f);
 			y += y_vel;
 		}
 
@@ -1259,7 +1361,7 @@ int main()
 			facing = -phi;
 		}
 
-		sceneNode1->setRotation(glm::vec3{ 0.f, glm::degrees(facing), 1.f });
+		sceneNode1->setRotation(glm::vec3{ 0.f, glm::degrees(facing), 0.f });
 
 		if (walking)
 		{
@@ -1288,7 +1390,7 @@ int main()
 
 		int objectID = static_cast<int>(info.objectID);
 
-		if(objectID == sceneNode1->getID())
+		if (objectID == sceneNode1->getID())
 		{
 			sceneNode1->setOutline(true);
 		}

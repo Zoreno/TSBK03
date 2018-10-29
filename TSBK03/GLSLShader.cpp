@@ -10,6 +10,9 @@
 #include "GLSLVertexShader.h"
 #include "GLSLFragmentShader.h"
 #include <iostream>
+#include "GLSLGeometryShader.h"
+#include "GLSLTessEvalShader.h"
+#include "GLSLTessControlShader.h"
 
 GLSLShader::GLSLShader()
 {
@@ -65,6 +68,9 @@ void GLSLShader::compile()
 
 	GLSLVertexShader vertexShader{ _vertexShaderSource };
 	GLSLFragmentShader fragmentShader{ _fragmentShaderSource };
+	GLSLGeometryShader geometryShader{ _geometryShaderSource };
+	GLSLTessEvalShader tessEvalShader{ _tessellationEvaluationSource };
+	GLSLTessControlShader tessControlShader{ _tessellationControlSource };
 
 	if (!_vertexShaderSource.empty())
 	{
@@ -88,6 +94,42 @@ void GLSLShader::compile()
 		}
 
 		glAttachShader(_programId, fragmentShader.getHandle());
+	}
+
+	if (!_geometryShaderSource.empty())
+	{
+		int success = geometryShader.compile();
+
+		if (!success)
+		{
+			throw GLSLShaderCompilationException{ std::string{ "[SHADER][" + _geometryShaderSource + "] Geometry Shader Compilation Error: " } +geometryShader.getInfoLog() };
+		}
+
+		glAttachShader(_programId, geometryShader.getHandle());
+	}
+
+	if (!_tessellationEvaluationSource.empty())
+	{
+		int success = tessEvalShader.compile();
+
+		if (!success)
+		{
+			throw GLSLShaderCompilationException{ std::string{ "[SHADER][" + _tessellationEvaluationSource + "] Fragment Shader Compilation Error: " } +tessEvalShader.getInfoLog() };
+		}
+
+		glAttachShader(_programId, tessEvalShader.getHandle());
+	}
+
+	if (!_tessellationControlSource.empty())
+	{
+		int success = tessControlShader.compile();
+
+		if (!success)
+		{
+			throw GLSLShaderCompilationException{ std::string{ "[SHADER][" + _tessellationControlSource + "] Fragment Shader Compilation Error: " } +tessControlShader.getInfoLog() };
+		}
+
+		glAttachShader(_programId, tessControlShader.getHandle());
 	}
 
 	glLinkProgram(_programId);

@@ -155,6 +155,7 @@ private:
 	GLSLShader _outlinesBoxShader{};
 	GLSLShader _csmShader{};
 	GLSLShader _godrayOcclusionShader{};
+	GLSLShader _waterShader{};
 
 	glm::mat4 _cameraTransform{};
 
@@ -214,7 +215,7 @@ private:
 	// easier when we have a 8 GB GTX1080 card :)
 	GLuint _csmFBO[MAX_LIGHTS];
 
-	unsigned int _shadowSize{ 1024 };
+	unsigned int _shadowSize{ 4096 };
 	GLuint _csmTextures[MAX_LIGHTS * NUM_CASCADES];
 	glm::mat4 _orthoProjections[NUM_CASCADES * MAX_LIGHTS];
 	glm::mat4 _lightViewMatrices[NUM_CASCADES * MAX_LIGHTS];

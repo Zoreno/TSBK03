@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <string>
 
 using GLSLFragmentShaderHandle = unsigned int;

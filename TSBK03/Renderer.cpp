@@ -16,6 +16,8 @@ static GLfloat quadVertices[] = {
 	-1.0f, 1.0f, 0.0f,		0.0f, 1.0f,
 	-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
 	1.0f, 1.0f, 0.0f,		1.0f, 1.0f,
+	1.0f, 1.0f, 0.0f,		1.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
 	1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
 };
 
@@ -82,6 +84,11 @@ Renderer::Renderer(
 	_godrayOcclusionShader.setVertexShaderSource("godrayOcclusion.vert");
 	_godrayOcclusionShader.setFragmentShaderSource("godrayOcclusion.frag");
 
+	_waterShader.setVertexShaderSource("water.vert");
+	_waterShader.setFragmentShaderSource("water.frag");
+	_waterShader.setTessellationControlSource("water.tctl");
+	_waterShader.setTessellationEvaluationSource("water.tevl");
+
 	try
 	{
 		_shader.compile();
@@ -93,6 +100,7 @@ Renderer::Renderer(
 		_outlinesBoxShader.compile();
 		_csmShader.compile();
 		_godrayOcclusionShader.compile();
+		_waterShader.compile();
 	}
 	catch (const GLSLShaderCompilationException& ex)
 	{
@@ -244,7 +252,7 @@ Renderer::Renderer(
 	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
 	_cascadeEnds[1] = -25.0f;
 	_cascadeEnds[2] = -90.0f;
-	_cascadeEnds[3] = -1000.f; // This must be equal to zFar
+	_cascadeEnds[3] = -200.f; // This must be equal to zFar
 
 	for (unsigned int i = 0; i < NUM_CASCADES * MAX_LIGHTS; ++i)
 	{
@@ -312,6 +320,11 @@ Renderer::Renderer(
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	constructWindowSizeDependentObjects();
+
+	GLint MaxPatchVertices = 0;
+	glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
+	printf("Max supported patch vertices %d\n", MaxPatchVertices);
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
 }
 
 Renderer::~Renderer()
@@ -663,11 +676,11 @@ void Renderer::render(
 	unsigned long long int startTime;
 	unsigned long long int stopTime;
 
-	glQueryCounter(_queryID[0], GL_TIMESTAMP);
-
 	// Extract Lights
 	_pointLights.clear();
 	_directionalLights.clear();
+
+	glQueryCounter(_queryID[0], GL_TIMESTAMP);
 
 	// TODO: This should only be done when the scene has changed.
 	extractLights(scene);
@@ -690,6 +703,7 @@ void Renderer::render(
 	doScreenRenderPass();
 
 	// Timing stuff
+
 	glQueryCounter(_queryID[1], GL_TIMESTAMP);
 
 	int stopTimerAvailable = 0;
@@ -1048,6 +1062,56 @@ void Renderer::doColorRenderingPass(
 
 	renderScene(scene, 0);
 
+
+
+	_waterShader.use();
+	_waterShader.uploadUniform("vp", _projection * _cameraTransform);
+	_waterShader.uploadUniform("cameraPos", _cameraPosition);
+
+	std::vector<glm::mat4> models;
+
+	for(unsigned int i = 0; i < 10; ++i)
+	{
+		for (unsigned int j = 0; j < 10; ++j)
+		{
+			glm::mat4 modelMatrix{ 1.f };
+			//modelMatrix = glm::translate(modelMatrix, glm::vec3{512.f, 10.f, 512.f });
+			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 25.f+50.f*i, 10.f, 25.f+50.f*j });
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.f), glm::vec3{ 1.f, 0.f, 0.f });
+			modelMatrix = glm::scale(modelMatrix, glm::vec3{ 50.f, 50.f, 50.f });
+
+			models.push_back(modelMatrix);
+		}
+	}
+
+	float time = glfwGetTime();
+
+	_waterShader.uploadUniform("time", time);
+
+	for(unsigned int i = 0; i < _directionalLights.size(); ++i)
+	{
+		_waterShader.uploadUniform(std::string{ "lightDir[" } +std::to_string(i) + std::string{"]"}, _directionalLights.at(i).first.getDirection());
+	}
+
+	_waterShader.uploadUniform("numDirectionalLights", static_cast<int>(_directionalLights.size()));
+
+	_waterShader.uploadUniformArray("models", 100, models);
+
+	if (false)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	glBindVertexArray(_quadVAO);
+	glDrawArraysInstanced(GL_PATCHES, 0, 6, 100);
+	glBindVertexArray(0);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -1104,7 +1168,7 @@ void Renderer::doBloomBlurRenderingPass()
 
 		// Bind and draw the screen quad
 		glBindVertexArray(_quadVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 
 		horizontal = !horizontal;
@@ -1195,7 +1259,7 @@ void Renderer::doScreenRenderPass()
 
 	// Render the image on screen.
 	glBindVertexArray(_quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 }
 

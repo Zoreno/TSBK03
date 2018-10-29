@@ -23,7 +23,10 @@
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
     <ClCompile Include="GLSLFragmentShader.cpp" />
+    <ClCompile Include="GLSLGeometryShader.cpp" />
     <ClCompile Include="GLSLShader.cpp" />
+    <ClCompile Include="GLSLTessControlShader.cpp" />
+    <ClCompile Include="GLSLTessEvalShader.cpp" />
     <ClCompile Include="GLSLVertexShader.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
@@ -42,6 +45,7 @@
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="StaticModelSceneNode.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainChunk.cpp" />
     <ClCompile Include="TerrainSceneNode.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TGA.cpp" />
@@ -66,9 +70,12 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
     <ClInclude Include="GLSLFragmentShader.h" />
+    <ClInclude Include="GLSLGeometryShader.h" />
     <ClInclude Include="GLSLShader.h" />
     <ClInclude Include="GLSLShaderCompilationException.h" />
     <ClInclude Include="GLSLShaderMethodNotImplementedException.h" />
+    <ClInclude Include="GLSLTessControlShader.h" />
+    <ClInclude Include="GLSLTessEvalShader.h" />
     <ClInclude Include="GLSLVertexShader.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
@@ -95,6 +102,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StaticModelSceneNode.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainChunk.h" />
     <ClInclude Include="TerrainSceneNode.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureFile.h" />
@@ -123,6 +131,10 @@
     <None Include="skinnedshader.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
+    <None Include="water.frag" />
+    <None Include="water.tctl" />
+    <None Include="water.tevl" />
+    <None Include="water.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{545B2EA5-A6F1-4093-BD34-9AB13452EB28}</ProjectGuid>

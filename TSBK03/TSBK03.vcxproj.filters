@@ -210,6 +210,18 @@
     <ClCompile Include="TerrainSceneNode.cpp">
       <Filter>Source Files\Engine\SceneGraph</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainChunk.cpp">
+      <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLGeometryShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLTessEvalShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLTessControlShader.cpp">
+      <Filter>Source Files\Engine\GLSLShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -368,6 +380,18 @@
     <ClInclude Include="TerrainSceneNode.h">
       <Filter>Header Files\Engine\Scene Graph</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainChunk.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLGeometryShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLTessEvalShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSLTessControlShader.h">
+      <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.frag">
@@ -419,6 +443,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="godrayOcclusion.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="water.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="water.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="water.tctl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="water.tevl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
