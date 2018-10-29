@@ -19,6 +19,9 @@ public:
 
 	std::string getCurrentAnimation() const;
 	void setCurrentAnimation(const std::string& newAnimation);
+
+	bool getOutline() const;
+	void setOutline(bool newOutline);
 private:
 
 	std::string _model;
@@ -26,4 +29,6 @@ private:
 	std::string _texture;
 
 	std::string _currentAnimation;
+
+	bool _outline;
 };

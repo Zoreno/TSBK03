@@ -3,9 +3,11 @@
 StaticModelSceneNode::StaticModelSceneNode(
 	const std::string &model,
 	const std::string &tag)
-	:SceneNode(SceneNodeType::STATIC_MODEL, tag), _model{ model }
+	:SceneNode(SceneNodeType::STATIC_MODEL, tag),
+	_model{ model },
+	_outline{ false }
 {
-	
+
 }
 
 const std::string & StaticModelSceneNode::getModel() const
@@ -39,4 +41,15 @@ void StaticModelSceneNode::setCurrentAnimation(
 	const std::string &newAnimation)
 {
 	_currentAnimation = newAnimation;
+}
+
+bool StaticModelSceneNode::getOutline() const
+{
+	return _outline;
+}
+
+void StaticModelSceneNode::setOutline(
+	bool newOutline)
+{
+	_outline = newOutline;
 }

@@ -64,8 +64,9 @@ float FOV = 70.f;
 float nearPlane = 0.1f;
 float farPlane = 1000.f;
 
-unsigned int width = 1280;
-unsigned int height = 768;
+unsigned int windowWidth = 1280;
+unsigned int windowHeight = 768;
+bool frameBufferSizeChanged = false;
 
 glm::vec3 cameraPos{ -4.f, 0.f, -4.f };
 glm::vec3 cameraCenter{ 0.f, 0.f, -2.f };
@@ -120,6 +121,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void char_callback(GLFWwindow *window, unsigned int c)
 {
 	ImGui_ImplGlfw_CharCallback(window, c);
+}
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+	frameBufferSizeChanged = true;
+
+	windowWidth = width;
+	windowHeight = height;
 }
 
 void drawSceneNode(SceneNode *scene, AssetManager *assetManager)
@@ -686,6 +695,7 @@ int main()
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCharCallback(window, char_callback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	/*
 	* IMGUI initailization
@@ -747,12 +757,12 @@ int main()
 
 	glm::mat4 proj = glm::perspective(
 		glm::radians(FOV),
-		static_cast<float>(width) / static_cast<float>(height),
+		static_cast<float>(windowWidth) / static_cast<float>(windowHeight),
 		nearPlane,
 		farPlane);
 
 
-	Renderer renderer{ static_cast<int>(width), static_cast<int>(height), &assetManager , proj };
+	Renderer renderer{ static_cast<int>(windowWidth), static_cast<int>(windowHeight), &assetManager , proj };
 
 	Scene scene{ SceneNodeType::ROOT, "ROOT" };
 
@@ -776,7 +786,7 @@ int main()
 
 	sceneNode1->setPosition(glm::vec3{ 0.f, 1.f, 0.f });
 	sceneNode1->setRotation(glm::vec3{ 0.f, 0.f, 0.f });
-	sceneNode1->setScale(glm::vec3{ 0.3f, 0.3f, 0.3f });
+	sceneNode1->setScale(glm::vec3{ 0.1f, 0.1f, 0.1f });
 	sceneNode1->setTexture("char");
 	//sceneNode1->setCurrentAnimation(assetManager.fetch<Model>(sceneNode1->getModel())->getDefaultAnimation());
 
@@ -832,6 +842,24 @@ int main()
 		else
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+
+		if(frameBufferSizeChanged)
+		{
+			if (windowWidth > 0 && windowHeight > 0)
+			{
+				glm::mat4 proj = glm::perspective(
+					glm::radians(FOV),
+					static_cast<float>(windowWidth) / static_cast<float>(windowHeight),
+					nearPlane,
+					farPlane);
+
+				renderer.setProjection(proj);
+
+				renderer.changeResolution(windowWidth, windowHeight);
+			}
+
+			frameBufferSizeChanged = false;
 		}
 
 		glfwPollEvents();
@@ -965,7 +993,7 @@ int main()
 
 				glfwGetCursorPos(window, &xpos, &ypos);
 
-				RendererPickingInfo info = renderer.getPickingInfo(static_cast<int>(xpos), static_cast<int>(height - ypos));
+				RendererPickingInfo info = renderer.getPickingInfo(static_cast<int>(xpos), static_cast<int>(windowHeight - ypos));
 
 				int objectID = static_cast<int>(info.objectID);
 
@@ -1117,9 +1145,12 @@ int main()
 
 		static float x = 179;
 		static float z = 168;
+		static float y = 0;
+		static float y_vel = 0;
 		bool walking = false;
 		glm::vec3 delta = glm::vec3{ 0.f };
-		static float speed = 0.1f;
+		static float speed = 0.02f;
+		static bool touchingGround = true;
 		static float rotationSpeed = 0.05f;
 
 		static float facing = 0;
@@ -1128,16 +1159,16 @@ int main()
 		{
 			if (glfwGetKey(window, GLFW_KEY_E))
 			{
-				radius -= 0.5f;
+				radius -= 0.2f;
 
-				if (radius < 3.f)
+				if (radius < 1.f)
 				{
-					radius = 3.f;
+					radius = 1.f;
 				}
 			}
 			if (glfwGetKey(window, GLFW_KEY_Q))
 			{
-				radius += 0.5f;
+				radius += 0.2f;
 
 				if (radius > 50.f)
 				{
@@ -1182,6 +1213,14 @@ int main()
 					walking = true;
 				}
 			}
+			if (glfwGetKey(window, GLFW_KEY_SPACE))
+			{
+				if (touchingGround)
+				{
+					y_vel = 0.2f;
+				}
+				touchingGround = false;
+			}
 		}
 
 		oldX = static_cast<float>(currentMousePosX);
@@ -1195,9 +1234,25 @@ int main()
 			z += delta.z;
 		}
 
+		static float lastHeight;
+
 		float height = assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(x, z);
 
-		sceneNode1->setPosition(glm::vec3{ x, height, z });
+		if (y < height)
+		{
+			y_vel = 0;
+			y = height;
+			touchingGround = true;
+		}
+		else if(!touchingGround || lastHeight > height)
+		{
+			y_vel -= 9.82f / (60.f * 10.f);
+			y += y_vel;
+		}
+
+		lastHeight = height;
+
+		sceneNode1->setPosition(glm::vec3{ x, y, z });
 
 		if (lockFacing)
 		{
@@ -1215,7 +1270,7 @@ int main()
 			sceneNode1->setCurrentAnimation("idle");
 		}
 
-		glm::vec3 center = sceneNode1->getPosition() + glm::vec3{ 0.f, 2.f, 0.f };
+		glm::vec3 center = sceneNode1->getPosition() + glm::vec3{ 0.f, 1.f, 0.f };
 		glm::vec3 eye;
 
 		eye.x = center.x + radius * glm::cos(phi) * glm::cos(theta);
@@ -1223,6 +1278,24 @@ int main()
 		eye.z = center.z + radius * glm::sin(phi) * glm::cos(theta);
 
 		float heightAtCamera = assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(eye.x, eye.z);
+
+		double xpos;
+		double ypos;
+
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		RendererPickingInfo info = renderer.getPickingInfo(static_cast<int>(xpos), static_cast<int>(windowHeight - ypos));
+
+		int objectID = static_cast<int>(info.objectID);
+
+		if(objectID == sceneNode1->getID())
+		{
+			sceneNode1->setOutline(true);
+		}
+		else
+		{
+			sceneNode1->setOutline(false);
+		}
 
 		if (eye.y <= heightAtCamera + 1.f)
 		{

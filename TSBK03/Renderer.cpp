@@ -179,6 +179,150 @@ Renderer::Renderer(
 	glBindVertexArray(0);
 
 	//=========================================================================
+	// Setup the Cascaded Shadow Map framebuffers and textures
+	//=========================================================================
+
+	// TODO: This may be optimized in many ways:
+	// 
+	// * Use Texture2DArrays instead and use a geometry shader to depermine
+	//   which layer is used.
+
+	glGenFramebuffers(MAX_LIGHTS, _csmFBO);
+
+	// This is a lot of video memory
+	glGenTextures(MAX_LIGHTS * NUM_CASCADES, _csmTextures);
+
+	for (unsigned int i = 0; i < MAX_LIGHTS; ++i)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _csmFBO[i]);
+
+		for (unsigned int j = 0; j < NUM_CASCADES; ++j)
+		{
+			glBindTexture(GL_TEXTURE_2D, _csmTextures[i * NUM_CASCADES + j]);
+
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_DEPTH_COMPONENT32,
+				_shadowSize,
+				_shadowSize,
+				0,
+				GL_DEPTH_COMPONENT,
+				GL_FLOAT,
+				nullptr);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+		}
+
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER,
+			GL_DEPTH_ATTACHMENT,
+			GL_TEXTURE_2D,
+			_csmTextures[NUM_CASCADES * i],
+			0);
+
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cerr << "CSM Framebuffer not complete!" << std::endl;
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	}
+
+	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
+	_cascadeEnds[1] = -25.0f;
+	_cascadeEnds[2] = -90.0f;
+	_cascadeEnds[3] = -1000.f; // This must be equal to zFar
+
+	for (unsigned int i = 0; i < NUM_CASCADES * MAX_LIGHTS; ++i)
+	{
+		_orthoProjections[i] = glm::mat4{ 1.f };
+	}
+
+	//=========================================================================
+	// Setup the Godray Occlusion
+	//=========================================================================
+
+	glGenFramebuffers(1, &_godrayFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, _godrayFBO);
+
+	glGenTextures(1, &_godrayTexture);
+
+	glBindTexture(GL_TEXTURE_2D, _godrayTexture);
+
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		_godrayOcclusionSize,
+		_godrayOcclusionSize,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_INT,
+		nullptr);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture2D(
+		GL_FRAMEBUFFER,
+		GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D,
+		_godrayTexture,
+		0);
+
+	glGenRenderbuffers(1, &_godrayDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, _godrayDepth);
+
+	glRenderbufferStorage(
+		GL_RENDERBUFFER,
+		GL_DEPTH_COMPONENT,
+		_godrayOcclusionSize,
+		_godrayOcclusionSize);
+
+	glFramebufferRenderbuffer(
+		GL_FRAMEBUFFER,
+		GL_DEPTH_ATTACHMENT,
+		GL_RENDERBUFFER,
+		_godrayDepth);
+
+	glReadBuffer(GL_NONE);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cerr << "Godray Framebuffer not complete!" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	constructWindowSizeDependentObjects();
+}
+
+Renderer::~Renderer()
+{
+	// TODO: Remove all the framebuffers
+	destroyWindowSizeDependentObjects();
+}
+
+void Renderer::constructWindowSizeDependentObjects()
+{
+	//=========================================================================
 	// Setup HDR Framebuffer
 	//=========================================================================
 
@@ -224,8 +368,8 @@ Renderer::Renderer(
 	glRenderbufferStorage(
 		GL_RENDERBUFFER,
 		GL_DEPTH_COMPONENT,
-		windowWidth,
-		windowHeight);
+		_windowWidth,
+		_windowHeight);
 
 	glFramebufferRenderbuffer(
 		GL_FRAMEBUFFER,
@@ -352,159 +496,20 @@ Renderer::Renderer(
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//=========================================================================
-	// Setup the Cascaded Shadow Map framebuffers and textures
-	//=========================================================================
-
-	// TODO: This may be optimized in many ways:
-	// 
-	// * Use Texture2DArrays instead and use a geometry shader to depermine
-	//   which layer is used.
-	// * Use the built in OpenGL Hardware support for shadow mapping
-	//   https://pubweb.eng.utah.edu/~cs5610/lectures/ShadowMapping%20OpenGL%202009.pdf
-	// 
-	// Both of these will dramatically increase the performance of the shadow
-	// calculations
-
-	glGenFramebuffers(MAX_LIGHTS, _csmFBO);
-
-	// This is a lot of video memory
-	glGenTextures(MAX_LIGHTS * NUM_CASCADES, _csmTextures);
-
-	for (unsigned int i = 0; i < MAX_LIGHTS; ++i)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, _csmFBO[i]);
-
-		for (unsigned int j = 0; j < NUM_CASCADES; ++j)
-		{
-			glBindTexture(GL_TEXTURE_2D, _csmTextures[i * NUM_CASCADES + j]);
-
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_DEPTH_COMPONENT32,
-				_shadowSize,
-				_shadowSize,
-				0,
-				GL_DEPTH_COMPONENT,
-				GL_FLOAT,
-				nullptr);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-
-		}
-
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER,
-			GL_DEPTH_ATTACHMENT,
-			GL_TEXTURE_2D,
-			_csmTextures[NUM_CASCADES * i],
-			0);
-
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cerr << "CSM Framebuffer not complete!" << std::endl;
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	}
-
-#if NUM_CASCADES == 3
-	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
-	_cascadeEnds[1] = -25.0f;
-	_cascadeEnds[2] = -90.0f;
-	_cascadeEnds[3] = -1000.f; // This must be equal to zFar
-
-#elif NUM_CASCADES == 2
-	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
-	_cascadeEnds[1] = -25.0f;
-	_cascadeEnds[2] = -100.f; // This must be equal to zFar
-#else
-	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
-	_cascadeEnds[1] = -100.f; // This must be equal to zFar
-#endif
-
-	for (unsigned int i = 0; i < NUM_CASCADES * MAX_LIGHTS; ++i)
-	{
-		_orthoProjections[i] = glm::mat4{ 1.f };
-	}
-
-	//=========================================================================
-	// Setup the Godray Occlusion
-	//=========================================================================
-
-	glGenFramebuffers(1, &_godrayFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, _godrayFBO);
-
-	glGenTextures(1, &_godrayTexture);
-
-	glBindTexture(GL_TEXTURE_2D, _godrayTexture);
-
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		_godrayOcclusionSize,
-		_godrayOcclusionSize,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_INT,
-		nullptr);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture2D(
-		GL_FRAMEBUFFER,
-		GL_COLOR_ATTACHMENT0,
-		GL_TEXTURE_2D,
-		_godrayTexture,
-		0);
-
-	glGenRenderbuffers(1, &_godrayDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, _godrayDepth);
-
-	glRenderbufferStorage(
-		GL_RENDERBUFFER,
-		GL_DEPTH_COMPONENT,
-		_godrayOcclusionSize,
-		_godrayOcclusionSize);
-
-	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER,
-		GL_DEPTH_ATTACHMENT,
-		GL_RENDERBUFFER,
-		_godrayDepth);
-
-	glReadBuffer(GL_NONE);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::cerr << "Godray Framebuffer not complete!" << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Renderer::~Renderer()
+void Renderer::destroyWindowSizeDependentObjects()
 {
-	// TODO: Remove all the framebuffers
+	glDeleteFramebuffers(1, &_hdrFBO);
+	glDeleteTextures(2, _colorBuffers);
+	glDeleteRenderbuffers(1, &_rboDepth);
+
+	glDeleteFramebuffers(2, _pingpongFBO);
+	glDeleteTextures(2, _pingpongColorbuffers);
+
+	glDeleteFramebuffers(1, &_pickingFBO);
+	glDeleteTextures(1, &_pickingTexture);
+
 }
 
 void Renderer::calculateOrthoProjections(int lightIndex)
@@ -672,11 +677,11 @@ void Renderer::render(
 
 	// Do Render Pass
 
+	doPickingRenderPass(scene);
+
 	doGodrayOcclusionRenderingPass(scene);
 
 	doCSMShadowPass(scene);
-
-	doPickingRenderPass(scene);
 
 	doColorRenderingPass(scene);
 
@@ -700,8 +705,6 @@ void Renderer::render(
 	glGetQueryObjectui64v(_queryID[1], GL_QUERY_RESULT, &stopTime);
 
 	_lastRenderTime = (stopTime - startTime) / 1000000.f;
-
-	//std::cout << "Rendering Frame time: " << _lastRenderTime << "ms" << std::endl;
 }
 
 void Renderer::setCameraTransform(
@@ -737,7 +740,12 @@ void Renderer::changeResolution(
 	int newWidth,
 	int newHeight)
 {
-	// TODO: 
+	destroyWindowSizeDependentObjects();
+
+	_windowWidth = newWidth;
+	_windowHeight = newHeight;
+
+	constructWindowSizeDependentObjects();
 }
 
 int Renderer::getWindowWidth() const
@@ -1053,7 +1061,11 @@ void Renderer::doPickingRenderPass(
 
 	glViewport(0, 0, _windowWidth, _windowHeight);
 
+	glDisable(GL_BLEND);
+
 	renderScene(scene, 1);
+
+	glEnable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -1229,6 +1241,10 @@ void Renderer::renderScene(
 		{
 			renderTerrain(terrainNode);
 		}
+		else if (pass == 1)
+		{
+			renderTerrainPicking(terrainNode);
+		}
 		else if (pass == 2)
 		{
 			renderTerrainCSM(terrainNode);
@@ -1371,6 +1387,13 @@ void Renderer::renderStaticModel(
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	GLSLShader::use(0);
+
+	if(!modelNode->getOutline())
+	{
+		return;
+	}
 
 	// Render outline box.
 
@@ -1619,4 +1642,29 @@ void Renderer::renderTerrainCSM(
 
 		it->render();
 	}
+}
+
+void Renderer::renderTerrainPicking(
+	const TerrainSceneNode *modelNode)
+{
+	std::string terrainTag = modelNode->getTerrain();
+
+	const Terrain *terrain = _assetManager->fetch<Terrain>(terrainTag);
+
+	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix();
+
+	_pickingShader.use();
+
+	_pickingShader.uploadUniform("mvp", mvp);
+	_pickingShader.uploadUniform("objectIndex", static_cast<int>(modelNode->getID()));
+
+	unsigned int index = 0;
+
+	for (auto it : terrain->getChunks())
+	{
+		_pickingShader.uploadUniform("drawIndex", static_cast<int>(index++));
+		it->render();
+	}
+
+	GLSLShader::use(0);
 }

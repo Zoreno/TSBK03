@@ -82,6 +82,7 @@ public:
 		const std::string &name,
 		unsigned int count,
 		const std::vector<TYPE> &value);
+
 private:
 	std::string _vertexShaderSource{};
 	std::string _tessellationControlSource{};

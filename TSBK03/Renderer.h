@@ -28,6 +28,9 @@ public:
 
 	~Renderer();
 
+	void constructWindowSizeDependentObjects();
+	void destroyWindowSizeDependentObjects();
+
 	void render(Scene *scene);
 
 	void setCameraTransform(const glm::mat4& cameraTransform);
@@ -126,6 +129,9 @@ private:
 
 	void renderTerrainCSM(
 		const TerrainSceneNode * terrainNode);
+
+	void renderTerrainPicking(
+		const TerrainSceneNode *modelNode);
 
 	void renderScene(
 		const SceneNode *node,
