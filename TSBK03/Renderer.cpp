@@ -692,13 +692,19 @@ void Renderer::render(
 
 	doPickingRenderPass(scene);
 
-	doGodrayOcclusionRenderingPass(scene);
+	if (_enableGodrays)
+	{
+		doGodrayOcclusionRenderingPass(scene);
+	}
 
 	doCSMShadowPass(scene);
 
 	doColorRenderingPass(scene);
 
-	doBloomBlurRenderingPass();
+	if (_bloom)
+	{
+		doBloomBlurRenderingPass();
+	}
 
 	doScreenRenderPass();
 
@@ -969,6 +975,17 @@ void Renderer::setGodrayNumSamples(
 	_godrayNumSamples = newNumSamples;
 }
 
+bool Renderer::getEnableGodrays() const
+{
+	return _enableGodrays;
+}
+
+void Renderer::setEnableGodrays(
+	bool newEnableGodrays)
+{
+	_enableGodrays = newEnableGodrays;
+}
+
 void Renderer::extractLights(
 	const SceneNode *node)
 {
@@ -1070,15 +1087,15 @@ void Renderer::doColorRenderingPass(
 
 	std::vector<glm::mat4> models;
 
-	for(unsigned int i = 0; i < 10; ++i)
+	for (unsigned int i = 0; i < 10; ++i)
 	{
 		for (unsigned int j = 0; j < 10; ++j)
 		{
 			glm::mat4 modelMatrix{ 1.f };
 			//modelMatrix = glm::translate(modelMatrix, glm::vec3{512.f, 10.f, 512.f });
-			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 25.f+50.f*i, 10.f, 25.f+50.f*j });
+			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 25.f + 50.f*i, 5.f, 25.f + 50.f*j });
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.f), glm::vec3{ 1.f, 0.f, 0.f });
-			modelMatrix = glm::scale(modelMatrix, glm::vec3{ 50.f, 50.f, 50.f });
+			modelMatrix = glm::scale(modelMatrix, glm::vec3{ 25.f, 25.f, 25.f });
 
 			models.push_back(modelMatrix);
 		}
@@ -1088,9 +1105,9 @@ void Renderer::doColorRenderingPass(
 
 	_waterShader.uploadUniform("time", time);
 
-	for(unsigned int i = 0; i < _directionalLights.size(); ++i)
+	for (unsigned int i = 0; i < _directionalLights.size(); ++i)
 	{
-		_waterShader.uploadUniform(std::string{ "lightDir[" } +std::to_string(i) + std::string{"]"}, _directionalLights.at(i).first.getDirection());
+		_waterShader.uploadUniform(std::string{ "lightDir[" } +std::to_string(i) + std::string{ "]" }, _directionalLights.at(i).first.getDirection());
 	}
 
 	_waterShader.uploadUniform("numDirectionalLights", static_cast<int>(_directionalLights.size()));
@@ -1217,6 +1234,7 @@ void Renderer::doScreenRenderPass()
 	_hdrShader.uploadUniform("minReduce", _minReduce);
 	_hdrShader.uploadUniform("maxSpan", _maxSpan);
 
+	_hdrShader.uploadUniform("enableGodrays", _enableGodrays);
 	_hdrShader.uploadUniform("godrayDensity", _godrayDensity);
 	_hdrShader.uploadUniform("godrayWeight", _godrayWeight);
 	_hdrShader.uploadUniform("godrayDecay", _godrayDecay);
@@ -1454,7 +1472,7 @@ void Renderer::renderStaticModel(
 
 	GLSLShader::use(0);
 
-	if(!modelNode->getOutline())
+	if (!modelNode->getOutline())
 	{
 		return;
 	}
@@ -1677,7 +1695,13 @@ void Renderer::renderTerrain(
 
 		_shader.uploadUniform("terrain", true);
 
-		it->render();
+		//Frustum frustum{ _cameraTransform * _projection};
+		//Frustum frustum{ _projection*glm::transpose(_cameraTransform) };
+		Frustum frustum{ _projection*_cameraTransform };
+		//Frustum frustum{ glm::mat4{1.f} };
+
+		//it->render();
+		it->render(frustum);
 	}
 
 	GLSLShader::use(0);
@@ -1692,6 +1716,8 @@ void Renderer::renderTerrainCSM(
 
 	_csmShader.use();
 
+	Frustum frustum{ _projection * _cameraTransform };
+
 	for (auto it : terrain->getChunks())
 	{
 		glm::mat4 chunkOffset = glm::translate(glm::mat4{ 1.f }, glm::vec3{ it->getOffsetX(), 0.f, it->getOffsetZ() });
@@ -1704,7 +1730,7 @@ void Renderer::renderTerrainCSM(
 
 		_csmShader.uploadUniform("mvp", mvp);
 
-		it->render();
+		it->render(frustum);
 	}
 }
 
@@ -1724,10 +1750,13 @@ void Renderer::renderTerrainPicking(
 
 	unsigned int index = 0;
 
+	Frustum frustum{ _projection * _cameraTransform };
+
 	for (auto it : terrain->getChunks())
 	{
 		_pickingShader.uploadUniform("drawIndex", static_cast<int>(index++));
-		it->render();
+
+		it->render(frustum);
 	}
 
 	GLSLShader::use(0);

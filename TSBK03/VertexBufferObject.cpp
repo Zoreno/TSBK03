@@ -73,6 +73,16 @@ void VertexBufferObject::storeData(
 	unbind();
 }
 
+void VertexBufferObject::storeSubData(
+	unsigned int offset,
+	unsigned int size,
+	const void *data)
+{
+	bind();
+	glBufferSubData(_targetGL, offset, size, data);
+	unbind();
+}
+
 void VertexBufferObject::setupVertexAttribPointer(
 	GLuint location,
 	unsigned int elementSize,

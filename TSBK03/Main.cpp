@@ -817,11 +817,12 @@ int main()
 
 	scene.addChild(directionalLight1);
 
-	RandomGenerator<MersenneDevice > randomGenerator{ static_cast<uint32_t>(time(NULL)) };
+	RandomGenerator<MersenneDevice> randomGenerator{ static_cast<uint32_t>(time(NULL)) };
 
 	for (int i = 0; i < 100; ++i)
 	{
-		while (1)
+		int tries = 0;
+		while (tries++ < 10)
 		{
 			float x = randomGenerator.randFloatRange(0.f, 512.f);
 			float z = randomGenerator.randFloatRange(0.f, 512.f);
@@ -1153,6 +1154,13 @@ int main()
 				float godrayDecay = renderer.getGodrayDecay();
 				float godrayExposure = renderer.getGodrayExposure();
 				float godrayNumSamples = renderer.getGodrayNumSamples();
+
+				bool enableGodrays = renderer.getEnableGodrays();
+
+				if(ImGui::Checkbox("Enable Godrays", &enableGodrays))
+				{
+					renderer.setEnableGodrays(enableGodrays);
+				}
 
 				if (ImGui::InputFloat("Godray Density", &godrayDensity))
 				{

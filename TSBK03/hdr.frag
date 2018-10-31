@@ -21,6 +21,7 @@ uniform float mulReduce = 1.0/8.0;
 uniform float minReduce = 1.0/128.0;
 uniform float maxSpan = 8.0;
 
+uniform bool enableGodrays;
 uniform sampler2D godrayTexture;
 uniform float godrayDensity;
 uniform float godrayWeight;
@@ -62,8 +63,8 @@ vec3 FXAASampleTexture(vec2 texCoords)
 	if(bloom)
 		c += texture(bloomBuffer, texCoords).rgb;
 	
-
-	c += calculateLightScattering(ivec2(0, 0));
+	if(enableGodrays)
+		c += calculateLightScattering(ivec2(0, 0));
 //=============================================================================
 // Simple Tone Mapping
 //=============================================================================
@@ -87,8 +88,9 @@ vec3 FXAASampleTextureOffset(vec2 texCoords, ivec2 offset)
 
 	if(bloom)
 		c += textureOffset(bloomBuffer, texCoords, offset).rgb;
-
-	c += calculateLightScattering(offset);
+	
+	if(enableGodrays)
+		c += calculateLightScattering(offset);
 //=============================================================================
 // Simple Tone Mapping
 //=============================================================================

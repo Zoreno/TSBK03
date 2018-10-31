@@ -151,6 +151,12 @@ public:
 	*/
 	explicit TGA(const char* filePath);
 
+	TGA(const TGA& other) = delete;
+	TGA(TGA&& other) = delete;
+
+	TGA& operator=(const TGA& other) = delete;
+	TGA& operator=(TGA&& other) = delete;
+
 	/**
 	* @brief Gets the pixels in the file.
 	* @return Vector containing pixel data.

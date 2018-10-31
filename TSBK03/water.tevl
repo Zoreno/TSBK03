@@ -25,8 +25,8 @@ void main()
 {
 	fragPos_es = interpolate3D(fragPos_cs[0], fragPos_cs[1], fragPos_cs[2]);
 
-	float ampX = 0.1;
-	float ampZ = 0.1;
+	float ampX = 0.2;
+	float ampZ = 0.2;
 
 	float waveSpeedX = 1.0;
 	float waveSpeedZ = 0.5;

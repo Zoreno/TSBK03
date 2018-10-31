@@ -98,6 +98,9 @@ public:
 	void setGodrayDecay(float newDecay);
 	void setGodrayExposure(float newExposure);
 	void setGodrayNumSamples(float newNumSamples);
+
+	bool getEnableGodrays() const;
+	void setEnableGodrays(bool newEnableGodrays);
 private:
 
 	void extractLights(
@@ -227,6 +230,7 @@ private:
 	void doCSMShadowPass(
 		Scene * scene);
 
+	bool _enableGodrays{true};
 	unsigned int _godrayOcclusionSize{ 1024 };
 	GLuint _godrayFBO{ 0 };
 	GLuint _godrayTexture{ 0 };

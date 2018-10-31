@@ -34,6 +34,11 @@ public:
 		const void *data,
 		VertexBufferObjectUsage usage);
 
+	void storeSubData(
+		unsigned int offset,
+		unsigned int size,
+		const void *data);
+
 	void setupVertexAttribPointer(
 		GLuint location,
 		unsigned int elementSize,

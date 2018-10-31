@@ -222,6 +222,15 @@
     <ClCompile Include="GLSLTessControlShader.cpp">
       <Filter>Source Files\Engine\GLSLShader</Filter>
     </ClCompile>
+    <ClCompile Include="HilbertCurve.cpp">
+      <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -391,6 +400,18 @@
     </ClInclude>
     <ClInclude Include="GLSLTessControlShader.h">
       <Filter>Header Files\Engine\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="HilbertCurve.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Header Files\Engine\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
