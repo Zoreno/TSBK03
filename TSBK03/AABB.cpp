@@ -20,6 +20,23 @@ glm::vec3 AABB::getMaxPoint() const
 	return glm::vec3{ maxX, maxY, maxZ };
 }
 
+std::vector<glm::vec3> AABB::getPoints() const
+{
+	std::vector<glm::vec3> ret;
+
+	ret.push_back(glm::vec3{ minX, minY, minZ });
+	ret.push_back(glm::vec3{ minX, minY, maxZ });
+	ret.push_back(glm::vec3{ minX, maxY, minZ });
+	ret.push_back(glm::vec3{ minX, maxY, maxZ });
+
+	ret.push_back(glm::vec3{ maxX, minY, minZ });
+	ret.push_back(glm::vec3{ maxX, minY, maxZ });
+	ret.push_back(glm::vec3{ maxX, maxY, minZ });
+	ret.push_back(glm::vec3{ maxX, maxY, maxZ });
+
+	return ret;
+}
+
 AABB AABB::transform(
 	const glm::mat4 &matrix) const
 {
@@ -55,6 +72,9 @@ bool AABB::intersects(
 	const AABB &other,
 	AABB *crossSection) const
 {
+	// Check for each side if the minimum of one box is larger than the
+	// maximum of the other. Same logic for all sides. In this case the
+	// boxes do not intersect.
 	if (this->minX > other.maxX || this->maxX < other.minX ||
 		this->minY > other.maxY || this->maxY < other.minY ||
 		this->minZ > other.maxZ || this->maxZ < other.minZ)
@@ -62,6 +82,7 @@ bool AABB::intersects(
 		return false;
 	}
 
+	// If the caller has requested the cross-section of the boxes
 	if(crossSection != nullptr)
 	{
 		crossSection->minX = glm::max(this->minX, other.minX);

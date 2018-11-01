@@ -121,6 +121,8 @@
     <ClInclude Include="VertexBufferObject.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AssetManager.inl" />
+    <None Include="AssetPool.inl" />
     <None Include="blur.frag" />
     <None Include="blur.vert" />
     <None Include="csm.frag" />

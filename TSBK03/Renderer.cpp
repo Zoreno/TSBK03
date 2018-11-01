@@ -1093,7 +1093,7 @@ void Renderer::doColorRenderingPass(
 		{
 			glm::mat4 modelMatrix{ 1.f };
 			//modelMatrix = glm::translate(modelMatrix, glm::vec3{512.f, 10.f, 512.f });
-			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 25.f + 50.f*i, 5.f, 25.f + 50.f*j });
+			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 25.f + 50.f*i, 10.f, 25.f + 50.f*j });
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.f), glm::vec3{ 1.f, 0.f, 0.f });
 			modelMatrix = glm::scale(modelMatrix, glm::vec3{ 25.f, 25.f, 25.f });
 
@@ -1346,6 +1346,22 @@ void Renderer::renderStaticModel(
 
 	Model *model = _assetManager->fetch<Model>(modelTag);
 
+	Frustum frustum{ _projection * _cameraTransform };
+
+	std::vector<glm::vec3> points = model->getExtents().getPoints();
+
+	glm::mat4 modelTransform = modelNode->getTransformationMatrix() * model->getCorrectionTransform();
+
+	for(auto& it : points)
+	{
+		it = modelTransform * glm::vec4{ it, 1.f };
+	}
+
+	if(frustum.boxIntersect(points) < 0)
+	{
+		return;
+	}
+
 	GLSLShader *currentShader = &_shader;
 
 	if (model->isSkinned())
@@ -1371,7 +1387,7 @@ void Renderer::renderStaticModel(
 		_shader.use();
 	}
 
-	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix() * model->getCorrectionTransform();
+	glm::mat4 mvp = _projection * _cameraTransform * modelTransform;
 
 	for (unsigned int i = 0; i < _pointLights.size(); ++i)
 	{
@@ -1417,7 +1433,7 @@ void Renderer::renderStaticModel(
 	currentShader->uploadUniform("celThresholds", _celThresholds);
 	currentShader->uploadUniform("color", _color);
 
-	currentShader->uploadUniform("model", modelNode->getTransformationMatrix() * model->getCorrectionTransform());
+	currentShader->uploadUniform("model", modelTransform);
 	currentShader->uploadUniform("mvp", mvp);
 	currentShader->uploadUniform("texUnit", 0);
 
@@ -1487,11 +1503,9 @@ void Renderer::renderStaticModel(
 	transform = glm::translate(transform, center);
 	transform = glm::scale(transform, size);
 
-	glm::mat4 modelToWorld = modelNode->getTransformationMatrix() * model->getCorrectionTransform();
-
 	_outlinesBoxShader.use();
 
-	_outlinesBoxShader.uploadUniform("mvp", _projection * _cameraTransform * modelToWorld * transform);
+	_outlinesBoxShader.uploadUniform("mvp", _projection * _cameraTransform * modelTransform * transform);
 	_outlinesBoxShader.uploadUniform("color", glm::vec3{ 0.f, 0.f, 1.f });
 
 	glBindVertexArray(_boxVAO);
@@ -1508,6 +1522,22 @@ void Renderer::renderStaticModelPicking(
 	std::string modelTag = modelNode->getModel();
 
 	const Model *model = _assetManager->fetch<Model>(modelTag);
+
+	Frustum frustum{ _projection * _cameraTransform };
+
+	std::vector<glm::vec3> points = model->getExtents().getPoints();
+
+	glm::mat4 modelTransform = modelNode->getTransformationMatrix() * model->getCorrectionTransform();
+
+	for (auto& it : points)
+	{
+		it = modelTransform * glm::vec4{ it, 1.f };
+	}
+
+	if (frustum.boxIntersect(points) < 0)
+	{
+		return;
+	}
 
 	glm::mat4 mvp = _projection * _cameraTransform * modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
@@ -1533,6 +1563,22 @@ void Renderer::renderStaticModelCSM(
 	std::string modelTag = modelNode->getModel();
 
 	const Model *model = _assetManager->fetch<Model>(modelTag);
+
+	Frustum frustum{ _projection * _cameraTransform };
+
+	std::vector<glm::vec3> points = model->getExtents().getPoints();
+
+	glm::mat4 modelTransform = modelNode->getTransformationMatrix() * model->getCorrectionTransform();
+
+	for (auto& it : points)
+	{
+		it = modelTransform * glm::vec4{ it, 1.f };
+	}
+
+	if (frustum.boxIntersect(points) < 0)
+	{
+		return;
+	}
 
 	glm::mat4 mvp =
 		_orthoProjections[_currentCascade] *
@@ -1695,12 +1741,8 @@ void Renderer::renderTerrain(
 
 		_shader.uploadUniform("terrain", true);
 
-		//Frustum frustum{ _cameraTransform * _projection};
-		//Frustum frustum{ _projection*glm::transpose(_cameraTransform) };
-		Frustum frustum{ _projection*_cameraTransform };
-		//Frustum frustum{ glm::mat4{1.f} };
+		Frustum frustum{ _projection * _cameraTransform };
 
-		//it->render();
 		it->render(frustum);
 	}
 

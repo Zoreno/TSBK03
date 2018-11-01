@@ -47,16 +47,17 @@ static QuadTreeNode *constructQuadTreeNode(
 		str += ' ';
 	}
 */
-	std::cout << str << "x: " << x;
-	std::cout << str << " z: " << z;
-	std::cout << str << " width: " << width;
-	std::cout << str << " height: " << height;
-	std::cout << str << " x grid: " << x_grid;
-	std::cout << str << " z grid: " << z_grid;
-	std::cout << str << " d: " << d;
-	std::cout << str << " start: " << node->start;
-	std::cout << str << " count: " << node->count;
-	std::cout << str << std::endl;
+	
+	//std::cout << str << "x: " << x;
+	//std::cout << str << " z: " << z;
+	//std::cout << str << " width: " << width;
+	//std::cout << str << " height: " << height;
+	//std::cout << str << " x grid: " << x_grid;
+	//std::cout << str << " z grid: " << z_grid;
+	//std::cout << str << " d: " << d;
+	//std::cout << str << " start: " << node->start;
+	//std::cout << str << " count: " << node->count;
+	//std::cout << str << std::endl;
 
 	if (currentSize != leafSize)
 	{
@@ -106,6 +107,19 @@ static QuadTreeNode *constructQuadTreeNode(
 	}
 
 	return node;
+}
+
+void destroyQuadTree(QuadTreeNode *node)
+{
+	if(node->q0 != nullptr)
+	{
+		destroyQuadTree(node->q0);
+		destroyQuadTree(node->q1);
+		destroyQuadTree(node->q2);
+		destroyQuadTree(node->q3);
+	}
+
+	delete node;
 }
 
 static std::vector<glm::vec3> getPoints(QuadTreeNode *node)
@@ -167,8 +181,8 @@ TerrainChunk::TerrainChunk(
 	_heights.resize(_largestDimension * _largestDimension);
 
 	_treeRoot = constructQuadTreeNode(
-		0,
-		0,
+		static_cast<int>(_offsetX),
+		static_cast<int>(_offsetZ),
 		_largestDimension,
 		_largestDimension,
 		0,
@@ -200,10 +214,6 @@ TerrainChunk::TerrainChunk(
 		{
 			for (unsigned int x = x_offset; x < x_offset + _leafSize; ++x)
 			{
-				if(z >= _largestDimension - 1 || x >= _largestDimension -1)
-				{
-					break;
-				}
 
 				unsigned int offset = 2 * (i * _leafSize * _leafSize + (z - z_offset) * _leafSize + (x - x_offset));
 
@@ -330,11 +340,15 @@ TerrainChunk::TerrainChunk(
 				normalArray[offset + 16] = normal.y;
 				normalArray[offset + 17] = normal.z;
 				*/
-				_heights[x + z * _largestDimension] = sampleHeightmap(file, x, z, _width, _height, bpp) / divisor;
-				_heights[x + (z + 1) * _largestDimension] = sampleHeightmap(file, x, z + 1, _width, _height, bpp) / divisor;
-				_heights[x + 1 + (z)* _largestDimension] = sampleHeightmap(file, x + 1, z, _width, _height, bpp) / divisor;
-				_heights[x + 1 + (z + 1) * _largestDimension] = sampleHeightmap(file, x + 1, z + 1, _width, _height, bpp) / divisor;
 
+				_heights[x + z * _largestDimension] = sampleHeightmap(file, x, z, _width, _height, bpp) / divisor;
+
+				if(z < _largestDimension - 1 && x < _largestDimension - 1)
+				{
+					_heights[x + (z + 1) * _largestDimension] = sampleHeightmap(file, x, z + 1, _width, _height, bpp) / divisor;
+					_heights[x + 1 + (z)* _largestDimension] = sampleHeightmap(file, x + 1, z, _width, _height, bpp) / divisor;
+					_heights[x + 1 + (z + 1) * _largestDimension] = sampleHeightmap(file, x + 1, z + 1, _width, _height, bpp) / divisor;
+				}
 			}
 		}
 	}
@@ -362,7 +376,7 @@ TerrainChunk::TerrainChunk(
 
 TerrainChunk::~TerrainChunk()
 {
-
+	destroyQuadTree(_treeRoot);
 }
 
 void TerrainChunk::render() const
@@ -397,7 +411,7 @@ void TerrainChunk::render(
 
 	float culled = 100.f * static_cast<float>(trianglesDrawn) / static_cast<float>(_triangleCount);
 
-	std::cout << "Triangles drawn: " << trianglesDrawn << " " << 100 - culled << "% removed" << std::endl;
+	//std::cout << "Triangles drawn: " << trianglesDrawn << " " << 100 - culled << "% removed" << std::endl;
 
 	_vertices.unbind();
 	_normals.unbind();
@@ -478,16 +492,20 @@ void TerrainChunk::renderWithFrustum(
 
 	int res = frustum.boxIntersect(points);
 
+	// If the object is entirely inside the frustum, we can send the object
+	// for rendering at the current level as the hilbert-ordered memory is
+	// guaranteeed to be contiguous for every level of the quad-tree.
+	// If this is a leaf node, we have to render it anyways.
 	if (res == 1 || (res == 0 && node->q0 == nullptr))
 	{
-		// Render
-
 		glDrawArrays(GL_TRIANGLES,
 			node->start * 6,
 			node->count * 6);
 
 		trianglesDrawn += node->count * 2;
 	}
+	// If there was an intersection with the planes, we have to go further into
+	// the tree to determine what to cull.
 	else if (res == 0)
 	{
 		renderWithFrustum(node->q0, frustum);
@@ -495,10 +513,8 @@ void TerrainChunk::renderWithFrustum(
 		renderWithFrustum(node->q2, frustum);
 		renderWithFrustum(node->q3, frustum);
 	}
-	else
-	{
-		// Discard
-	}
+	// If there was no intersection, we can safely discard the full chunk at
+	// this level. The entire chunk is outside the frustum.
 }
 
 glm::vec3 TerrainChunk::getVector(

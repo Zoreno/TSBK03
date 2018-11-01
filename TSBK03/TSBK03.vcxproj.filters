@@ -478,5 +478,11 @@
     <None Include="water.tevl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="AssetPool.inl">
+      <Filter>Header Files\Engine\Asset Manager</Filter>
+    </None>
+    <None Include="AssetManager.inl">
+      <Filter>Header Files\Engine\Asset Manager</Filter>
+    </None>
   </ItemGroup>
 </Project>

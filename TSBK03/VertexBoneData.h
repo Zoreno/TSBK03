@@ -2,6 +2,8 @@
 
 #define NUM_BONES_PER_VERTEX 4
 
+// TODO: Make this a class
+
 struct VertexBoneData
 {
 	unsigned int IDs[NUM_BONES_PER_VERTEX];

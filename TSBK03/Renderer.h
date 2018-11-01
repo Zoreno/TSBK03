@@ -21,6 +21,7 @@ class Model;
 
 // TODO: It might be possible to cache some of the models and textures
 
+// TODO: Make the renderer construct the projection and such.
 class Renderer
 {
 public:
@@ -83,7 +84,7 @@ public:
 
 	void setSkybox(const Skybox& skybox);
 
-	const GLuint const *getCSMTextures() const;
+	const GLuint *getCSMTextures() const;
 
 	GLuint getGodrayOcclusionTexture() const;
 

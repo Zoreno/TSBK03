@@ -71,7 +71,7 @@ private:
 	unsigned int _largestDimension;
 	unsigned int _hilbertDimension;
 
-	const unsigned int _leafSize = 64;
+	const unsigned int _leafSize = 32;
 
 	QuadTreeNode *_treeRoot{ nullptr };
 

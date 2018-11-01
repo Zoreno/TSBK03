@@ -5,6 +5,8 @@
 
 #include "AnimationChannel.h"
 
+// TODO: Make this a class
+
 struct Animation
 {
 	std::string name;

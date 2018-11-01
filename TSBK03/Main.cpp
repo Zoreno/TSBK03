@@ -723,17 +723,18 @@ int main()
 	assetManager.load<Model>("palm1", "Prop_Tree_Palm_1.obj");
 	assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
 	assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
-	//assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
-	//assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
+
 	Model *characterModel = assetManager.load<Model>("warrior", "model.dae");
 
 	characterModel->setCorrectionRotation(glm::vec3(-90.f, 0.f, -90.f));
 
 	std::vector<std::string> terrains;
 	terrains.push_back("NvF5e.tga");
+	terrains.push_back("NvF5e.tga");
 
 	std::vector<glm::vec3> offsets;
 	offsets.push_back(glm::vec3{ 0.f, 0.f, 0.f });
+	offsets.push_back(glm::vec3{ 512.f, 0.f, 0.f });
 
 	Terrain *terrain = assetManager.load<Terrain>("terrain", terrains, offsets);
 
@@ -832,7 +833,7 @@ int main()
 			{
 				float rotation = randomGenerator.randFloatRange(0.f, 360.f);
 
-				int tree = randomGenerator.randUint32Range(0, 2);
+				int tree = randomGenerator.randUint32Range(0, 3);
 
 				std::string treeStr;
 
@@ -1259,7 +1260,7 @@ int main()
 		static float y_vel = 0;
 		bool walking = false;
 		glm::vec3 delta = glm::vec3{ 0.f };
-		static float speed = 0.3f;
+		static float speed = 0.03f;
 		static bool touchingGround = true;
 		static float rotationSpeed = 0.05f;
 

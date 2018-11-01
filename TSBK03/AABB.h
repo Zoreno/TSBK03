@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
 struct AABB
 {
@@ -19,6 +20,8 @@ struct AABB
 
 	glm::vec3 getMinPoint() const;
 	glm::vec3 getMaxPoint() const;
+
+	std::vector<glm::vec3> getPoints() const;
 
 	AABB transform(const glm::mat4& matrix) const;
 

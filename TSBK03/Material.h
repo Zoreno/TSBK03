@@ -8,6 +8,8 @@
 // and blending operations to be able to represent any material
 // that we can create.
 
+// TODO: Make this a class
+
 struct Material
 {
 	std::string name;

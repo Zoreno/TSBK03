@@ -6,6 +6,8 @@
 #include "AnimationChannelVectorKey.h"
 #include "AnimationChannelQuaternionKey.h"
 
+// TODO: Make this a class
+
 struct AnimationChannel
 {
 	std::string name;
