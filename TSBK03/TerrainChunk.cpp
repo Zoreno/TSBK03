@@ -166,7 +166,7 @@ TerrainChunk::TerrainChunk(
 
 	_largestDimension = glm::max(_width, _height);
 
-	int pow2 = 1;
+	unsigned int pow2 = 1;
 	while(pow2 < _largestDimension)
 	{
 		pow2 *= 2;

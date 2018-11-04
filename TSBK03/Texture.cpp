@@ -15,7 +15,7 @@ Texture2D::Texture2D(
 	TEXTURE_2D_WRAP tWrap,
 	TEXTURE_2D_FILTERING magFilter,
 	TEXTURE_2D_FILTERING minFilter)
-	:_fileName{filePath}
+	: _fileName{ filePath }
 {
 	TextureFile *file{ nullptr };
 
@@ -1307,7 +1307,7 @@ void Texture2D::bind(
 
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits);
 
-	if (texUnit >= numTextureUnits)
+	if (texUnit >= static_cast<GLuint>(numTextureUnits))
 	{
 		throw std::invalid_argument("Requested texture unit larger than supported");
 	}
@@ -1348,7 +1348,7 @@ TextureCubeMap::TextureCubeMap(
 	glGenTextures(1, &_handle);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _handle);
 
-	for(unsigned int i = 0; i < 6; ++i)
+	for (unsigned int i = 0; i < 6; ++i)
 	{
 		TextureFile *file;
 
@@ -1414,7 +1414,7 @@ void TextureCubeMap::bind(
 
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits);
 
-	if (texUnit >= numTextureUnits)
+	if (texUnit >= static_cast<GLuint>(numTextureUnits))
 	{
 		throw std::invalid_argument("Requested texture unit larger than supported");
 	}

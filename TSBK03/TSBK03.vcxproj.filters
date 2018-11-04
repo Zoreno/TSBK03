@@ -103,6 +103,45 @@
     <Filter Include="Source Files\Engine\Terrain">
       <UniqueIdentifier>{a20b2744-cfd6-4100-99f1-6326fe4d7e48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Application">
+      <UniqueIdentifier>{f57eab42-fd95-496e-a3f0-fbee47780de0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application">
+      <UniqueIdentifier>{edb92f32-b02c-40c2-a912-6f5677dec80e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Picking">
+      <UniqueIdentifier>{1026d613-3017-4027-9b82-6e46d58a5fb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Post-Processing">
+      <UniqueIdentifier>{848e0e63-8946-49e1-b8f9-24d8d561bf58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Main Rendering">
+      <UniqueIdentifier>{fc08fcd0-fee5-484b-8b46-c7654ccc04b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Occlusion">
+      <UniqueIdentifier>{0df5efef-2b49-482c-9052-bb6b0170d9bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Application\Event">
+      <UniqueIdentifier>{afb1c06a-a734-418c-a95e-e3fef883db44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application\Event">
+      <UniqueIdentifier>{2b01a702-9146-4935-a907-1a52683ebe03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Application\Event\Events">
+      <UniqueIdentifier>{ed2f05e6-60c1-4f88-a966-d9400ed09b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Application\Frame">
+      <UniqueIdentifier>{253dd52b-2d53-49b0-8bb6-4c4bdd21f790}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application\Frame">
+      <UniqueIdentifier>{8d31f617-4af0-4476-987d-dce2c5889d14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{1b2c3637-7ff2-4676-b8a3-44402aeaacfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{dddd7865-7fe2-4d66-a6e3-0b3cc9204a6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -230,6 +269,27 @@
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>Source Files\Engine\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Source Files\Application\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="InternalEventChannelBase.cpp">
+      <Filter>Source Files\Application\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.cpp">
+      <Filter>Source Files\Application\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame.cpp">
+      <Filter>Source Files\Application\Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -413,76 +473,106 @@
     <ClInclude Include="Frustum.h">
       <Filter>Header Files\Engine\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Header Files\Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Subscriber.h">
+      <Filter>Header Files\Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="InternalEventChannelBase.h">
+      <Filter>Header Files\Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="InternalEventChannel.h">
+      <Filter>Header Files\Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
+      <Filter>Header Files\Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyEvent.h">
+      <Filter>Header Files\Application\Event\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame.h">
+      <Filter>Header Files\Application\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shader.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="blur.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="blur.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="hdr.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="hdr.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="picking.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="picking.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="skinnedshader.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="skybox.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="skybox.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="outlinesBox.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="outlinesBox.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="csm.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="csm.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="godrayOcclusion.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="godrayOcclusion.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="water.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="water.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="water.tctl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="water.tevl">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="AssetPool.inl">
       <Filter>Header Files\Engine\Asset Manager</Filter>
     </None>
     <None Include="AssetManager.inl">
       <Filter>Header Files\Engine\Asset Manager</Filter>
+    </None>
+    <None Include="picking.frag">
+      <Filter>Shaders\Picking</Filter>
+    </None>
+    <None Include="picking.vert">
+      <Filter>Shaders\Picking</Filter>
+    </None>
+    <None Include="hdr.frag">
+      <Filter>Shaders\Post-Processing</Filter>
+    </None>
+    <None Include="hdr.vert">
+      <Filter>Shaders\Post-Processing</Filter>
+    </None>
+    <None Include="blur.frag">
+      <Filter>Shaders\Post-Processing</Filter>
+    </None>
+    <None Include="blur.vert">
+      <Filter>Shaders\Post-Processing</Filter>
+    </None>
+    <None Include="water.frag">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="water.tctl">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="water.tevl">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="water.vert">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="shader.frag">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="shader.vert">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="skybox.frag">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="skybox.vert">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="skinnedshader.vert">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="csm.frag">
+      <Filter>Shaders\Occlusion</Filter>
+    </None>
+    <None Include="csm.vert">
+      <Filter>Shaders\Occlusion</Filter>
+    </None>
+    <None Include="godrayOcclusion.frag">
+      <Filter>Shaders\Occlusion</Filter>
+    </None>
+    <None Include="godrayOcclusion.vert">
+      <Filter>Shaders\Occlusion</Filter>
+    </None>
+    <None Include="outlinesBox.vert">
+      <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="outlinesBox.frag">
+      <Filter>Shaders\Main Rendering</Filter>
     </None>
   </ItemGroup>
 </Project>

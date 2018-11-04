@@ -39,7 +39,7 @@ void VertexArrayObject::unbind()
 
 bool VertexArrayObject::isValid() const
 {
-	return glIsVertexArray(_handle);
+	return glIsVertexArray(_handle) != 0;
 }
 
 GLuint VertexArrayObject::getHandle() const

@@ -986,6 +986,18 @@ void Renderer::setEnableGodrays(
 	_enableGodrays = newEnableGodrays;
 }
 
+glm::vec2 Renderer::getScreenSpacePosition(
+	const glm::vec3 &worldPos) const
+{
+	glm::vec4 clipSpacePos = _projection * _cameraTransform * glm::vec4(worldPos, 1.f);
+
+	clipSpacePos /= clipSpacePos.w;
+
+	clipSpacePos = 0.5f + 0.5f * clipSpacePos;
+
+	return glm::vec2(clipSpacePos.x, clipSpacePos.y);
+}
+
 void Renderer::extractLights(
 	const SceneNode *node)
 {

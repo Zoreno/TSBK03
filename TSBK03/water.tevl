@@ -38,7 +38,8 @@ void main()
 	float f1 = ampX * waveSpeedX * cos(fragPos_es.x + waveSpeedX * time);
 	float f2 = ampZ * waveSpeedZ * cos(fragPos_es.z + waveSpeedZ * time);
 
-	normal_es = vec3(0.0, 1.0, 0.0) + vec3(1.0, 0.0, 0.0) * f1 / sqrt(1 + pow(f1, 2)) + vec3(0.0, 0.0, 1.0) * f2 / sqrt(1 + pow(f2, 2));
+	// TODO: Check the sign of the normal corrections
+	normal_es = vec3(0.0, 1.0, 0.0) + vec3(-1.0, 0.0, 0.0) * f1 / sqrt(1 + pow(f1, 2)) + vec3(0.0, 0.0, -1.0) * f2 / sqrt(1 + pow(f2, 2));
 
 	normal_es = normalize(normal_es);
 

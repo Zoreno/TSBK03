@@ -17,12 +17,17 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="AnimationChannel.cpp" />
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
+    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="Frame.cpp" />
     <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GLSLFragmentShader.cpp" />
     <ClCompile Include="GLSLGeometryShader.cpp" />
     <ClCompile Include="GLSLShader.cpp" />
@@ -36,6 +41,7 @@
     <ClCompile Include="imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="InternalEventChannelBase.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MersenneDevice.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -52,6 +58,7 @@
     <ClCompile Include="TerrainSceneNode.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TGA.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VertexArrayObject.cpp" />
@@ -64,6 +71,7 @@
     <ClInclude Include="AnimationChannel.h" />
     <ClInclude Include="AnimationChannelQuaternionKey.h" />
     <ClInclude Include="AnimationChannelVectorKey.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="AssetPool.h" />
@@ -72,6 +80,9 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="EventManager.h" />
+    <ClInclude Include="Frame.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GLSLFragmentShader.h" />
     <ClInclude Include="GLSLGeometryShader.h" />
@@ -90,6 +101,9 @@
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
+    <ClInclude Include="InternalEventChannel.h" />
+    <ClInclude Include="InternalEventChannelBase.h" />
+    <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MersenneDevice.h" />
     <ClInclude Include="Mesh.h" />
@@ -99,6 +113,7 @@
     <ClInclude Include="Plane.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightSceneNode.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="RandomDevice.h" />
     <ClInclude Include="RandomGenerator.h" />
     <ClInclude Include="Renderer.h" />
@@ -107,12 +122,14 @@
     <ClInclude Include="SceneNodeType.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StaticModelSceneNode.h" />
+    <ClInclude Include="Subscriber.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainChunk.h" />
     <ClInclude Include="TerrainSceneNode.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureFile.h" />
     <ClInclude Include="TGA.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />

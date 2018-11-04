@@ -2,6 +2,7 @@
 
 
 #include <iostream>
+#include <fstream>
 
 Model::Model(
 	const std::string &fileName)

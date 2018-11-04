@@ -102,6 +102,8 @@ public:
 
 	bool getEnableGodrays() const;
 	void setEnableGodrays(bool newEnableGodrays);
+
+	glm::vec2 getScreenSpacePosition(const glm::vec3& worldPos) const;
 private:
 
 	void extractLights(
@@ -226,12 +228,13 @@ private:
 	float _cascadeEnds[NUM_CASCADES + 1];
 	unsigned int _currentCascade;
 
-	void calculateOrthoProjections(int lightIndex);
+	void calculateOrthoProjections(
+		int lightIndex);
 
 	void doCSMShadowPass(
 		Scene * scene);
 
-	bool _enableGodrays{true};
+	bool _enableGodrays{false};
 	unsigned int _godrayOcclusionSize{ 1024 };
 	GLuint _godrayFBO{ 0 };
 	GLuint _godrayTexture{ 0 };
