@@ -41,12 +41,14 @@
     <ClCompile Include="imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InternalEventChannelBase.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MersenneDevice.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightSceneNode.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -101,6 +103,7 @@
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="InternalEventChannel.h" />
     <ClInclude Include="InternalEventChannelBase.h" />
     <ClInclude Include="KeyEvent.h" />
@@ -109,8 +112,11 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelNode.h" />
+    <ClInclude Include="MouseButtonEvent.h" />
+    <ClInclude Include="MouseMovedEvent.h" />
     <ClInclude Include="PixelInfo.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightSceneNode.h" />
     <ClInclude Include="Game.h" />

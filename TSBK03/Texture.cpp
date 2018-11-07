@@ -279,6 +279,8 @@ Texture2D::Texture2D(
 		t,				// Type
 		data			// Data
 	);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 Texture2D::~Texture2D()

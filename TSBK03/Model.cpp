@@ -387,6 +387,10 @@ Mesh *Model::processMesh(
 
 	std::vector<VertexBoneData> boneData{};
 
+	std::string name{ mesh->mName.C_Str() };
+
+	std::cout << name << std::endl;
+
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
 		Vertex vertex;
@@ -533,7 +537,7 @@ Mesh *Model::processMesh(
 
 	unsigned int materialIndex = mesh->mMaterialIndex;
 
-	return new Mesh(vertices, indices, boneData, materialIndex);
+	return new Mesh(name, vertices, indices, boneData, materialIndex);
 }
 
 void Model::recurseGetTransforms(

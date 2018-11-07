@@ -3,6 +3,9 @@
 #include "Frame.h"
 
 #include "SceneNode.h"
+#include "MouseMovedEvent.h"
+#include "InputManager.h"
+#include "Player.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
@@ -60,8 +63,8 @@ struct Buff
 
 // class StatManager : public Subscriber<ItemEquipChangeEvent>, public Subscriber<BuffChangeEvent>
 
-struct Player
-{
+// struct Player
+// {
 	/*
 	 * Inventory _inventory;
 	 * EquipmentManager _equipManager;
@@ -82,7 +85,7 @@ struct Player
 	 *	Position _position;
 	 *	Angle _facing;
 	 */
-};
+// };
 
 struct Spell
 {
@@ -111,19 +114,20 @@ class Game : public Frame
 {
 public:
 	explicit Game(Application *application);
-	Game(const Game&) = delete;
-	Game& operator=(const Game&) = delete;
+	Game(const Game& other) = delete;
+	Game& operator=(const Game& other) = delete;
 
 	void update(float dt) override;
+	void renderUI() override;
 	void render(Renderer *renderer) override;
+
+	void addToRoot(SceneNode *sceneNode);
 private:
 
+	TerrainSceneNode *_terrainNode;
 	Scene *_scene{nullptr};
 
-	/*
-	 * Scene *_scene;
-	 * std::vector<Zone *> _zones;
-	 * 
-	 * GameState _gameState;
-	 */
+	InputManager _inputManager;
+
+	Player _player;
 };

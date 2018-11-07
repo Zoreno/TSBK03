@@ -12,6 +12,7 @@ class Mesh
 {
 public:
 	Mesh(
+		const std::string& name,
 		const std::vector<Vertex>& vertices,
 		const std::vector<unsigned int>& indices,
 		const std::vector<VertexBoneData>& boneData,
@@ -25,11 +26,15 @@ public:
 	const std::vector<VertexBoneData>& getBoneData() const;
 
 	unsigned int getMaterialIndex() const;
+
+	const std::string& getName() const;
 private:
 
 	void setupMesh();
 
 	unsigned int _materialIndex{ 0 };
+
+	std::string _name;
 
 	std::vector<Vertex> _vertices{};
 	std::vector<unsigned int> _indices{};

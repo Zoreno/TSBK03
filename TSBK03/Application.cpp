@@ -27,6 +27,9 @@
 #include "KeyEvent.h"
 
 #include "Frame.h"
+#include "MouseMovedEvent.h"
+#include "MouseButtonEvent.h"
+#include "Game.h"
 
 float FOV = 70.f;
 float nearPlane = 0.1f;
@@ -43,14 +46,26 @@ glm::vec3 cameraUp{ 0.f, 1.f, 0.f };
 bool debugWindowActive = false;
 int currentTab = 0;
 
-TerrainSceneNode *terrainNode{ nullptr };
+void mouse_pos_callback(GLFWwindow *window, double xpos, double ypos)
+{
+	if (!ImGui::GetIO().WantCaptureMouse)
+	{
+		Application *app = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
 
-StaticModelSceneNode *sceneNode0{ nullptr };
-StaticModelSceneNode *sceneNode1{ nullptr };
+		app->windowMousePositionCallback(static_cast<float>(xpos), static_cast<float>(ypos));
+	}
+}
 
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
 	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+	if (!ImGui::GetIO().WantCaptureMouse)
+	{
+		Application *app = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
+
+		app->windowMouseButtonCallback(button, action, mods);
+	}
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
@@ -89,6 +104,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 
 	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
+	if(!ImGui::GetIO().WantCaptureKeyboard)
+	{
+		Application *app = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
+
+		app->windowKeyCallback(key, scancode, action, mods);
+	}
 }
 
 void char_callback(GLFWwindow *window, unsigned int c)
@@ -617,9 +639,6 @@ void drawAssetList(AssetManager *assetManager)
 
 Application::Application()
 {
-
-	_eventManager.addSubscriber<KeyEvent>(this);
-
 	glm::mat4 proj = glm::perspective(
 		glm::radians(FOV),
 		static_cast<float>(windowWidth) / static_cast<float>(windowHeight),
@@ -674,10 +693,14 @@ Application::Application()
 
 	glfwSetInputMode(_window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetMouseButtonCallback(_window, mouse_button_callback);
+	glfwSetCursorPosCallback(_window, mouse_pos_callback);
 	glfwSetScrollCallback(_window, scroll_callback);
 	glfwSetKeyCallback(_window, key_callback);
 	glfwSetCharCallback(_window, char_callback);
 	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+
+	// Make sure that our callbacks may access this instance
+	glfwSetWindowUserPointer(_window, this);
 
 	/*
 	* IMGUI initailization
@@ -696,11 +719,9 @@ Application::Application()
 	glEnable(GL_DEPTH_TEST);
 
 	_assetManager.load<Model>("skyboxSphere", "sphere.obj");
-	//assetManager.load<Model>("sphere", "groundsphere.obj");
-	//assetManager.load<Model>("tree", "lowpolytree.obj");
+
 	_assetManager.load<Model>("terrain", "testscene2.obj");
-	//Model *charModel = assetManager.load<Model>("char", "model.dae");
-	//assetManager.load<Model>("sylvanas", "sylvanas_obj.obj");
+
 	_assetManager.load<Model>("palm1", "Prop_Tree_Palm_1.obj");
 	_assetManager.load<Model>("palm2", "Prop_Tree_Palm_2.obj");
 	_assetManager.load<Model>("palm3", "Prop_Tree_Palm_3.obj");
@@ -740,69 +761,7 @@ Application::Application()
 
 	_renderer = new Renderer{ static_cast<int>(windowWidth), static_cast<int>(windowHeight), &_assetManager , proj };
 
-	_scene = new Scene{ SceneNodeType::ROOT, "ROOT" };
-
-	terrainNode = new TerrainSceneNode("terrain", "terrain");
-	terrainNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
-	terrainNode->setRotation(glm::vec3{ 0.f, 0.f, 0.f });
-	terrainNode->setScale(glm::vec3{ 1.f, 1.f, 1.f });
-
-	_scene->addChild(terrainNode);
-
-	sceneNode1 = new StaticModelSceneNode{ "warrior", "Player" };
-
-	sceneNode1->setPosition(glm::vec3{ 0.f, 1.f, 0.f });
-	sceneNode1->setRotation(glm::vec3{ 0.f, 0.f, 0.f });
-	sceneNode1->setScale(glm::vec3{ 0.1f, 0.1f, 0.1f });
-	sceneNode1->setTexture("char");
-	//sceneNode1->setCurrentAnimation(assetManager.fetch<Model>(sceneNode1->getModel())->getDefaultAnimation());
-
-	_scene->addChild(sceneNode1);
-
-#if 0
-
-	RandomGenerator<MersenneDevice> randomGenerator{ static_cast<uint32_t>(time(NULL)) };
-
-	for (int i = 0; i < 100; ++i)
-	{
-		int tries = 0;
-		while (tries++ < 10)
-		{
-			float x = randomGenerator.randFloatRange(0.f, 512.f);
-			float z = randomGenerator.randFloatRange(0.f, 512.f);
-			float y = terrain->getHeight(x, z);
-
-			if (y >= 12 && y < 22)
-			{
-				float rotation = randomGenerator.randFloatRange(0.f, 360.f);
-
-				int tree = randomGenerator.randUint32Range(0, 3);
-
-				std::string treeStr;
-
-				switch (tree)
-				{
-				case 0:
-					treeStr = "palm1";
-					break;
-				case 1:
-					treeStr = "palm2";
-					break;
-				default:
-					treeStr = "palm3";
-					break;
-				}
-
-				SceneNode *node = new StaticModelSceneNode(treeStr, std::string{ "tree" } +std::to_string(i));
-				node->setPosition(glm::vec3{ x, y, z });
-				node->setRotation(glm::vec3{ 0.f, rotation, 0.f });
-
-				_scene->addChild(node);
-				break;
-			}
-		}
-	}
-#endif
+	_currentFrame = new Game(this);
 }
 
 Application::~Application()
@@ -846,36 +805,6 @@ void Application::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		static bool portraitShown = true;
-
-		if (portraitShown)
-		{
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-			ImGui::SetNextWindowPos(ImVec2(20, 20));
-			//ImGui::SetNextWindowPos(ImVec2(playerScreenSpacePos.x*windowWidth, playerScreenSpacePos.y*windowHeight));
-			ImGui::Begin("Portrait", &portraitShown, ImVec2(200.f, 140.f), 0.9f,
-				ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-				ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
-
-			ImGui::Text("%s", "Kalle Storfiskare");
-			ImGui::Text("Level %i", 60);
-			ImGui::Text("%s %s", "Human", "Fisherman");
-
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(1.f, 0.f, 0.f, 1.f));
-			ImGui::ProgressBar(1.f);
-			ImGui::PopStyleColor();
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.f, 1.f, 1.f));
-			ImGui::ProgressBar(0.5f);
-			ImGui::PopStyleColor();
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(200.f / 256.f, 255.f / 256.f, 121.f / 256.f, 1.f));
-			ImGui::ProgressBar(0.5f);
-			ImGui::PopStyleColor();
-
-			ImGui::End();
-
-			//ImGui::PopStyleVar();
-		}
-
 		glClearColor(0.0f, 0.0f, 0.0f, 1.f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -914,7 +843,7 @@ void Application::run()
 
 			if (currentTab == 0)
 			{
-	
+
 			}
 			else if (currentTab == 1)
 			{
@@ -1124,7 +1053,7 @@ void Application::run()
 			}
 			else if (currentTab == 2)
 			{
-				drawSceneNode(_scene, &_assetManager);
+				//drawSceneNode(_scene, &_assetManager);
 			}
 			else if (currentTab == 3)
 			{
@@ -1133,9 +1062,7 @@ void Application::run()
 
 			ImGui::End();
 		}
-
-		ImGui::Render();
-
+#if 0
 		static float phi = 0.f;
 		static float theta = 0.f;
 
@@ -1224,12 +1151,6 @@ void Application::run()
 				delta.x -= glm::cos(facing);
 				delta.z += glm::sin(facing);
 				walking = true;
-
-				KeyEvent keyEvent;
-				keyEvent.key = GLFW_KEY_E;
-				keyEvent.action = GLFW_PRESS;
-
-				_eventManager.postEvent(keyEvent);
 			}
 			if (glfwGetKey(_window, GLFW_KEY_S))
 			{
@@ -1286,7 +1207,7 @@ void Application::run()
 
 		static float lastHeight;
 
-		float height = _assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(x, z);
+		float height = 0;//_assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(x, z);
 
 		if (y < height)
 		{
@@ -1329,24 +1250,6 @@ void Application::run()
 
 		float heightAtCamera = _assetManager.fetch<Terrain>(terrainNode->getTerrain())->getHeight(eye.x, eye.z);
 
-		double xpos;
-		double ypos;
-
-		glfwGetCursorPos(_window, &xpos, &ypos);
-
-		RendererPickingInfo info = _renderer->getPickingInfo(static_cast<int>(xpos), static_cast<int>(windowHeight - ypos));
-
-		int objectID = static_cast<int>(info.objectID);
-
-		if (objectID == sceneNode1->getID())
-		{
-			sceneNode1->setOutline(true);
-		}
-		else
-		{
-			sceneNode1->setOutline(false);
-		}
-
 		if (eye.y <= heightAtCamera + 1.f)
 		{
 			eye.y = heightAtCamera + 1.f;
@@ -1358,6 +1261,8 @@ void Application::run()
 		_renderer->setCameraTransform(view);
 		_renderer->setCameraPosition(eye);
 		_renderer->setCameraDirection(glm::normalize(eye - center));
+
+#endif
 
 		float deltaTime = _timer.restart();
 
@@ -1374,7 +1279,7 @@ void Application::update(
 {
 	_eventManager.handleEvents();
 
-	if(_currentFrame != nullptr)
+	if (_currentFrame != nullptr)
 	{
 		_currentFrame->update(dt);
 	}
@@ -1382,13 +1287,17 @@ void Application::update(
 
 void Application::render()
 {
+	if (_currentFrame != nullptr)
+	{
+		_currentFrame->renderUI();
+	}
+
+	ImGui::Render();
 
 	if (_currentFrame != nullptr)
 	{
 		_currentFrame->render(_renderer);
 	}
-
-	_renderer->render(_scene);
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -1401,7 +1310,7 @@ Frame * Application::getCurrentFrame() const
 void Application::changeFrame(
 	Frame *newFrame)
 {
-	if(_currentFrame != nullptr)
+	if (_currentFrame != nullptr)
 	{
 		delete _currentFrame;
 	}
@@ -1409,8 +1318,60 @@ void Application::changeFrame(
 	_currentFrame = newFrame;
 }
 
-void Application::handleEvent(
-	const KeyEvent &ev)
+EventManager * Application::getEventManager()
 {
-	std::cout << "Application got key event" << std::endl;
+	return &_eventManager;
 }
+
+void Application::windowKeyCallback(
+	int key,
+	int scancode,
+	int action,
+	int mods)
+{
+	KeyEvent keyEvent;
+
+	keyEvent.key = key;
+	keyEvent.scancode = scancode;
+	keyEvent.action = action;
+	keyEvent.mods = mods;
+
+	_eventManager.postEvent(keyEvent);
+}
+
+void Application::windowMouseButtonCallback(
+	int button,
+	int action,
+	int mods)
+{
+	MouseButtonEvent mouseButtonEvent;
+
+	mouseButtonEvent.button = button;
+	mouseButtonEvent.action = action;
+	mouseButtonEvent.mods = mods;
+
+	_eventManager.postEvent(mouseButtonEvent);
+}
+
+void Application::windowMousePositionCallback(
+	float xpos,
+	float ypos)
+{
+	MouseMovedEvent mouseMovedEvent;
+
+	mouseMovedEvent.x = xpos;
+	mouseMovedEvent.y = ypos;
+
+	_eventManager.postEvent(mouseMovedEvent);
+}
+
+Renderer * Application::getRenderer()
+{
+	return _renderer;
+}
+
+AssetManager * Application::getAssetManager()
+{
+	return &_assetManager;
+}
+

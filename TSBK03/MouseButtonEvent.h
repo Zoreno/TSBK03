@@ -2,11 +2,10 @@
 
 #include "Event.h"
 
-class KeyEvent : public Event
+class MouseButtonEvent : public Event
 {
 public:
-	int key;
-	int scancode;
+	int button;
 	int action;
 	int mods;
 };

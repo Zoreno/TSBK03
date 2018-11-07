@@ -6,13 +6,13 @@
 
 class Frame;
 
-class Application : public Subscriber<KeyEvent>
+class Application
 {
 public:
 	Application();
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
-	~Application() override;
+	~Application();
 
 	void run();
 
@@ -23,16 +23,35 @@ public:
 
 	void changeFrame(Frame *newFrame);
 
-	void handleEvent(const KeyEvent &ev) override;
+	EventManager *getEventManager();
+
+	void windowKeyCallback(
+		int key, 
+		int scancode, 
+		int action, 
+		int mods);
+
+	void windowMouseButtonCallback(
+		int button,
+		int action,
+		int mods);
+
+	void windowMousePositionCallback(
+		float xpos,
+		float ypos);
+
+	Renderer *getRenderer();
+
+	AssetManager *getAssetManager();
 
 private:
+
+
 	EventManager _eventManager;
 	AssetManager _assetManager;
 	Renderer *_renderer;
 
 	GLFWwindow *_window;
-
-	Scene *_scene;
 
 	Timer _timer;
 

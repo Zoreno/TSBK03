@@ -10,12 +10,13 @@ public:
 	Frame& operator=(const Frame&) = delete;
 
 	virtual void update(float dt) = 0;
+	virtual void renderUI() = 0;
 	virtual void render(Renderer *renderer) = 0;
 
 	virtual ~Frame();
 
 	Application *getApplication() const;
-private:
+protected:
 
 	Application *_application;
 };

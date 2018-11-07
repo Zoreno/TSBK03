@@ -4,11 +4,13 @@
 #include <iostream>
 
 Mesh::Mesh(
+	const std::string& name,
 	const std::vector<Vertex>& vertices,
 	const std::vector<unsigned int>& indices,
 	const std::vector<VertexBoneData>& boneData,
 	unsigned int materialIndex)
-	:_materialIndex{ materialIndex },
+	: _name{ name },
+	_materialIndex{ materialIndex },
 	_vertices{ vertices },
 	_indices{ indices },
 	_vertexBoneData{ boneData },
@@ -31,9 +33,9 @@ void Mesh::render() const
 	_ibo.bind();
 
 	glDrawElements(
-		GL_TRIANGLES, 
-		static_cast<GLsizei>(_indices.size()), 
-		GL_UNSIGNED_INT, 
+		GL_TRIANGLES,
+		static_cast<GLsizei>(_indices.size()),
+		GL_UNSIGNED_INT,
 		nullptr);
 
 	_ibo.unbind();
@@ -59,6 +61,11 @@ const std::vector<VertexBoneData> & Mesh::getBoneData() const
 unsigned Mesh::getMaterialIndex() const
 {
 	return _materialIndex;
+}
+
+const std::string & Mesh::getName() const
+{
+	return _name;
 }
 
 void Mesh::setupMesh()
