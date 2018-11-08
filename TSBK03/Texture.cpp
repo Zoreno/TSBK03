@@ -4,6 +4,9 @@
 #include "BMP.h"
 #include <iostream>
 #include "Color.h"
+#include "STBTextureFile.h"
+
+#define USE_OWN_IMAGE_LOADER 0
 
 Texture2D::Texture2D()
 	:_width{ 0 }, _height{ 0 }, _handle{ 0 }, _fileName{ "" }
@@ -18,7 +21,7 @@ Texture2D::Texture2D(
 	: _fileName{ filePath }
 {
 	TextureFile *file{ nullptr };
-
+#if USE_OWN_IMAGE_LOADER
 	if (filePath.find(".tga") != std::string::npos)
 	{
 		file = new TGA{ filePath.c_str() };
@@ -36,6 +39,9 @@ Texture2D::Texture2D(
 	{
 		throw std::invalid_argument(std::string("Invalid file. (") + filePath + ")");
 	}
+#else
+	file = new STBTextureFile(filePath);
+#endif
 
 	glGenTextures(1, &_handle);
 	glBindTexture(GL_TEXTURE_2D, _handle);
@@ -51,6 +57,11 @@ Texture2D::Texture2D(
 		GL_UNSIGNED_BYTE,
 		file->getPixels().data()
 	);
+
+	_width = file->getWidth();
+	_height = file->getHeight();
+
+	delete file;
 
 	// Setup S coordinate wrap
 	switch (sWrap)
@@ -131,11 +142,6 @@ Texture2D::Texture2D(
 	}
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
-	_width = file->getWidth();
-	_height = file->getHeight();
-
-	delete file;
 }
 
 Texture2D::Texture2D(

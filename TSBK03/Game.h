@@ -6,21 +6,11 @@
 #include "MouseMovedEvent.h"
 #include "InputManager.h"
 #include "Player.h"
+#include "Enemy.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
 // http://www.peroxide.dk/papers/collision/collision.pdf
-
-struct Enemy
-{
-	/*
-	 * int _unitId;
-	 * int _typeId;
-	 * Position _position;
-	 * Angle _facing;
-	 * AiState _aiState;
-	 */
-};
 
 struct NPC
 {
@@ -117,11 +107,17 @@ public:
 	Game(const Game& other) = delete;
 	Game& operator=(const Game& other) = delete;
 
+	~Game() override;
+
 	void update(float dt) override;
 	void renderUI() override;
 	void render(Renderer *renderer) override;
 
+	// Game API
+	// TODO: Make these functions accessible through scripting
 	void addToRoot(SceneNode *sceneNode);
+	void removeFromRoot(SceneNode *sceneNode);
+	Player *getPlayer();
 private:
 
 	TerrainSceneNode *_terrainNode;
@@ -130,4 +126,8 @@ private:
 	InputManager _inputManager;
 
 	Player _player;
+
+	// TODO: Move this to zone class
+	std::vector<Enemy *> _enemies;
+	Enemy *_currentTarget;
 };

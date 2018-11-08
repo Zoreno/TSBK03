@@ -7,6 +7,7 @@
 
 #include "Triangle.h"
 #include "HilbertCurve.h"
+#include "STBTextureFile.h"
 
 static QuadTreeNode *constructQuadTreeNode(
 	int x,
@@ -47,17 +48,17 @@ static QuadTreeNode *constructQuadTreeNode(
 		str += ' ';
 	}
 */
-	
-	//std::cout << str << "x: " << x;
-	//std::cout << str << " z: " << z;
-	//std::cout << str << " width: " << width;
-	//std::cout << str << " height: " << height;
-	//std::cout << str << " x grid: " << x_grid;
-	//std::cout << str << " z grid: " << z_grid;
-	//std::cout << str << " d: " << d;
-	//std::cout << str << " start: " << node->start;
-	//std::cout << str << " count: " << node->count;
-	//std::cout << str << std::endl;
+
+//std::cout << str << "x: " << x;
+//std::cout << str << " z: " << z;
+//std::cout << str << " width: " << width;
+//std::cout << str << " height: " << height;
+//std::cout << str << " x grid: " << x_grid;
+//std::cout << str << " z grid: " << z_grid;
+//std::cout << str << " d: " << d;
+//std::cout << str << " start: " << node->start;
+//std::cout << str << " count: " << node->count;
+//std::cout << str << std::endl;
 
 	if (currentSize != leafSize)
 	{
@@ -111,7 +112,7 @@ static QuadTreeNode *constructQuadTreeNode(
 
 void destroyQuadTree(QuadTreeNode *node)
 {
-	if(node->q0 != nullptr)
+	if (node->q0 != nullptr)
 	{
 		destroyQuadTree(node->q0);
 		destroyQuadTree(node->q1);
@@ -139,9 +140,9 @@ static std::vector<glm::vec3> getPoints(QuadTreeNode *node)
 	return ret;
 }
 
-static float sampleHeightmap(TGA *file, int x, int z, int width, int height, int bpp)
+static float sampleHeightmap(TextureFile *file, int x, int z, int width, int height, int bpp)
 {
-	if (x > width || z > height)
+	if (x >= width || z >= height)
 	{
 		return 0.f;
 	}
@@ -159,15 +160,20 @@ TerrainChunk::TerrainChunk(
 	_vertices(VertexBufferObjectTarget::ARRAY_BUFFER),
 	_normals(VertexBufferObjectTarget::ARRAY_BUFFER)
 {
+#if USE_OWN_IMAGE_LOADER
 	TGA *file{ new TGA{filePath.c_str()} };
-
+#else
+	TextureFile *file = new STBTextureFile{filePath};
+#endif
 	_width = file->getWidth();
 	_height = file->getHeight();
+
+	int bpp = file->hasAlpha() ? 4 : 3;
 
 	_largestDimension = glm::max(_width, _height);
 
 	unsigned int pow2 = 1;
-	while(pow2 < _largestDimension)
+	while (pow2 < _largestDimension)
 	{
 		pow2 *= 2;
 	}
@@ -190,8 +196,6 @@ TerrainChunk::TerrainChunk(
 		1,
 		_leafSize,
 		_largestDimension);
-
-	int bpp = file->hasAlpha() ? 4 : 3;
 
 	std::vector<Triangle> vertexVector;
 	std::vector<Triangle> normalVector;
@@ -255,8 +259,8 @@ TerrainChunk::TerrainChunk(
 				vertexArray[offset + 7] = static_cast<float>(file->getPixels().at(p1 * bpp)) / divisor;
 				vertexArray[offset + 8] = z;
 				*/
-				glm::vec3 ab = glm::normalize(getVector(x, z, x + 1, z, _width, _height, *file, divisor));
-				glm::vec3 ac = glm::normalize(getVector(x, z, x, z + 1, _width, _height, *file, divisor));
+				glm::vec3 ab = glm::normalize(getVector(x, z, x + 1, z, _width, _height, file, divisor));
+				glm::vec3 ac = glm::normalize(getVector(x, z, x, z + 1, _width, _height, file, divisor));
 
 				normal = glm::cross(ac, ab);
 
@@ -311,8 +315,8 @@ TerrainChunk::TerrainChunk(
 				vertexArray[offset + 17] = z + 1;
 				*/
 
-				ab = glm::normalize(getVector(x + 1, z, x, z + 1, _width, _height, *file, divisor));
-				ac = glm::normalize(getVector(x + 1, z, x + 1, z + 1, _width, _height, *file, divisor));
+				ab = glm::normalize(getVector(x + 1, z, x, z + 1, _width, _height, file, divisor));
+				ac = glm::normalize(getVector(x + 1, z, x + 1, z + 1, _width, _height, file, divisor));
 
 				normal = glm::cross(ab, ac);
 
@@ -343,7 +347,7 @@ TerrainChunk::TerrainChunk(
 
 				_heights[x + z * _largestDimension] = sampleHeightmap(file, x, z, _width, _height, bpp) / divisor;
 
-				if(z < _largestDimension - 1 && x < _largestDimension - 1)
+				if (z < _largestDimension - 1 && x < _largestDimension - 1)
 				{
 					_heights[x + (z + 1) * _largestDimension] = sampleHeightmap(file, x, z + 1, _width, _height, bpp) / divisor;
 					_heights[x + 1 + (z)* _largestDimension] = sampleHeightmap(file, x + 1, z, _width, _height, bpp) / divisor;
@@ -488,14 +492,23 @@ void TerrainChunk::renderWithFrustum(
 	QuadTreeNode *node,
 	const Frustum &frustum) const
 {
+	// Extract the points of the corners of the current quad-tree node. The
+	// points are given in world space.
 	std::vector<glm::vec3> points = getPoints(node);
 
+	// This will return the result of intersection test of the box spanned by
+	// the points with the frustum passed to the function. A result of one
+	// indicates that the whole box is inside the frustum. A result of negative
+	// one indicates that the box is entirely outside the view frustum and a
+	// result of zero indicates that the box is partially inside the frustum.
+	// The frustum is given in world space coordinates.
 	int res = frustum.boxIntersect(points);
 
 	// If the object is entirely inside the frustum, we can send the object
 	// for rendering at the current level as the hilbert-ordered memory is
 	// guaranteeed to be contiguous for every level of the quad-tree.
 	// If this is a leaf node, we have to render it anyways.
+	// Note that q0 equals zero is equivalent to all q's equals zero.
 	if (res == 1 || (res == 0 && node->q0 == nullptr))
 	{
 		glDrawArrays(GL_TRIANGLES,
@@ -505,7 +518,8 @@ void TerrainChunk::renderWithFrustum(
 		trianglesDrawn += node->count * 2;
 	}
 	// If there was an intersection with the planes, we have to go further into
-	// the tree to determine what to cull.
+	// the tree to determine what to cull. We call this function on each of the
+	// subnodes to this tree.
 	else if (res == 0)
 	{
 		renderWithFrustum(node->q0, frustum);
@@ -514,7 +528,8 @@ void TerrainChunk::renderWithFrustum(
 		renderWithFrustum(node->q3, frustum);
 	}
 	// If there was no intersection, we can safely discard the full chunk at
-	// this level. The entire chunk is outside the frustum.
+	// this level. The entire chunk is outside the frustum and thus not visible
+	// to the camera at all.
 }
 
 glm::vec3 TerrainChunk::getVector(
@@ -524,7 +539,7 @@ glm::vec3 TerrainChunk::getVector(
 	int z2,
 	int width,
 	int height,
-	const TGA &tex,
+	const TextureFile *tex,
 	float divisor)
 {
 	float y1;
@@ -536,7 +551,7 @@ glm::vec3 TerrainChunk::getVector(
 	}
 	else
 	{
-		y1 = tex.getPixels()[(x1 + z1 * tex.getWidth()) * (tex.hasAlpha() ? 4 : 3)] / divisor;
+		y1 = tex->getPixels()[(x1 + z1 * tex->getWidth()) * (tex->hasAlpha() ? 4 : 3)] / divisor;
 	}
 
 
@@ -546,7 +561,7 @@ glm::vec3 TerrainChunk::getVector(
 	}
 	else
 	{
-		y2 = tex.getPixels()[(x2 + z2 * tex.getWidth()) * (tex.hasAlpha() ? 4 : 3)] / divisor;
+		y2 = tex->getPixels()[(x2 + z2 * tex->getWidth()) * (tex->hasAlpha() ? 4 : 3)] / divisor;
 	}
 
 	glm::vec3 vec;

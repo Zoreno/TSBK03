@@ -23,6 +23,7 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="Frame.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="StaticModelSceneNode.cpp" />
+    <ClCompile Include="STBTextureFile.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainChunk.cpp" />
     <ClCompile Include="TerrainSceneNode.cpp" />
@@ -82,6 +84,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Frame.h" />
@@ -128,6 +131,8 @@
     <ClInclude Include="SceneNodeType.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StaticModelSceneNode.h" />
+    <ClInclude Include="STBTextureFile.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Subscriber.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainChunk.h" />

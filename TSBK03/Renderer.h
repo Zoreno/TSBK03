@@ -103,7 +103,7 @@ public:
 	bool getEnableGodrays() const;
 	void setEnableGodrays(bool newEnableGodrays);
 
-	glm::vec2 getScreenSpacePosition(const glm::vec3& worldPos) const;
+	glm::vec2 getScreenSpacePosition(const glm::vec3& worldPos, bool normalized = true) const;
 private:
 
 	void extractLights(

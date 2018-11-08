@@ -62,6 +62,9 @@ void InputManager::handleEvent(
 		case GLFW_KEY_D:
 			dKey = true;
 			break;
+		case GLFW_KEY_E:
+			eKey = true;
+			break;
 		default:
 			break;
 		}
@@ -81,6 +84,9 @@ void InputManager::handleEvent(
 			break;
 		case GLFW_KEY_D:
 			dKey = false;
+			break;
+		case GLFW_KEY_E:
+			eKey = false;
 			break;
 		default:
 			break;

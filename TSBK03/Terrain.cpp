@@ -8,7 +8,10 @@ Terrain::Terrain(
 {
 	for (unsigned int i = 0; i < chunkPaths.size(); ++i)
 	{
-		_chunks.push_back(new TerrainChunk{ chunkPaths[i], offsets[i].x, offsets[i].z });
+		_chunks.push_back(
+			new TerrainChunk{ 
+				chunkPaths[i], 
+				offsets[i].x, offsets[i].z });
 	}
 }
 

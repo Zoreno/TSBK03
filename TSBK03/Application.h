@@ -44,6 +44,8 @@ public:
 
 	AssetManager *getAssetManager();
 
+	GLFWwindow *getWindow() const;
+
 private:
 
 

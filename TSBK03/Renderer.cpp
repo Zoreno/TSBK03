@@ -830,7 +830,7 @@ RendererPickingInfo Renderer::getPickingInfo(
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
 	RendererPickingInfo pixel;
-	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &pixel);
+	glReadPixels(x, _windowHeight - y, 1, 1, GL_RGB, GL_FLOAT, &pixel);
 
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -987,7 +987,8 @@ void Renderer::setEnableGodrays(
 }
 
 glm::vec2 Renderer::getScreenSpacePosition(
-	const glm::vec3 &worldPos) const
+	const glm::vec3 &worldPos,
+	bool normalized) const
 {
 	glm::vec4 clipSpacePos = _projection * _cameraTransform * glm::vec4(worldPos, 1.f);
 
@@ -995,7 +996,19 @@ glm::vec2 Renderer::getScreenSpacePosition(
 
 	clipSpacePos = 0.5f + 0.5f * clipSpacePos;
 
-	return glm::vec2(clipSpacePos.x, clipSpacePos.y);
+	if(clipSpacePos.z > 1.f)
+	{
+		clipSpacePos.x += 100.f;
+	}
+
+	if (normalized)
+	{
+		return glm::vec2(clipSpacePos.x, clipSpacePos.y);
+	}
+	else
+	{
+		return glm::vec2(clipSpacePos.x * _windowWidth, (1.f - clipSpacePos.y) * _windowHeight);
+	}
 }
 
 void Renderer::extractLights(

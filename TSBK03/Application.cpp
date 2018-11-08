@@ -961,7 +961,7 @@ void Application::run()
 
 				glfwGetCursorPos(_window, &xpos, &ypos);
 
-				RendererPickingInfo info = _renderer->getPickingInfo(static_cast<int>(xpos), static_cast<int>(windowHeight - ypos));
+				RendererPickingInfo info = _renderer->getPickingInfo(static_cast<int>(xpos), static_cast<int>(ypos));
 
 				int objectID = static_cast<int>(info.objectID);
 
@@ -1375,3 +1375,7 @@ AssetManager * Application::getAssetManager()
 	return &_assetManager;
 }
 
+GLFWwindow * Application::getWindow() const
+{
+	return _window;
+}

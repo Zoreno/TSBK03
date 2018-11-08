@@ -23,7 +23,7 @@ void main()
 		lightColor += vec3(diffFactor);
 	}
 	
-	vec3 waterColor = vec3(0.14, 0.53, 0.85);
+	vec3 waterColor = vec3(0.14, 0.53, 0.85) * 2;
 
 	FragColor = vec4(waterColor * lightColor, 1.0);
 	BrightColor = vec4(0.0, 0.0, 0.0, 1.0);

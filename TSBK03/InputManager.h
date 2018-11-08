@@ -5,9 +5,10 @@
 #include "MouseButtonEvent.h"
 #include "KeyEvent.h"
 
-class InputManager : public Subscriber<MouseMovedEvent>,
-                     public Subscriber<MouseButtonEvent>,
-                     public Subscriber<KeyEvent>
+class InputManager :
+	public Subscriber<MouseMovedEvent>,
+	public Subscriber<MouseButtonEvent>,
+	public Subscriber<KeyEvent>
 {
 public:
 
@@ -25,4 +26,8 @@ public:
 	bool aKey;
 	bool sKey;
 	bool dKey;
+
+	bool eKey;
+
+	bool dragging{ false };
 };

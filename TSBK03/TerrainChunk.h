@@ -11,6 +11,7 @@
 #include "AABB.h"
 #include "Frustum.h"
 
+class TextureFile;
 class TGA;
 
 
@@ -86,6 +87,6 @@ private:
 		int z2,
 		int width,
 		int height,
-		const TGA &tex,
+		const TextureFile *tex,
 		float divisor);
 };

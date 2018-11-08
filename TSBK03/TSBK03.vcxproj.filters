@@ -142,6 +142,15 @@
     <Filter Include="Source Files\Game">
       <UniqueIdentifier>{dddd7865-7fe2-4d66-a6e3-0b3cc9204a6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game\Entity">
+      <UniqueIdentifier>{b066e511-c130-454d-b010-fec33d111e98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Entity">
+      <UniqueIdentifier>{01ad0cbf-2bbf-4df2-9599-37f53d872f88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Library\STB">
+      <UniqueIdentifier>{8f771d67-e647-4087-9383-44e44347d381}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -296,6 +305,12 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Source Files\Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="STBTextureFile.cpp">
+      <Filter>Source Files\Engine\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -519,7 +534,16 @@
       <Filter>Header Files\Application\Event\Events</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Header Files\Game</Filter>
+      <Filter>Header Files\Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Header Files\Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files\Library\STB</Filter>
+    </ClInclude>
+    <ClInclude Include="STBTextureFile.h">
+      <Filter>Header Files\Engine\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
