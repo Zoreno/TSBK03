@@ -151,6 +151,12 @@
     <Filter Include="Header Files\Library\STB">
       <UniqueIdentifier>{8f771d67-e647-4087-9383-44e44347d381}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Water">
+      <UniqueIdentifier>{63699354-e9b6-4d2f-b115-b3a1fc356798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Normals">
+      <UniqueIdentifier>{abf96687-79b8-4273-9a5f-16d330d77d0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -571,18 +577,6 @@
     <None Include="blur.vert">
       <Filter>Shaders\Post-Processing</Filter>
     </None>
-    <None Include="water.frag">
-      <Filter>Shaders\Main Rendering</Filter>
-    </None>
-    <None Include="water.tctl">
-      <Filter>Shaders\Main Rendering</Filter>
-    </None>
-    <None Include="water.tevl">
-      <Filter>Shaders\Main Rendering</Filter>
-    </None>
-    <None Include="water.vert">
-      <Filter>Shaders\Main Rendering</Filter>
-    </None>
     <None Include="shader.frag">
       <Filter>Shaders\Main Rendering</Filter>
     </None>
@@ -615,6 +609,30 @@
     </None>
     <None Include="outlinesBox.frag">
       <Filter>Shaders\Main Rendering</Filter>
+    </None>
+    <None Include="water.frag">
+      <Filter>Shaders\Water</Filter>
+    </None>
+    <None Include="water.tctl">
+      <Filter>Shaders\Water</Filter>
+    </None>
+    <None Include="water.tevl">
+      <Filter>Shaders\Water</Filter>
+    </None>
+    <None Include="water.vert">
+      <Filter>Shaders\Water</Filter>
+    </None>
+    <None Include="normals.vert">
+      <Filter>Shaders\Normals</Filter>
+    </None>
+    <None Include="normals.geom">
+      <Filter>Shaders\Normals</Filter>
+    </None>
+    <None Include="normals.frag">
+      <Filter>Shaders\Normals</Filter>
+    </None>
+    <None Include="skinnedcsm.vert">
+      <Filter>Shaders\Occlusion</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -545,7 +545,7 @@ glm::vec3 TerrainChunk::getVector(
 	float y1;
 	float y2;
 
-	if (x1 > width || z1 > height)
+	if (x1 >= width || z1 >= height)
 	{
 		y1 = 0.f;
 	}
@@ -555,7 +555,7 @@ glm::vec3 TerrainChunk::getVector(
 	}
 
 
-	if (x2 > width || z2 > height)
+	if (x2 >= width || z2 >= height)
 	{
 		y2 = 0.f;
 	}

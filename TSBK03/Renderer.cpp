@@ -81,6 +81,9 @@ Renderer::Renderer(
 	_csmShader.setVertexShaderSource("csm.vert");
 	_csmShader.setFragmentShaderSource("csm.frag");
 
+	_skinnedCsmShader.setVertexShaderSource("skinnedcsm.vert");
+	_skinnedCsmShader.setFragmentShaderSource("csm.frag");
+
 	_godrayOcclusionShader.setVertexShaderSource("godrayOcclusion.vert");
 	_godrayOcclusionShader.setFragmentShaderSource("godrayOcclusion.frag");
 
@@ -88,6 +91,10 @@ Renderer::Renderer(
 	_waterShader.setFragmentShaderSource("water.frag");
 	_waterShader.setTessellationControlSource("water.tctl");
 	_waterShader.setTessellationEvaluationSource("water.tevl");
+
+	_normalShader.setVertexShaderSource("normals.vert");
+	_normalShader.setFragmentShaderSource("normals.frag");
+	_normalShader.setGeometryShaderSource("normals.geom");
 
 	try
 	{
@@ -99,8 +106,10 @@ Renderer::Renderer(
 		_skyboxShader.compile();
 		_outlinesBoxShader.compile();
 		_csmShader.compile();
+		_skinnedCsmShader.compile();
 		_godrayOcclusionShader.compile();
 		_waterShader.compile();
+		_normalShader.compile();
 	}
 	catch (const GLSLShaderCompilationException& ex)
 	{
@@ -250,7 +259,7 @@ Renderer::Renderer(
 	}
 
 	_cascadeEnds[0] = -0.1f; // This must be equal to zNear
-	_cascadeEnds[1] = -25.0f;
+	_cascadeEnds[1] = -15.0f;
 	_cascadeEnds[2] = -90.0f;
 	_cascadeEnds[3] = -200.f; // This must be equal to zFar
 
@@ -622,7 +631,7 @@ void Renderer::calculateOrthoProjections(int lightIndex)
 		_lightViewMatrices[lightIndex * NUM_CASCADES + i] = lightViewMatrix;
 
 		glm::mat4 orthoProj = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.f, cascadeExtents.z);
-
+		
 		glm::mat4 shadowMatrix = orthoProj * lightViewMatrix;
 		glm::vec4 shadowOrigin = glm::vec4{ 0.f, 0.f, 0.f, 1.f };
 
@@ -1009,6 +1018,17 @@ glm::vec2 Renderer::getScreenSpacePosition(
 	{
 		return glm::vec2(clipSpacePos.x * _windowWidth, (1.f - clipSpacePos.y) * _windowHeight);
 	}
+}
+
+bool Renderer::getDrawNormals() const
+{
+	return _drawNormals;
+}
+
+void Renderer::setDrawNormals(
+	bool value)
+{
+	_drawNormals = value;
 }
 
 void Renderer::extractLights(
@@ -1461,6 +1481,7 @@ void Renderer::renderStaticModel(
 	currentShader->uploadUniform("model", modelTransform);
 	currentShader->uploadUniform("mvp", mvp);
 	currentShader->uploadUniform("texUnit", 0);
+	currentShader->uploadUniform("snow", _snow);
 
 	for (unsigned int i = 0; i < NUM_CASCADES; ++i)
 	{
@@ -1587,7 +1608,7 @@ void Renderer::renderStaticModelCSM(
 
 	std::string modelTag = modelNode->getModel();
 
-	const Model *model = _assetManager->fetch<Model>(modelTag);
+	Model *model = _assetManager->fetch<Model>(modelTag);
 
 	Frustum frustum{ _projection * _cameraTransform };
 
@@ -1610,13 +1631,41 @@ void Renderer::renderStaticModelCSM(
 		_lightViewMatrices[_currentCascade] *
 		modelNode->getTransformationMatrix() * model->getCorrectionTransform();
 
-	_csmShader.use();
-
-	_csmShader.uploadUniform("mvp", mvp);
-
-	for (unsigned int i = 0; i < model->getMeshes().size(); ++i)
+	if (model->isSkinned())
 	{
-		model->getMeshes().at(i)->render();
+		_skinnedCsmShader.use();
+
+		_skinnedCsmShader.uploadUniform("mvp", mvp);
+
+		std::vector<glm::mat4> transforms;
+
+		// TODO: Move animation time to the model
+		float time = glfwGetTime();
+
+		if (modelNode->getCurrentAnimation() == "idle")
+		{
+			time = 1.52;
+		}
+
+		model->getBoneTransforms(time, transforms, modelNode->getCurrentAnimation());
+
+		_skinnedCsmShader.uploadUniformArray("bones", transforms.size(), transforms);
+
+		for (unsigned int i = 0; i < model->getMeshes().size(); ++i)
+		{
+			model->getMeshes().at(i)->render();
+		}
+	}
+	else
+	{
+		_csmShader.use();
+
+		_csmShader.uploadUniform("mvp", mvp);
+
+		for (unsigned int i = 0; i < model->getMeshes().size(); ++i)
+		{
+			model->getMeshes().at(i)->render();
+		}
 	}
 
 	GLSLShader::use(0);
@@ -1740,6 +1789,7 @@ void Renderer::renderTerrain(
 
 		_shader.uploadUniform("mvp", mvp * chunkOffset);
 		_shader.uploadUniform("model", modelMatrix * chunkOffset);
+		_shader.uploadUniform("snow", _snow);
 
 		for (unsigned int i = 0; i < NUM_CASCADES; ++i)
 		{
@@ -1757,11 +1807,13 @@ void Renderer::renderTerrain(
 		material.ambientColor = glm::vec3{ 0.2f, 0.2f, 0.2f };
 		material.diffuseColor = glm::vec3{ 0.3f, 0.8f, 0.3f };
 		material.specularColor = glm::vec3{ 0.f, 0.f, 0.f };
+
 		material.exponent = 4;
 
 		_shader.uploadUniform("material.ambient", material.ambientColor);
 		_shader.uploadUniform("material.diffuse", material.diffuseColor);
 		_shader.uploadUniform("material.specular", material.specularColor);
+
 		_shader.uploadUniform("material.exponent", material.exponent);
 
 		_shader.uploadUniform("terrain", true);
@@ -1771,6 +1823,23 @@ void Renderer::renderTerrain(
 		it->render(frustum);
 	}
 
+	if (_drawNormals)
+	{
+		_normalShader.use();
+
+		for (auto it : terrain->getChunks())
+		{
+			glm::mat4 chunkOffset = glm::translate(glm::mat4{ 1.f }, glm::vec3{ it->getOffsetX(), 0.f, it->getOffsetZ() });
+
+			_normalShader.uploadUniform("model", modelMatrix * chunkOffset);
+
+			_normalShader.uploadUniform("vp", _projection * _cameraTransform);
+
+			Frustum frustum{ _projection * _cameraTransform };
+
+			it->render(frustum);
+		}
+	}
 	GLSLShader::use(0);
 }
 
@@ -1813,6 +1882,7 @@ void Renderer::renderTerrainPicking(
 	_pickingShader.use();
 
 	_pickingShader.uploadUniform("mvp", mvp);
+
 	_pickingShader.uploadUniform("objectIndex", static_cast<int>(modelNode->getID()));
 
 	unsigned int index = 0;

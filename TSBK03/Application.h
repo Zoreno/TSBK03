@@ -46,8 +46,11 @@ public:
 
 	GLFWwindow *getWindow() const;
 
+	void shutDown();
+
 private:
 
+	bool _appShouldClose{false};
 
 	EventManager _eventManager;
 	AssetManager _assetManager;

@@ -65,8 +65,8 @@ private:
 	float _facing{0.f};
 
 	float _yVel{0.f};
-	float _speed{0.03f};
-	float _rotationSpeed{0.05f};
+	float _speed{2.f};
+	float _rotationSpeed{2.f};
 	bool _touchingGround{true};
 	bool _walking{false};
 

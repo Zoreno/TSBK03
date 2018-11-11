@@ -104,6 +104,9 @@ public:
 	void setEnableGodrays(bool newEnableGodrays);
 
 	glm::vec2 getScreenSpacePosition(const glm::vec3& worldPos, bool normalized = true) const;
+
+	bool getDrawNormals() const;
+	void setDrawNormals(bool value);
 private:
 
 	void extractLights(
@@ -160,8 +163,14 @@ private:
 	GLSLShader _skyboxShader{};
 	GLSLShader _outlinesBoxShader{};
 	GLSLShader _csmShader{};
+	GLSLShader _skinnedCsmShader{};
 	GLSLShader _godrayOcclusionShader{};
 	GLSLShader _waterShader{};
+	GLSLShader _normalShader{};
+
+	bool _drawNormals = false;
+
+	bool _snow = false;
 
 	glm::mat4 _cameraTransform{};
 

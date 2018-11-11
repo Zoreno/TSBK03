@@ -125,6 +125,14 @@ void Game::update(
 
 	lastLClick = _inputManager.leftClick;
 	lastEKey = _inputManager.eKey;
+
+	if(_player.getHealth() <= 0)
+	{
+		// TODO: Do something else
+		// We can move the player to a starting point or a checkpoint set by
+		// the player
+		_application->shutDown();
+	}
 }
 
 void Game::renderUI()

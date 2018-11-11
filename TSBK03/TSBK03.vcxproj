@@ -159,12 +159,16 @@
     <None Include="godrayOcclusion.vert" />
     <None Include="hdr.frag" />
     <None Include="hdr.vert" />
+    <None Include="normals.frag" />
+    <None Include="normals.geom" />
+    <None Include="normals.vert" />
     <None Include="outlinesBox.frag" />
     <None Include="outlinesBox.vert" />
     <None Include="picking.frag" />
     <None Include="picking.vert" />
     <None Include="shader.frag" />
     <None Include="shader.vert" />
+    <None Include="skinnedcsm.vert" />
     <None Include="skinnedshader.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />

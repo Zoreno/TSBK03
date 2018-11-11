@@ -95,7 +95,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		if (!_lockFacing)
 		{
 			// Rotate left
-			_facing += _rotationSpeed;
+			_facing += dt * _rotationSpeed;
 		}
 		else
 		{
@@ -111,7 +111,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		if (!_lockFacing)
 		{
 			// Rotate right
-			_facing -= _rotationSpeed;
+			_facing -= dt * _rotationSpeed;
 		}
 		else
 		{
@@ -130,7 +130,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 
 	if (glm::length(deltaPos) > 0.1f)
 	{
-		deltaPos = _speed * glm::normalize(deltaPos);
+		deltaPos = dt * _speed * glm::normalize(deltaPos);
 
 		float heightAtDest = terrain->getHeight(_position.x + deltaPos.x, _position.z + deltaPos.z);
 

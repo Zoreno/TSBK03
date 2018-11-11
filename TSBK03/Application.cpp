@@ -775,7 +775,7 @@ Application::~Application()
 
 void Application::run()
 {
-	while (!glfwWindowShouldClose(_window))
+	while (!glfwWindowShouldClose(_window) && !_appShouldClose)
 	{
 		static bool wireframe = false;
 
@@ -1048,6 +1048,16 @@ void Application::run()
 				if (ImGui::InputFloat("Godray Num Samples", &godrayNumSamples))
 				{
 					_renderer->setGodrayNumSamples(godrayNumSamples);
+				}
+
+				ImGui::Separator();
+
+
+				bool drawNormals = _renderer->getDrawNormals();
+
+				if(ImGui::Checkbox("Draw Normals", &drawNormals))
+				{
+					_renderer->setDrawNormals(drawNormals);
 				}
 
 			}
@@ -1378,4 +1388,9 @@ AssetManager * Application::getAssetManager()
 GLFWwindow * Application::getWindow() const
 {
 	return _window;
+}
+
+void Application::shutDown()
+{
+	_appShouldClose = true;
 }
