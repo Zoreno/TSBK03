@@ -18,7 +18,9 @@ static QuadTreeNode *constructQuadTreeNode(
 	unsigned int leafSize,
 	unsigned int currentSize,
 	const std::vector<float>& minHeights,
-	const std::vector<float>& maxHeights)
+	const std::vector<float>& maxHeights,
+	int xOffset,
+	int zOffset)
 {
 	// Allocate memory for a new node
 	QuadTreeNode *node = new QuadTreeNode{};
@@ -31,8 +33,8 @@ static QuadTreeNode *constructQuadTreeNode(
 	node->height = height;
 
 	// Get the position in the grid (with the leaf size as unit size.
-	int x_grid = x / currentSize;
-	int z_grid = z / currentSize;
+	int x_grid = (x - xOffset) / currentSize;
+	int z_grid = (z - zOffset) / currentSize;
 
 	// Get the offset into the hilbert curve associated with this node.
 	int d = hilbert_xy2d(hilbertDimension, x_grid, z_grid);
@@ -80,7 +82,9 @@ static QuadTreeNode *constructQuadTreeNode(
 			leafSize,
 			currentSize / 2,
 			minHeights,
-			maxHeights);
+			maxHeights,
+			xOffset,
+			zOffset);
 
 		// Construct the node for the second quadrants.
 		node->q1 = constructQuadTreeNode(
@@ -92,7 +96,9 @@ static QuadTreeNode *constructQuadTreeNode(
 			leafSize,
 			currentSize / 2,
 			minHeights,
-			maxHeights);
+			maxHeights,
+			xOffset,
+			zOffset);
 
 		// Construct the node for the third quadrants.
 		node->q2 = constructQuadTreeNode(
@@ -104,7 +110,9 @@ static QuadTreeNode *constructQuadTreeNode(
 			leafSize,
 			currentSize / 2,
 			minHeights,
-			maxHeights);
+			maxHeights,
+			xOffset,
+			zOffset);
 
 		// Construct the node for the fourth quadrants.
 		node->q3 = constructQuadTreeNode(
@@ -116,7 +124,9 @@ static QuadTreeNode *constructQuadTreeNode(
 			leafSize,
 			currentSize / 2,
 			minHeights,
-			maxHeights);
+			maxHeights,
+			xOffset,
+			zOffset);
 
 		// Update the min and max Y values from the min and the max values from
 		// the child nodes.
@@ -424,7 +434,9 @@ TerrainChunk::TerrainChunk(
 		_leafSize,
 		_largestDimension,
 		minHeights,
-		maxHeights);
+		maxHeights,
+		offsetX,
+		offsetZ);
 
 	_vao.bind();
 

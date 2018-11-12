@@ -734,6 +734,7 @@ Application::Application()
 	terrains.push_back("NvF5e.tga");
 
 	std::vector<glm::vec3> offsets;
+
 	offsets.push_back(glm::vec3{ 0.f, 0.f, 0.f });
 
 	Terrain *terrain = _assetManager.load<Terrain>("terrain", terrains, offsets);
