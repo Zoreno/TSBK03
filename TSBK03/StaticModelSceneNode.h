@@ -22,7 +22,10 @@ public:
 
 	bool getOutline() const;
 	void setOutline(bool newOutline);
-private:
+
+	glm::vec3 getTintColor() const;
+	void setTintColor(const glm::vec3 tintColor);
+protected:
 
 	std::string _model;
 
@@ -31,4 +34,6 @@ private:
 	std::string _currentAnimation;
 
 	bool _outline;
+
+	glm::vec3 _tintColor{0.f, 0.f, 0.f};
 };

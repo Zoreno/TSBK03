@@ -14,28 +14,34 @@ static QuadTreeNode *constructQuadTreeNode(
 	int z,
 	int width,
 	int height,
-	int minY,
-	int maxY,
 	unsigned int hilbertDimension,
 	unsigned int leafSize,
-	unsigned int currentSize)
+	unsigned int currentSize,
+	const std::vector<float>& minHeights,
+	const std::vector<float>& maxHeights)
 {
+	// Allocate memory for a new node
 	QuadTreeNode *node = new QuadTreeNode{};
 
+	// Constuct the world space position of the node and the world space size
+	// of the node.
 	node->x = x;
 	node->z = z;
 	node->width = width;
 	node->height = height;
-	node->minY = minY;
-	node->maxY = maxY;
 
+	// Get the position in the grid (with the leaf size as unit size.
 	int x_grid = x / currentSize;
 	int z_grid = z / currentSize;
 
+	// Get the offset into the hilbert curve associated with this node.
 	int d = hilbert_xy2d(hilbertDimension, x_grid, z_grid);
 
+	// Calculate the size of the blocks in number of quads.
 	unsigned int blockSize = currentSize * currentSize;
 
+	// Assign the offset into the vertex buffer and the number of entries in
+	// the buffer for this node.
 	node->start = d * blockSize;
 	node->count = blockSize;
 
@@ -43,7 +49,8 @@ static QuadTreeNode *constructQuadTreeNode(
 */
 	std::string str{};
 
-	/*for (unsigned int i = 0; i < count; ++i)
+	/*
+	for (unsigned int i = 0; i < count; ++i)
 	{
 		str += ' ';
 	}
@@ -60,53 +67,86 @@ static QuadTreeNode *constructQuadTreeNode(
 //std::cout << str << " count: " << node->count;
 //std::cout << str << std::endl;
 
+	// Recursively construct the sub-nodes for this node.
 	if (currentSize != leafSize)
 	{
+		// Construct the node for the first quadrants.
 		node->q0 = constructQuadTreeNode(
 			x,
 			z,
 			width / 2,
 			height / 2,
-			minY,
-			maxY,
 			hilbertDimension * 2,
 			leafSize,
-			currentSize / 2);
+			currentSize / 2,
+			minHeights,
+			maxHeights);
 
+		// Construct the node for the second quadrants.
 		node->q1 = constructQuadTreeNode(
 			x + (width / 2),
 			z,
 			width / 2,
 			height / 2,
-			minY,
-			maxY,
 			hilbertDimension * 2,
 			leafSize,
-			currentSize / 2);
+			currentSize / 2,
+			minHeights,
+			maxHeights);
 
+		// Construct the node for the third quadrants.
 		node->q2 = constructQuadTreeNode(
 			x,
 			z + (height / 2),
 			width / 2,
 			height / 2,
-			minY,
-			maxY,
 			hilbertDimension * 2,
 			leafSize,
-			currentSize / 2);
+			currentSize / 2,
+			minHeights,
+			maxHeights);
 
+		// Construct the node for the fourth quadrants.
 		node->q3 = constructQuadTreeNode(
 			x + (width / 2),
 			z + (height / 2),
 			width / 2,
 			height / 2,
-			minY,
-			maxY,
 			hilbertDimension * 2,
 			leafSize,
-			currentSize / 2);
+			currentSize / 2,
+			minHeights,
+			maxHeights);
+
+		// Update the min and max Y values from the min and the max values from
+		// the child nodes.
+		node->minY =
+			glm::min(
+				glm::min(
+					node->q0->minY,
+					node->q1->minY),
+				glm::min(
+					node->q2->minY,
+					node->q3->minY));
+
+		node->maxY =
+			glm::max(
+				glm::max(
+					node->q0->maxY,
+					node->q1->maxY),
+				glm::max(
+					node->q2->maxY,
+					node->q3->maxY));
+	}
+	else
+	{
+		// If this is a leaf node, we can get the min and max Y values from
+		// the buffers we passed into the constructor.
+		node->minY = minHeights.at(d);
+		node->maxY = maxHeights.at(d);
 	}
 
+	// Return the address of the node we constructed.
 	return node;
 }
 
@@ -163,7 +203,7 @@ TerrainChunk::TerrainChunk(
 #if USE_OWN_IMAGE_LOADER
 	TGA *file{ new TGA{filePath.c_str()} };
 #else
-	TextureFile *file = new STBTextureFile{filePath};
+	TextureFile *file = new STBTextureFile{ filePath };
 #endif
 	_width = file->getWidth();
 	_height = file->getHeight();
@@ -186,21 +226,16 @@ TerrainChunk::TerrainChunk(
 
 	_heights.resize(_largestDimension * _largestDimension);
 
-	_treeRoot = constructQuadTreeNode(
-		static_cast<int>(_offsetX),
-		static_cast<int>(_offsetZ),
-		_largestDimension,
-		_largestDimension,
-		0,
-		256,
-		1,
-		_leafSize,
-		_largestDimension);
-
 	std::vector<Triangle> vertexVector;
 	std::vector<Triangle> normalVector;
 	vertexVector.resize(_triangleCount);
 	normalVector.resize(_triangleCount);
+
+	std::vector<float> minHeights;
+	std::vector<float> maxHeights;
+
+	minHeights.resize(_hilbertDimension * _hilbertDimension);
+	maxHeights.resize(_hilbertDimension * _hilbertDimension);
 
 	for (unsigned int i = 0; i < _hilbertDimension * _hilbertDimension; ++i)
 	{
@@ -213,6 +248,9 @@ TerrainChunk::TerrainChunk(
 
 		x_offset *= _leafSize;
 		z_offset *= _leafSize;
+
+		float minHeight = 256.f;
+		float maxHeight = 0.f;
 
 		for (unsigned int z = z_offset; z < z_offset + _leafSize; ++z)
 		{
@@ -245,6 +283,14 @@ TerrainChunk::TerrainChunk(
 				vertexVector.at(offset).p2.x = x + 1;
 				vertexVector.at(offset).p2.y = sampleHeightmap(file, x + 1, z, _width, _height, bpp) / divisor;
 				vertexVector.at(offset).p2.z = z;
+
+				minHeight = glm::min(minHeight, vertexVector.at(offset).p0.y);
+				minHeight = glm::min(minHeight, vertexVector.at(offset).p1.y);
+				minHeight = glm::min(minHeight, vertexVector.at(offset).p2.y);
+
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset).p0.y);
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset).p1.y);
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset).p2.y);
 
 				/*
 				vertexArray[offset + 0] = x;
@@ -301,6 +347,15 @@ TerrainChunk::TerrainChunk(
 				vertexVector.at(offset + 1).p2.x = x + 1;
 				vertexVector.at(offset + 1).p2.y = sampleHeightmap(file, x + 1, z + 1, _width, _height, bpp) / divisor;
 				vertexVector.at(offset + 1).p2.z = z + 1;
+
+				minHeight = glm::min(minHeight, vertexVector.at(offset + 1).p0.y);
+				minHeight = glm::min(minHeight, vertexVector.at(offset + 1).p1.y);
+				minHeight = glm::min(minHeight, vertexVector.at(offset + 1).p2.y);
+
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset + 1).p0.y);
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset + 1).p1.y);
+				maxHeight = glm::max(maxHeight, vertexVector.at(offset + 1).p2.y);
+
 				/*
 				vertexArray[offset + 9] = x + 1;
 				vertexArray[offset + 10] = static_cast<float>(file->getPixels().at(p1 * bpp)) / divisor;
@@ -355,7 +410,21 @@ TerrainChunk::TerrainChunk(
 				}
 			}
 		}
+
+		minHeights.at(i) = minHeight;
+		maxHeights.at(i) = maxHeight;
 	}
+
+	_treeRoot = constructQuadTreeNode(
+		static_cast<int>(_offsetX),
+		static_cast<int>(_offsetZ),
+		_largestDimension,
+		_largestDimension,
+		1,
+		_leafSize,
+		_largestDimension,
+		minHeights,
+		maxHeights);
 
 	_vao.bind();
 

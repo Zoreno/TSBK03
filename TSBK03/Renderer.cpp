@@ -96,6 +96,10 @@ Renderer::Renderer(
 	_normalShader.setFragmentShaderSource("normals.frag");
 	_normalShader.setGeometryShaderSource("normals.geom");
 
+	_grassShader.setVertexShaderSource("grass.vert");
+	_grassShader.setFragmentShaderSource("grass.frag");
+	_grassShader.setGeometryShaderSource("grass.geom");
+
 	try
 	{
 		_shader.compile();
@@ -110,6 +114,7 @@ Renderer::Renderer(
 		_godrayOcclusionShader.compile();
 		_waterShader.compile();
 		_normalShader.compile();
+		_grassShader.compile();
 	}
 	catch (const GLSLShaderCompilationException& ex)
 	{
@@ -1005,6 +1010,7 @@ glm::vec2 Renderer::getScreenSpacePosition(
 
 	clipSpacePos = 0.5f + 0.5f * clipSpacePos;
 
+	// Hax
 	if(clipSpacePos.z > 1.f)
 	{
 		clipSpacePos.x += 100.f;
@@ -1482,6 +1488,7 @@ void Renderer::renderStaticModel(
 	currentShader->uploadUniform("mvp", mvp);
 	currentShader->uploadUniform("texUnit", 0);
 	currentShader->uploadUniform("snow", _snow);
+	currentShader->uploadUniform("tintColor", modelNode->getTintColor());
 
 	for (unsigned int i = 0; i < NUM_CASCADES; ++i)
 	{
@@ -1840,6 +1847,42 @@ void Renderer::renderTerrain(
 			it->render(frustum);
 		}
 	}
+
+	if (true)
+	{
+		_grassShader.use();
+
+		//glDisable(GL_CULL_FACE);
+
+		for (auto it : terrain->getChunks())
+		{
+			glm::mat4 chunkOffset = glm::translate(glm::mat4{ 1.f }, glm::vec3{ it->getOffsetX(), 0.f, it->getOffsetZ() });
+
+			_grassShader.uploadUniform("model", modelMatrix * chunkOffset);
+
+			_grassShader.uploadUniform("vp", _projection * _cameraTransform);
+
+			_grassShader.uploadUniform("numDirectionalLights", static_cast<int>(_directionalLights.size()));
+
+			_grassShader.uploadUniform("cameraPos", _cameraPosition);
+
+			for (unsigned int i = 0; i < _directionalLights.size(); ++i)
+			{
+				_grassShader.uploadUniform(std::string{ "lightDir[" } +std::to_string(i) + std::string{ "]" }, _directionalLights.at(i).first.getDirection());
+			}
+
+			float time = glfwGetTime();
+
+			_grassShader.uploadUniform("time", time);
+
+			Frustum frustum{ _projection * _cameraTransform };
+
+			it->render(frustum);
+		}
+
+		//glEnable(GL_CULL_FACE);
+	}
+
 	GLSLShader::use(0);
 }
 

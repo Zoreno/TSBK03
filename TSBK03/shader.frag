@@ -83,6 +83,8 @@ uniform bool terrain = false;
 
 uniform bool snow;
 
+uniform vec3 tintColor;
+
 //=============================================================================
 // Outputs
 //=============================================================================
@@ -351,8 +353,6 @@ void main()
 		}
 	}
 
-	
-
 	vec3 norm = normalize(normal);
 	vec3 up = vec3(0.0, 1.0, 0.0);
 
@@ -367,6 +367,8 @@ void main()
 	vec3 lightColor = calculateLight(mat);
 
 	vec3 outputColor = objColor * lightColor;
+
+	outputColor += tintColor;
 
     FragColor = vec4(outputColor, 1.0);
 

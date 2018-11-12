@@ -167,6 +167,7 @@ private:
 	GLSLShader _godrayOcclusionShader{};
 	GLSLShader _waterShader{};
 	GLSLShader _normalShader{};
+	GLSLShader _grassShader{};
 
 	bool _drawNormals = false;
 

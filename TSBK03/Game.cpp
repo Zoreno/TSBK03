@@ -14,7 +14,7 @@ Game::Game(
 
 	_scene->addChild(_terrainNode);
 
-	DirectionalLightSceneNode *directionalLight1 = new DirectionalLightSceneNode{
+	_directionalLightNode = new DirectionalLightSceneNode{
 		DirectionalLight{
 		glm::vec3{ 3.f, -3.f, 3.f },
 		glm::vec3{ 0.2f, 0.2f, 0.2f },
@@ -22,7 +22,7 @@ Game::Game(
 		glm::vec3{ 0.8f, 0.8f, 0.8f } },
 		"DirectionalLight1" };
 
-	_scene->addChild(directionalLight1);
+	_scene->addChild(_directionalLightNode);
 
 	application->getEventManager()->addSubscriber<MouseMovedEvent>(&_inputManager);
 	application->getEventManager()->addSubscriber<MouseButtonEvent>(&_inputManager);
@@ -47,6 +47,12 @@ void Game::update(
 	static bool lastLClick = _inputManager.leftClick;
 	static bool lastEKey = _inputManager.eKey;
 
+	static float currTime = 0;
+	currTime += dt;
+
+	_directionalLightNode->getDirectionalLight().setDirection(
+		3.f * glm::vec3{ glm::cos(currTime / 10.f), 0 ? -0.5f - 0.5f * glm::cos(currTime / 20.f) : -1.f, glm::sin(currTime / 10.f) });
+
 	// TODO: Target with TAB
 	// Detect falling flank on left click
 	if (!_inputManager.dragging && lastLClick && !_inputManager.leftClick)
@@ -61,7 +67,14 @@ void Game::update(
 		{
 			if (it->getSceneNodeID() == pickingInfo.objectID)
 			{
+				if(_currentTarget != nullptr)
+				{
+					_currentTarget->onUntargeted();
+				}
+
 				_currentTarget = it;
+
+				_currentTarget->onTargeted();
 
 				found = true;
 
@@ -71,6 +84,7 @@ void Game::update(
 
 		if (!found && _currentTarget != nullptr)
 		{
+			_currentTarget->onUntargeted();
 			_currentTarget = nullptr;
 		}
 	}
@@ -103,6 +117,7 @@ void Game::update(
 
 			if (_currentTarget == enemy)
 			{
+				_currentTarget->onUntargeted();
 				_currentTarget = nullptr;
 			}
 
@@ -126,7 +141,7 @@ void Game::update(
 	lastLClick = _inputManager.leftClick;
 	lastEKey = _inputManager.eKey;
 
-	if(_player.getHealth() <= 0)
+	if (_player.getHealth() <= 0)
 	{
 		// TODO: Do something else
 		// We can move the player to a starting point or a checkpoint set by

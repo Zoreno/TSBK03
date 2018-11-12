@@ -171,6 +171,16 @@ void Enemy::onDeath()
 	_game->getPlayer()->addExperience(25);
 }
 
+void Enemy::onTargeted()
+{
+	_sceneNode->setTintColor(glm::vec3(0.2f, 0.f, 0.f));
+}
+
+void Enemy::onUntargeted()
+{
+	_sceneNode->setTintColor(glm::vec3(0.f, 0.f, 0.f));
+}
+
 float Enemy::distanceToPlayer() const
 {
 	return glm::length(_position - _game->getPlayer()->getPosition());

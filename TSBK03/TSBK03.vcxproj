@@ -48,6 +48,7 @@
     <ClCompile Include="MersenneDevice.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="PerlinNoise.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -117,6 +118,7 @@
     <ClInclude Include="ModelNode.h" />
     <ClInclude Include="MouseButtonEvent.h" />
     <ClInclude Include="MouseMovedEvent.h" />
+    <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="PixelInfo.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Player.h" />
@@ -157,6 +159,9 @@
     <None Include="csm.vert" />
     <None Include="godrayOcclusion.frag" />
     <None Include="godrayOcclusion.vert" />
+    <None Include="grass.frag" />
+    <None Include="grass.geom" />
+    <None Include="grass.vert" />
     <None Include="hdr.frag" />
     <None Include="hdr.vert" />
     <None Include="normals.frag" />

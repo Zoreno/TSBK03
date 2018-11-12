@@ -3,16 +3,17 @@
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 BrightColor;
 
-#define MAX_LIGHTS 8
+in vec3 normal_GS;
+in vec3 occlusionFactor;
 
-flat in vec3 normal_es;
+#define MAX_LIGHTS 8
 
 uniform vec3 lightDir[MAX_LIGHTS];
 uniform int numDirectionalLights = 0;
 
 void main()
 {
-	vec3 norm = normalize(normal_es);
+	vec3 norm = normalize(normal_GS);
 	
 	vec3 lightColor = vec3(0.0, 0.0, 0.0);
 
@@ -24,9 +25,12 @@ void main()
 
 		lightColor += vec3(diffFactor);
 	}
-	
-	vec3 waterColor = vec3(0.14, 0.53, 0.85) * 2;
 
-	FragColor = vec4(waterColor * lightColor, 1.0);
+	//vec3 grassColor = vec3(0.23, 0.68, 0.36);
+	vec3 grassColor = vec3(0.0, 1.0, 0.0);
+
+	FragColor = vec4(grassColor * (0.7 * lightColor + 0.3) * (occlusionFactor), 1.0);
+
+	// TODO: Make the grass output color to the bloom buffer
 	BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

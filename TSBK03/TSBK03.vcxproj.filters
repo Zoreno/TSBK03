@@ -157,6 +157,9 @@
     <Filter Include="Shaders\Normals">
       <UniqueIdentifier>{abf96687-79b8-4273-9a5f-16d330d77d0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Grass">
+      <UniqueIdentifier>{69474191-a79a-4235-855c-c36519fbd2a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -317,6 +320,9 @@
     </ClCompile>
     <ClCompile Include="STBTextureFile.cpp">
       <Filter>Source Files\Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="PerlinNoise.cpp">
+      <Filter>Source Files\Engine\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -551,6 +557,9 @@
     <ClInclude Include="STBTextureFile.h">
       <Filter>Header Files\Engine\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="PerlinNoise.h">
+      <Filter>Header Files\Engine\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="AssetPool.inl">
@@ -633,6 +642,15 @@
     </None>
     <None Include="skinnedcsm.vert">
       <Filter>Shaders\Occlusion</Filter>
+    </None>
+    <None Include="grass.vert">
+      <Filter>Shaders\Grass</Filter>
+    </None>
+    <None Include="grass.geom">
+      <Filter>Shaders\Grass</Filter>
+    </None>
+    <None Include="grass.frag">
+      <Filter>Shaders\Grass</Filter>
     </None>
   </ItemGroup>
 </Project>

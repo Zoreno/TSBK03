@@ -53,3 +53,14 @@ void StaticModelSceneNode::setOutline(
 {
 	_outline = newOutline;
 }
+
+glm::vec3 StaticModelSceneNode::getTintColor() const
+{
+	return _tintColor;
+}
+
+void StaticModelSceneNode::setTintColor(
+	const glm::vec3 tintColor)
+{
+	_tintColor = tintColor;
+}

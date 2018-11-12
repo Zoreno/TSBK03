@@ -33,6 +33,8 @@ public:
 	void takeDamage(int damage);
 
 	virtual void onDeath();
+	virtual void onTargeted();
+	virtual void onUntargeted();
 
 	float distanceToPlayer() const;
 	float distanceToStart() const;

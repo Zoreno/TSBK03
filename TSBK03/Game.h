@@ -120,6 +120,8 @@ public:
 	Player *getPlayer();
 private:
 
+	DirectionalLightSceneNode *_directionalLightNode;
+
 	TerrainSceneNode *_terrainNode;
 	Scene *_scene{nullptr};
 
