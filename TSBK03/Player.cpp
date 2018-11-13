@@ -4,7 +4,8 @@
 #include "Terrain.h"
 
 Player::Player(Game *game)
-	:_game{ game }
+	:_game{ game },
+	_inventory{ 32, game->getItemDatabase() }
 {
 	_sceneNode = new StaticModelSceneNode{ "warrior", "player" };
 	_sceneNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
@@ -36,7 +37,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		_phi += 0.01f * deltaX;
 		_theta += 0.005f * deltaY;
 
-		if(glm::abs(deltaX) > 4.f || glm::abs(deltaY) > 4.f)
+		if (glm::abs(deltaX) > 4.f || glm::abs(deltaY) > 4.f)
 		{
 			inputManager.dragging = true;
 		}
@@ -211,7 +212,7 @@ glm::vec3 Player::getPosition() const
 }
 
 void Player::setPosition(
-	const glm::vec3 &position) 
+	const glm::vec3 &position)
 {
 	_position = position;
 }
@@ -222,7 +223,7 @@ float Player::getFacing() const
 }
 
 void Player::setFacing(
-	float facing) 
+	float facing)
 {
 	_facing = facing;
 }
@@ -233,7 +234,7 @@ float Player::getSpeed() const
 }
 
 void Player::setSpeed(
-	float speed) 
+	float speed)
 {
 	_speed = speed;
 }
@@ -292,4 +293,9 @@ void Player::addExperience(
 void Player::takeDamage(int value)
 {
 	_health -= value;
+}
+
+Inventory * Player::getInventory()
+{
+	return &_inventory;
 }

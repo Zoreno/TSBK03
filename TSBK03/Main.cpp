@@ -25,6 +25,8 @@
 
 #include "Application.h"
 
+#include "Utils.h"
+
 /*
  * TODO List Engine:
  *
@@ -68,6 +70,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char*, int nSho
 int main(int argc, char **argv)
 #endif
 {
+	int vec[] = { 0, 2, 4, 5, 2, 0, 1, 2, 5, 2 };
+
+	selectionSort(std::begin(vec), std::end(vec));
+
 	Application app{};
 
 	app.run();

@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "ItemDatabase.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
@@ -118,6 +119,8 @@ public:
 	void addToRoot(SceneNode *sceneNode);
 	void removeFromRoot(SceneNode *sceneNode);
 	Player *getPlayer();
+
+	ItemDatabase *getItemDatabase();
 private:
 
 	DirectionalLightSceneNode *_directionalLightNode;
@@ -132,4 +135,6 @@ private:
 	// TODO: Move this to zone class
 	std::vector<Enemy *> _enemies;
 	Enemy *_currentTarget;
+
+	ItemDatabase _itemDatabase{};
 };

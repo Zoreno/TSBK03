@@ -13,6 +13,7 @@ Enemy::Enemy(
 {
 	glm::vec3 posOnSurface = position;
 	posOnSurface.y = terrain->getHeight(position.x, position.z);
+
 	_position = posOnSurface;
 	_startPosition = posOnSurface;
 	_facing = 0.f;
@@ -169,6 +170,8 @@ void Enemy::takeDamage(
 void Enemy::onDeath()
 {
 	_game->getPlayer()->addExperience(25);
+
+	_game->getPlayer()->getInventory()->addItem(ItemInstance{ 0, 1 });
 }
 
 void Enemy::onTargeted()

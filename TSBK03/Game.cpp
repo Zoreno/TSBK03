@@ -284,3 +284,8 @@ Player * Game::getPlayer()
 {
 	return &_player;
 }
+
+ItemDatabase * Game::getItemDatabase()
+{
+	return &_itemDatabase;
+}

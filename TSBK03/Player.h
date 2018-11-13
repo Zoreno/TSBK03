@@ -10,6 +10,7 @@
 #include "SceneNode.h"
 #include "InputManager.h"
 #include "StaticModelSceneNode.h"
+#include "Inventory.h"
 
 class Terrain;
 class Game;
@@ -48,6 +49,8 @@ public:
 	void addExperience(int value);
 
 	void takeDamage(int value);
+
+	Inventory *getInventory();
 private:
 	std::string _name{"Kalle Storfiskare"};
 
@@ -78,4 +81,6 @@ private:
 	Game *_game;
 
 	StaticModelSceneNode *_sceneNode;
+
+	Inventory _inventory;
 };

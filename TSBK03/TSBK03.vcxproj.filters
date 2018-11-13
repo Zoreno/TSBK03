@@ -160,6 +160,12 @@
     <Filter Include="Shaders\Grass">
       <UniqueIdentifier>{69474191-a79a-4235-855c-c36519fbd2a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game\Item">
+      <UniqueIdentifier>{57cf4315-ce20-4fd4-9c9d-5086a75b2139}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Item">
+      <UniqueIdentifier>{eef06b5e-ee65-40b2-bbf5-f2363e082f7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -323,6 +329,18 @@
     </ClCompile>
     <ClCompile Include="PerlinNoise.cpp">
       <Filter>Source Files\Engine\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemDatabase.cpp">
+      <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemInstance.cpp">
+      <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>Source Files\Game\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -559,6 +577,24 @@
     </ClInclude>
     <ClInclude Include="PerlinNoise.h">
       <Filter>Header Files\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemRarity.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemType.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemDatabase.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemInstance.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

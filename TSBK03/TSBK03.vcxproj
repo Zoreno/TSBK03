@@ -44,6 +44,10 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InternalEventChannelBase.cpp" />
+    <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="ItemDatabase.cpp" />
+    <ClCompile Include="ItemInstance.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MersenneDevice.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -110,6 +114,12 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InternalEventChannel.h" />
     <ClInclude Include="InternalEventChannelBase.h" />
+    <ClInclude Include="Inventory.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="ItemDatabase.h" />
+    <ClInclude Include="ItemInstance.h" />
+    <ClInclude Include="ItemRarity.h" />
+    <ClInclude Include="ItemType.h" />
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MersenneDevice.h" />
