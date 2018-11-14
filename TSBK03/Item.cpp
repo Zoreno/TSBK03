@@ -6,9 +6,13 @@ Item::Item(
 	ItemType type,
 	ItemRarity rarity,
 	const std::string &description,
-	unsigned int maxStackSize)
+	unsigned int maxStackSize,
+	unsigned int iconX,
+	unsigned int iconY)
 	:_id{ id },
 	_name{ name },
+	_iconX{ iconX },
+	_iconY{ iconY },
 	_type{ type },
 	_rarity{ rarity },
 	_description{ description },
@@ -40,6 +44,16 @@ ItemRarity Item::getRarity() const
 unsigned Item::getMaxStackSize() const
 {
 	return _maxStackSize;
+}
+
+unsigned Item::getIconX() const
+{
+	return _iconX;
+}
+
+unsigned Item::getIconY() const
+{
+	return _iconY;
 }
 
 const std::string & Item::getDescription() const

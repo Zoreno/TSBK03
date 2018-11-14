@@ -53,6 +53,8 @@ public:
 
 	float getOffsetX() const;
 	float getOffsetZ() const;
+
+	float getDivisor() const;
 private:
 
 	unsigned int _width;
@@ -60,6 +62,8 @@ private:
 
 	float _offsetX;
 	float _offsetZ;
+
+	float _divisor{ 5.f };
 
 	VertexArrayObject _vao;
 	VertexBufferObject _vertices;

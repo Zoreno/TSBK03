@@ -46,11 +46,12 @@ protected:
 
 	void updateState(float dt, Terrain *terrain);
 	void executeState(float dt, Terrain *terrain);
-	void attackPlayer();
+	void attackPlayer(float dt);
 	enum class AiState { ATTACK, MOVETOPLAYER, IDLE, RESET };
 	AiState _state{ AiState::IDLE };
-	int _attackTimer{0};
-	int _resetTimer{0};
+
+	float _attackTimer{0};
+	float _resetTimer{0};
 
 	std::string _name{ "NONAME" };
 

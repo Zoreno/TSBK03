@@ -32,6 +32,10 @@ Game::Game(
 
 	_enemies.push_back(new Enemy{ 0, this , glm::vec3{ 200.f, 0.f, 220.f }, terrain });
 	_enemies.push_back(new Enemy{ 1, this , glm::vec3{ 240.f, 0.f, 220.f }, terrain });
+
+	_player.getInventory()->addItem(ItemInstance(0, 1));
+	_player.getInventory()->addItem(ItemInstance(0, 1));
+	_player.getInventory()->addItem(ItemInstance(1, 1));
 }
 
 Game::~Game()
@@ -67,7 +71,7 @@ void Game::update(
 		{
 			if (it->getSceneNodeID() == pickingInfo.objectID)
 			{
-				if(_currentTarget != nullptr)
+				if (_currentTarget != nullptr)
 				{
 					_currentTarget->onUntargeted();
 				}
@@ -247,6 +251,176 @@ void Game::renderUI()
 
 			ImGui::ProgressBar(fraction, ImVec2(-1, 20), str.c_str());
 			ImGui::PopStyleColor();
+		}
+
+		ImGui::End();
+	}
+
+	//=========================================================================
+	// Render Inventory Screen
+	//=========================================================================
+
+	static bool showInventory = true;
+	// TODO: Move all this to a UI Manager
+	if (showInventory)
+	{
+		ImGui::Begin("Inventory", &showInventory, ImVec2(0.f, 0.f), 0.9f,
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
+
+		Inventory *playerInventory = _player.getInventory();
+		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
+
+		int moveFrom = -1;
+		int moveTo = -1;
+
+		for (unsigned int i = 0; i < playerInventory->getSize(); ++i)
+		{
+			ImGui::PushID(i);
+
+			float imageWidth = 1.f;
+			float imageHeight = 1.f;
+
+			float iconWidth = imageWidth / 28.f;
+			float iconHeight = imageHeight / 29.f;
+
+			ItemInstance& itemInstance = playerInventory->getItemAt(i);
+			Item *item = _itemDatabase.getItemById(itemInstance.getID());
+
+			if (itemInstance.getID() != INVALID_ID)
+			{
+				int x = item->getIconX();
+				int y = item->getIconY();
+
+				if (ImGui::ImageButton(
+					(void *)(intptr_t)iconTexture->getHandle(),
+					ImVec2(32.f, 32.f),
+					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+					2))
+				{
+
+				}
+
+				ImGuiDragDropFlags srcFlags = 0;
+				srcFlags |= ImGuiDragDropFlags_SourceNoDisableHover;
+				srcFlags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
+
+				if (ImGui::BeginDragDropSource(srcFlags))
+				{
+					ImGui::SetDragDropPayload("DND_DEMO_NAME", &i, sizeof(int));
+					ImGui::EndDragDropSource();
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					ImGuiDragDropFlags targetFlags = 0;
+
+					if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", targetFlags))
+					{
+						moveFrom = *(const int *)payload->Data;
+						moveTo = i;
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+
+				if (ImGui::IsItemClicked(1))
+				{
+					ImGui::OpenPopup("Menu");
+				}
+
+				if (ImGui::IsItemHovered())
+				{
+					if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
+					{
+						ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
+
+						switch (item->getRarity())
+						{
+						case ItemRarity::UNCOMMON:
+							color = ImVec4{ 0.25f, 0.91f, 0.16f, 1.0f };
+							break;
+						case ItemRarity::SUPERIOR:
+							color = ImVec4{ 0.09f, 0.17f, 0.78f, 1.0f };
+							break;
+						case ItemRarity::EPIC:
+							color = ImVec4{ 0.64f, 0.21f, 0.93f, 1.0f };
+							break;
+						case ItemRarity::LEGENDARY:
+							color = ImVec4{ 0.99f, 0.40f, 0.f, 1.0f };
+							break;
+						}
+
+						ImGui::TextColored(color, item->getName().c_str());
+						ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
+						ImGui::End();
+					}
+				}
+
+				if (ImGui::BeginPopup("Menu"))
+				{
+					if (ImGui::MenuItem("Use"))
+					{
+						std::cout << "Use clicked" << std::endl;
+					}
+
+					if (ImGui::MenuItem("Destroy"))
+					{
+						std::cout << "Destroy clicked" << std::endl;
+						playerInventory->removeItemAt(i);
+					}
+
+					if (ImGui::MenuItem("Sell"))
+					{
+						std::cout << "Sell clicked" << std::endl;
+					}
+
+					if (ImGui::MenuItem("Cancel"))
+					{
+						std::cout << "Cancel clicked" << std::endl;
+					}
+
+					ImGui::EndPopup();
+				}
+			}
+			else
+			{
+				int x = 4;
+				int y = 28;
+
+				ImGui::ImageButton(
+					(void *)(intptr_t)iconTexture->getHandle(),
+					ImVec2(32.f, 32.f),
+					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+					2);
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					ImGuiDragDropFlags targetFlags = 0;
+
+					if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", targetFlags))
+					{
+						moveFrom = *(const int *)payload->Data;
+						moveTo = i;
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+
+			}
+
+			if (i % 4 != 3)
+			{
+				ImGui::SameLine();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (moveFrom != -1 && moveTo != -1)
+		{
+			playerInventory->swapItems(moveFrom, moveTo);
 		}
 
 		ImGui::End();

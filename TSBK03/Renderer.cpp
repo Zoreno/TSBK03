@@ -1130,8 +1130,6 @@ void Renderer::doColorRenderingPass(
 
 	renderScene(scene, 0);
 
-
-
 	_waterShader.use();
 	_waterShader.uploadUniform("vp", _projection * _cameraTransform);
 	_waterShader.uploadUniform("cameraPos", _cameraPosition);
@@ -1826,6 +1824,8 @@ void Renderer::renderTerrain(
 		_shader.uploadUniform("terrain", true);
 
 		Frustum frustum{ _projection * _cameraTransform };
+
+		_shader.uploadUniform("divisor", it->getDivisor());
 
 		it->render(frustum);
 	}

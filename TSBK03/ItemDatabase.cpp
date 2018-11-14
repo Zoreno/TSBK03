@@ -2,7 +2,8 @@
 
 ItemDatabase::ItemDatabase()
 {
-	_items.emplace(0, new Item(0, "Fisk", ItemType::GENERIC, ItemRarity::EPIC, "This is a fish"));
+	_items.emplace(0, new Item(0, "Fisk", ItemType::GENERIC, ItemRarity::EPIC, "\"This is a fish\"", 1, 0, 0));
+	_items.emplace(1, new Item(1, "Sten", ItemType::GENERIC, ItemRarity::SUPERIOR, "\"This is a sten\"", 1, 1, 0));
 }
 
 Item * ItemDatabase::getItemById(unsigned int id)

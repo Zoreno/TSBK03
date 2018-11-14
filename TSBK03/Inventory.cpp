@@ -89,6 +89,21 @@ void Inventory::removeItem(
 	}
 }
 
+void Inventory::removeItemAt(
+	unsigned int pos)
+{
+	_items.at(pos).setID(INVALID_ID);
+}
+
+void Inventory::swapItems(
+	unsigned int pos1,
+	unsigned int pos2)
+{
+	ItemInstance ii = _items.at(pos1);
+	_items.at(pos1) = _items.at(pos2);
+	_items.at(pos2) = ii;
+}
+
 unsigned int Inventory::getSize() const
 {
 	return _size;

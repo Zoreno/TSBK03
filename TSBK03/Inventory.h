@@ -18,6 +18,9 @@ public:
 	unsigned int getItemCount(unsigned int id) const;
 
 	void removeItem(unsigned int id, unsigned int count);
+	void removeItemAt(unsigned int pos);
+
+	void swapItems(unsigned int pos1, unsigned int pos2);
 private:
 
 	unsigned int _size;

@@ -277,7 +277,7 @@ void Enemy::executeState(float dt, Terrain *terrain)
 	switch (_state)
 	{
 	case AiState::ATTACK:
-		attackPlayer();
+		attackPlayer(dt);
 		break;
 	case AiState::MOVETOPLAYER:
 	{
@@ -291,13 +291,13 @@ void Enemy::executeState(float dt, Terrain *terrain)
 		break;
 	case AiState::RESET:
 		_health = _maxHealth;
-		if (_resetTimer >= 300)
+		if (_resetTimer >= 5.f)
 		{
 			teleport(_startPosition.x, _startPosition.z, terrain);
 		}
 		else
 		{
-			++_resetTimer;
+			_resetTimer += dt;
 			glm::vec3 toStartVector = glm::normalize(startPosFlat - posFlat);
 
 			move(dt * 2.f * toStartVector.x, dt * 2.f * toStartVector.z, terrain);
@@ -307,14 +307,14 @@ void Enemy::executeState(float dt, Terrain *terrain)
 	}
 }
 
-void Enemy::attackPlayer()
+void Enemy::attackPlayer(float dt)
 {
-	if(_attackTimer >= 60)
+	if(_attackTimer >= 1.f)
 	{
 		_game->getPlayer()->takeDamage(10);
-		_attackTimer = 0;
+		_attackTimer -= 1.f;
 		return;
 	}
-	++_attackTimer;
+	_attackTimer += dt;
 }
 

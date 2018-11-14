@@ -269,7 +269,7 @@ TerrainChunk::TerrainChunk(
 
 				unsigned int offset = 2 * (i * _leafSize * _leafSize + (z - z_offset) * _leafSize + (x - x_offset));
 
-				float divisor = 5.f;
+				float divisor = _divisor;
 
 				glm::vec3 normal;
 
@@ -560,6 +560,11 @@ float TerrainChunk::getOffsetX() const
 float TerrainChunk::getOffsetZ() const
 {
 	return _offsetZ;
+}
+
+float TerrainChunk::getDivisor() const
+{
+	return _divisor;
 }
 
 float TerrainChunk::getGridHeight(

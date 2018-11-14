@@ -19,7 +19,9 @@ public:
 		ItemType type,
 		ItemRarity rarity,
 		const std::string& description,
-		unsigned int maxStackSize = 1);
+		unsigned int maxStackSize = 1,
+		unsigned int iconX = 0,
+		unsigned int iconY = 0);
 
 	unsigned int getID() const;
 	const std::string& getName() const;
@@ -27,12 +29,15 @@ public:
 	ItemRarity getRarity() const;
 	const std::string& getDescription() const;
 	unsigned int getMaxStackSize() const;
+	unsigned int getIconX() const;
+	unsigned int getIconY() const;
 
 protected:
 	unsigned int _id;
 
 	std::string _name;
-	// ItemIcon _icon;
+	unsigned int _iconX;
+	unsigned int _iconY;
 
 	ItemType _type;
 	ItemRarity _rarity;

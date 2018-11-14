@@ -601,8 +601,6 @@ void drawAssetList(AssetManager *assetManager)
 					ImGui::Text("Sell price: 11g 6s 32c");
 					ImGui::End();
 				}
-
-				//ImGui::SetTooltip("This is a test tooltip\nThis is on a new line");
 			}
 
 			if (ImGui::BeginPopup("Menu"))
@@ -741,6 +739,7 @@ Application::Application()
 
 	_assetManager.load<Texture2D>("grass", "grass.tga");
 	_assetManager.load<Texture2D>("char", "diffuse.tga");
+	_assetManager.load<Texture2D>("icons", "gaming-icon-maker-15.jpg");
 
 	TextureCubeMap *texCubeMap = _assetManager.load<TextureCubeMap>("skyboxTexture",
 		"stormydays_ft.tga",

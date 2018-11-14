@@ -85,6 +85,8 @@ uniform bool snow;
 
 uniform vec3 tintColor;
 
+uniform float divisor;
+
 //=============================================================================
 // Outputs
 //=============================================================================
@@ -319,28 +321,28 @@ void main()
 
 		float height = terrainHeight;
 
-		if(height > -1 && height < 12)
+		if(height > -1 && height < 60.0 / divisor)
 		{
 			mat.ambient = vec3(0.1, 0.1, 0.1);
 			mat.diffuse = vec3(0.93, 0.78, 0.68);
 			mat.specular = vec3(0.1, 0.1, 0.1);
 			mat.exponent = 4;
 		}
-		else if(height >= 12 && height < 22)
+		else if(height >= 60.0 / divisor && height < 110.0 / divisor)
 		{
 			mat.ambient = vec3(0.1, 0.1, 0.1);
 			mat.diffuse = vec3(1.0, 166.0, 17.0)  / 256.0;
 			mat.specular = vec3(0.1, 0.1, 0.1);
 			mat.exponent = 4;
 		}
-		else if(height >= 22 && height < 35)
+		else if(height >= 110.0 / divisor && height < 175.0 / divisor)
 		{
 			mat.ambient = vec3(0.1, 0.1, 0.1);
 			mat.diffuse = vec3(185.0, 195.0, 205.0) / 256.0;
 			mat.specular = vec3(0.1, 0.1, 0.1);
 			mat.exponent = 4;
 		}
-		else if(height >= 35 && height < 60)
+		else if(height >= 175.0 / divisor && height < 300.0 / divisor)
 		{
 			mat.ambient = vec3(0.1, 0.1, 0.1);
 			mat.diffuse = vec3(1.0, 1.0, 1.0) * 1.2;
