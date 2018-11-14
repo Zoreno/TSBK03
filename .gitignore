@@ -332,3 +332,6 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Make sure that all dlls from the dependencies are included
+!deps/bin/*
