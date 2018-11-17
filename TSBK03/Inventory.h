@@ -14,11 +14,12 @@ public:
 
 	ItemInstance& getItemAt(unsigned int pos);
 
-	bool addItem(const ItemInstance& itemInstance);
+	unsigned int addItem(const ItemInstance& itemInstance);
 	unsigned int getItemCount(unsigned int id) const;
 
 	void removeItem(unsigned int id, unsigned int count);
 	void removeItemAt(unsigned int pos);
+	void removeItemCountAt(unsigned int pos, unsigned int count);
 
 	void swapItems(unsigned int pos1, unsigned int pos2);
 private:

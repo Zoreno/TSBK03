@@ -8,8 +8,6 @@
 
 class Game;
 
-typedef bool(*OnUseFunction)(Game *game);
-
 class Item
 {
 public:

@@ -9,7 +9,7 @@ class Game;
 class Enemy
 {
 public:
-	Enemy(int id, Game *game, const glm::vec3& position, Terrain *terrain);
+	Enemy(unsigned int id, Game *game, const glm::vec3& position, Terrain *terrain);
 
 	virtual ~Enemy();
 	void renderUI(bool isTarget);
@@ -42,6 +42,8 @@ public:
 	// TODO: Move terrain reference to game (zone)
 	void move(float dx, float dz, Terrain *terrain);
 	void teleport(float x, float z, Terrain *terrain);
+
+	void faceTowards(const glm::vec3& vec);
 protected:
 
 	void updateState(float dt, Terrain *terrain);
@@ -65,7 +67,7 @@ protected:
 	int _mana{ 100 };
 	int _maxMana{ 100 };
 
-	int _id;
+	unsigned int _id;
 
 	glm::vec3 _position;
 	float _facing;

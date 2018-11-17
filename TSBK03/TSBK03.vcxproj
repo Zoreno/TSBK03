@@ -21,6 +21,7 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="ConsumableItem.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="GLSLVertexShader.cpp" />
     <ClCompile Include="HilbertCurve.cpp" />
     <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_custom_widget.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_glfw.cpp" />
@@ -87,6 +89,7 @@
     <ClInclude Include="BMP.h" />
     <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="ConsumableItem.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
     <ClInclude Include="Enemy.h" />
@@ -105,6 +108,7 @@
     <ClInclude Include="HilbertCurve.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
+    <ClInclude Include="imgui_custom_widgets.h" />
     <ClInclude Include="imgui_impl_glfw.h" />
     <ClInclude Include="imgui_impl_opengl3.h" />
     <ClInclude Include="imgui_internal.h" />

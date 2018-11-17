@@ -119,7 +119,7 @@ uint32_t RandomGenerator<Device>::randInt64Range(
 {
 	int64_t range = max > min ? max - min : min - max;
 
-	return min + randInt64() % range;
+	return min + randUint64() % range;
 }
 
 template <typename Device>
@@ -144,7 +144,7 @@ int32_t RandomGenerator<Device>::randInt32Range(
 {
 	int32_t range = max > min ? max - min : min - max;
 
-	return min + randInt32() % range;
+	return min + randUint32() % range;
 }
 
 template <typename Device>

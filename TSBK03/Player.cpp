@@ -204,6 +204,29 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 	_game->getApplication()->getRenderer()->setCameraTransform(view);
 	_game->getApplication()->getRenderer()->setCameraPosition(eye);
 	_game->getApplication()->getRenderer()->setCameraDirection(glm::normalize(eye - cameraCenter));
+
+	if(_cooldown > 0.f)
+	{
+		_cooldown -= dt;
+	}
+
+	// TODO: Mana reg
+	if(_health < _maxHealth)
+	{
+		_healthRegenCounter += dt;
+
+		if(_healthRegenCounter >= 5.f)
+		{
+			_healthRegenCounter = 0;
+			_health += _healthPer5;
+
+			_health = glm::min(_health, _maxHealth);
+		}
+	}
+	else
+	{
+		_healthRegenCounter = 0.f;
+	}
 }
 
 glm::vec3 Player::getPosition() const
@@ -274,6 +297,11 @@ int Player::getMaxHealth() const
 	return _maxHealth;
 }
 
+int Player::getMissingHealth() const
+{
+	return _maxHealth - _health;
+}
+
 int Player::getMana() const
 {
 	return _mana;
@@ -288,6 +316,17 @@ void Player::addExperience(
 	int value)
 {
 	_experience += value;
+
+	while(checkForLevelup())
+	{
+		_maxHealth += 20;
+		_maxMana += 10;
+	}
+}
+
+int Player::getExperienceToLevel() const
+{
+	return getExperienceToLevelup(_level);
 }
 
 void Player::takeDamage(int value)
@@ -298,4 +337,56 @@ void Player::takeDamage(int value)
 Inventory * Player::getInventory()
 {
 	return &_inventory;
+}
+
+void Player::attack(
+	Enemy *enemy)
+{
+	if (enemy->distanceToPlayer() < 3)
+	{
+		if (_cooldown <= 0.f)
+		{
+			int damage = _game->getRandomGenerator()->randInt32Range(35, 45);
+
+			std::cout << damage << std::endl;
+
+			enemy->takeDamage(damage);
+			_cooldown += 1.f;
+		}
+		else
+		{
+			std::cout << "Spell is on cooldown" << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "Enemy out of range" << std::endl;
+	}
+}
+
+void Player::heal(
+	int value)
+{
+	_health = glm::min(_health + value, _maxHealth);
+}
+
+int Player::getExperienceToLevelup(
+	int level) const
+{
+	return 50 * glm::ceil(glm::pow(_level, 2.6f));
+}
+
+bool Player::checkForLevelup()
+{
+	int expToLevel = getExperienceToLevelup(_level);
+
+	if(_experience >= expToLevel)
+	{
+		_experience -= expToLevel;
+		++_level;
+
+		return true;
+	}
+
+	return false;
 }

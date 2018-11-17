@@ -4,7 +4,7 @@
 #include "imgui.h"
 
 Enemy::Enemy(
-	int id,
+	unsigned int id,
 	Game *game,
 	const glm::vec3& position,
 	Terrain *terrain)
@@ -84,6 +84,8 @@ void Enemy::renderUI(bool isTarget)
 			ImGui::ProgressBar(fraction, ImVec2(-1, 3), str.c_str());
 			ImGui::PopStyleColor();
 		}
+
+		ImGui::ProgressBar(_attackTimer, ImVec2(-1, 3), "");
 
 		ImGui::End();
 
@@ -172,6 +174,15 @@ void Enemy::onDeath()
 	_game->getPlayer()->addExperience(25);
 
 	_game->getPlayer()->getInventory()->addItem(ItemInstance{ 0, 1 });
+
+	glm::vec3 spawnPos = this->_startPosition;
+
+	_game->callInFuture(10.f,
+		[spawnPos](Game *game)
+	{
+		std::cout << "Spawning enemy at " << spawnPos.x << "," << spawnPos.z << std::endl;
+		game->spawnEnemy(spawnPos);
+	});
 }
 
 void Enemy::onTargeted()
@@ -218,6 +229,12 @@ void Enemy::teleport(
 	_position.z = z;
 
 	_position.y = terrain->getHeight(_position.x, _position.z);
+}
+
+void Enemy::faceTowards(
+	const glm::vec3 &vec)
+{
+	_facing = glm::atan(vec.z - _position.z, _position.x - vec.x);
 }
 
 void Enemy::updateState(float dt, Terrain *terrain)
@@ -278,6 +295,7 @@ void Enemy::executeState(float dt, Terrain *terrain)
 	{
 	case AiState::ATTACK:
 		attackPlayer(dt);
+		faceTowards(_game->getPlayer()->getPosition());
 		break;
 	case AiState::MOVETOPLAYER:
 	{
@@ -309,12 +327,13 @@ void Enemy::executeState(float dt, Terrain *terrain)
 
 void Enemy::attackPlayer(float dt)
 {
-	if(_attackTimer >= 1.f)
+	if (_attackTimer >= 1.f)
 	{
-		_game->getPlayer()->takeDamage(10);
+		int damage = _game->getRandomGenerator()->randInt32Range(5, 15);
+
+		_game->getPlayer()->takeDamage(damage);
 		_attackTimer -= 1.f;
 		return;
 	}
 	_attackTimer += dt;
 }
-

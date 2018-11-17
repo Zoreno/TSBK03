@@ -11,6 +11,7 @@
 #include "InputManager.h"
 #include "StaticModelSceneNode.h"
 #include "Inventory.h"
+#include "Enemy.h"
 
 class Terrain;
 class Game;
@@ -43,41 +44,59 @@ public:
 	int getHealth() const;
 	int getMaxHealth() const;
 
+	int getMissingHealth() const;
+
 	int getMana() const;
 	int getMaxMana() const;
 
 	void addExperience(int value);
 
+	int getExperienceToLevel() const;
+
 	void takeDamage(int value);
 
 	Inventory *getInventory();
+
+	void attack(
+		Enemy * enemy);
+
+	void heal(int value);
+
 private:
-	std::string _name{"Kalle Storfiskare"};
+	int getExperienceToLevelup(int level) const;
+	bool checkForLevelup();
 
-	int _level{1};
-	int _experience{0};
+	float _cooldown{ 0.f };
 
-	int _health{100};
-	int _maxHealth{100};
+	float _healthRegenCounter{ 0.f };
+	int _healthPer5{ 5 };
 
-	int _mana{100};
-	int _maxMana{100};
+	std::string _name{ "Kalle Storfiskare" };
+
+	int _level{ 1 };
+	int _experience{ 0 };
+
+	int _health{ 100 };
+	int _maxHealth{ 100 };
+
+	int _mana{ 100 };
+	int _maxMana{ 100 };
 
 	// Player position and orientation
-	glm::vec3 _position{220.f, 0.f, 220.f};
-	float _facing{0.f};
+	glm::vec3 _position{ 220.f, 0.f, 220.f };
+	float _facing{ 0.f };
 
-	float _yVel{0.f};
-	float _speed{2.f};
-	float _rotationSpeed{2.f};
-	bool _touchingGround{true};
-	bool _walking{false};
+	float _yVel{ 0.f };
+	float _speed{ 2.f };
+	float _rotationSpeed{ 2.f };
+	bool _touchingGround{ true };
+	bool _walking{ false };
 
 	// Camera position
-	float _phi{0.f};
-	float _theta{0.f};
-	float _radius{5.f};
-	bool _lockFacing{false};
+	float _phi{ 0.f };
+	float _theta{ 0.f };
+	float _radius{ 5.f };
+	bool _lockFacing{ false };
 	Game *_game;
 
 	StaticModelSceneNode *_sceneNode;

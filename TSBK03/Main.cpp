@@ -62,6 +62,25 @@
   * Application
   */
 
+extern "C"
+{
+	/**
+	 * This is to force systems with multiple graphics cards such as laptops
+	 * to use the high performance graphics card instead of the default
+	 * integrated one. This works for NVIDIA graphics cards.
+	 *
+	 * @see http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
+	 */
+	_declspec(dllexport) long NvOptimusEnablement = 0x00000001;
+
+	/**
+	 * This is the same as above but for AMD graphics cards.
+	 *
+	 * @see https://community.amd.com/thread/169965
+	 */
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 #ifdef TSBK03_NO_CONSOLE
 
 #include <Windows.h>

@@ -8,6 +8,8 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "ItemDatabase.h"
+#include "RandomGenerator.h"
+#include "MersenneDevice.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
@@ -101,6 +103,14 @@ struct GameState
 	 */
 };
 
+struct PendingFunction
+{
+	PendingFunction(float time, const std::function<void(Game *)>& func);
+
+	float time;
+	std::function<void(Game *)> func;
+};
+
 class Game : public Frame
 {
 public:
@@ -121,7 +131,15 @@ public:
 	Player *getPlayer();
 
 	ItemDatabase *getItemDatabase();
+	InputManager *getInputManager();
+
+	unsigned int spawnEnemy(const glm::vec3& position);
+
+	RandomGenerator<MersenneDevice> *getRandomGenerator();
+
+	void callInFuture(float time, const std::function<void(Game *)>& func);
 private:
+	unsigned int _nextEnemyID = 0;
 
 	DirectionalLightSceneNode *_directionalLightNode;
 
@@ -137,4 +155,8 @@ private:
 	Enemy *_currentTarget;
 
 	ItemDatabase _itemDatabase{};
+
+	RandomGenerator<MersenneDevice> _randomGenerator;
+
+	std::vector<PendingFunction> _pendingFunctions;
 };

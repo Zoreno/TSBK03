@@ -760,18 +760,6 @@ Application::Application()
 	_renderer = new Renderer{ static_cast<int>(windowWidth), static_cast<int>(windowHeight), &_assetManager , proj };
 
 	_currentFrame = new Game(this);
-
-	GLint n = 0;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-
-	std::cout << n << " extensions" << std::endl;
-
-	for(GLint i = 0; i < n; ++i)
-	{
-		const char *extension = (const char *)glGetStringi(GL_EXTENSIONS, i);
-
-		std::cout << extension << std::endl;
-	}
 }
 
 Application::~Application()
@@ -887,6 +875,25 @@ void Application::run()
 				str = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 				ImGui::Text("GLSL Version: %s", str);
+
+				GLint n = 0;
+				glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+
+				ImGui::Text("Extension count: %i", n);
+
+				if(ImGui::TreeNode("Extensions"))
+				{
+					for (GLint i = 0; i < n; ++i)
+					{
+						const char *extension = (const char *)glGetStringi(GL_EXTENSIONS, i);
+
+						ImGui::Text(extension);
+					}
+
+					ImGui::TreePop();
+				}
+
+				ImGui::Separator();
 
 				ImGui::ColorEdit4("Color", &_renderer->_color[0]);
 

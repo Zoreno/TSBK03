@@ -342,6 +342,12 @@
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files\Game\Item</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_custom_widget.cpp">
+      <Filter>Source Files\Library\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumableItem.cpp">
+      <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -594,6 +600,12 @@
       <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
     <ClInclude Include="Inventory.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_custom_widgets.h">
+      <Filter>Header Files\Library\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsumableItem.h">
       <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
   </ItemGroup>

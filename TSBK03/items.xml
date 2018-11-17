@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<items>
+	<item>
+		<id>0</id>
+		<name>Fisk</name>
+		<type>GENERIC</type>
+		<rarity>EPIC</rarity>
+		<description>"This is a fish"</description>
+		<maxstacksize>20</maxstacksize>
+		<iconX>0</iconX>
+		<iconY>0</iconY>
+	</item>
+	<item>
+		<id>1</id>
+		<name>Sten</name>
+		<type>GENERIC</type>
+		<rarity>UNCOMMON</rarity>
+		<description>"This is a sten"</description>
+		<maxstacksize>1</maxstacksize>
+		<iconX>0</iconX>
+		<iconY>1</iconY>
+	</item>
+	<item>
+		<id>2</id>
+		<name>Greater Health Potion</name>
+		<type>CONSUMABLE</type>
+		<rarity>COMMON</rarity>
+		<description>"There is always a greater health potion"</description>
+		<maxstacksize>20</maxstacksize>
+		<iconX>19</iconX>
+		<iconY>5</iconY>
+		<usefunction>greaterhealthpotion</usefunction>
+		<usetext>Restore 20 health to the user</usetext>
+	</item>
+</items>

@@ -1,11 +1,24 @@
 #include "Game.h"
 #include "imgui.h"
+#include <ctime>
+#include "imgui_custom_widgets.h"
+#include "ConsumableItem.h"
+
+PendingFunction::PendingFunction(
+	float time,
+	const std::function<void(Game *)> &func)
+	:time{ time },
+	func{ func }
+{
+
+}
 
 Game::Game(
 	Application *application)
 	: Frame(application),
 	_scene{ new Scene{ SceneNodeType::ROOT, "ROOT" } },
-	_player{ this }
+	_player{ this },
+	_randomGenerator{ static_cast<uint32_t>(time(nullptr)) }
 {
 	_terrainNode = new TerrainSceneNode("terrain", "terrain");
 	_terrainNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
@@ -30,12 +43,14 @@ Game::Game(
 
 	Terrain *terrain = _application->getAssetManager()->fetch<Terrain>(_terrainNode->getTerrain());
 
-	_enemies.push_back(new Enemy{ 0, this , glm::vec3{ 200.f, 0.f, 220.f }, terrain });
-	_enemies.push_back(new Enemy{ 1, this , glm::vec3{ 240.f, 0.f, 220.f }, terrain });
 
-	_player.getInventory()->addItem(ItemInstance(0, 1));
-	_player.getInventory()->addItem(ItemInstance(0, 1));
+	spawnEnemy(glm::vec3{ 200.f, 0.f, 220.f });
+	spawnEnemy(glm::vec3{ 240.f, 0.f, 220.f });
+
+	_player.getInventory()->addItem(ItemInstance(0, 9));
+	_player.getInventory()->addItem(ItemInstance(0, 10));
 	_player.getInventory()->addItem(ItemInstance(1, 1));
+	_player.getInventory()->addItem(ItemInstance(2, 1));
 }
 
 Game::~Game()
@@ -46,6 +61,34 @@ Game::~Game()
 void Game::update(
 	float dt)
 {
+	// Decrement times for all pending functions by dt
+	for (auto& it : _pendingFunctions)
+	{
+		it.time -= dt;
+	}
+
+	// Check all pending functions if the time left is below zero
+	// By the heap property the function with the lowest time is placed
+	// first in the vector.
+	while (!_pendingFunctions.empty() && _pendingFunctions[0].time < 0.f)
+	{
+		// Pop the function with the lowest time from the heap, placing it in
+		// the last position
+		std::pop_heap(
+			_pendingFunctions.begin(),
+			_pendingFunctions.end(),
+			[](const auto& first, const auto& second) {return first.time > second.time;});
+
+		// Extract the function pointer
+		auto func = _pendingFunctions.back().func;
+
+		// Remove the function from the list
+		_pendingFunctions.pop_back();
+
+		// Call the function, passing the game pointer as parameter.
+		func(this);
+	}
+
 	Terrain *terrain = _application->getAssetManager()->fetch<Terrain>(_terrainNode->getTerrain());
 
 	static bool lastLClick = _inputManager.leftClick;
@@ -55,7 +98,11 @@ void Game::update(
 	currTime += dt;
 
 	_directionalLightNode->getDirectionalLight().setDirection(
-		3.f * glm::vec3{ glm::cos(currTime / 10.f), 0 ? -0.5f - 0.5f * glm::cos(currTime / 20.f) : -1.f, glm::sin(currTime / 10.f) });
+		3.f * glm::vec3{
+			glm::cos(currTime / 10.f),
+			0 ? -0.5f - 0.5f * glm::cos(currTime / 20.f) : -1.f,
+			glm::sin(currTime / 10.f)
+	});
 
 	// TODO: Target with TAB
 	// Detect falling flank on left click
@@ -63,21 +110,31 @@ void Game::update(
 	{
 		RendererPickingInfo pickingInfo;
 
-		pickingInfo = _application->getRenderer()->getPickingInfo(_inputManager.mouseX, _inputManager.mouseY);
+		// Get the picking information at the mouse position
+		pickingInfo = _application->getRenderer()->getPickingInfo(
+			static_cast<int>(_inputManager.mouseX),
+			static_cast<int>(_inputManager.mouseY));
 
 		bool found = false;
 
+		// Iterate through all enemies and check if that enemy was the one that
+		// was clícked
 		for (auto it : _enemies)
 		{
+			// If the id matches the clicked id
 			if (it->getSceneNodeID() == pickingInfo.objectID)
 			{
+				// If we already have a target, send an untarget event to that
+				// enemy
 				if (_currentTarget != nullptr)
 				{
 					_currentTarget->onUntargeted();
 				}
 
+				// Update the current target
 				_currentTarget = it;
 
+				// Send the targeted event to the new target.
 				_currentTarget->onTargeted();
 
 				found = true;
@@ -86,9 +143,13 @@ void Game::update(
 			}
 		}
 
+		// If we did not click an enemy and we had a target
 		if (!found && _currentTarget != nullptr)
 		{
+			// Send the untargeted event 
 			_currentTarget->onUntargeted();
+
+			// Clear the target pointer.
 			_currentTarget = nullptr;
 		}
 	}
@@ -104,7 +165,7 @@ void Game::update(
 	{
 		if (_currentTarget != nullptr)
 		{
-			_currentTarget->takeDamage(10);
+			_player.attack(_currentTarget);
 		}
 	}
 
@@ -116,9 +177,10 @@ void Game::update(
 
 		if (enemy->getHealth() <= 0)
 		{
-			// Enemy is dead
+			// Send death event to the enemy.
 			enemy->onDeath();
 
+			// If the enemy was our current target, clear the current target.
 			if (_currentTarget == enemy)
 			{
 				_currentTarget->onUntargeted();
@@ -145,6 +207,7 @@ void Game::update(
 	lastLClick = _inputManager.leftClick;
 	lastEKey = _inputManager.eKey;
 
+	// Handle player death
 	if (_player.getHealth() <= 0)
 	{
 		// TODO: Do something else
@@ -200,7 +263,7 @@ void Game::renderUI()
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(200.f / 256.f, 255.f / 256.f, 121.f / 256.f, 1.f));
 
 		int exp = _player.getExperience();
-		int maxExp = 100; // TODO: replace with calculation of max exp for level
+		int maxExp = _player.getExperienceToLevel();
 
 		float fraction = (float)exp / (float)maxExp;
 
@@ -291,14 +354,32 @@ void Game::renderUI()
 				int x = item->getIconX();
 				int y = item->getIconY();
 
-				if (ImGui::ImageButton(
-					(void *)(intptr_t)iconTexture->getHandle(),
-					ImVec2(32.f, 32.f),
-					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-					2))
+				if (itemInstance.getStackSize() > 1)
 				{
+					std::string text = std::to_string(itemInstance.getStackSize());
 
+					ImGui::ImageButtonWithText(
+						(void *)(intptr_t)iconTexture->getHandle(),
+						ImVec2(32.f, 32.f),
+						ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+						ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+						2,
+						ImVec4(0, 0, 0, 0),
+						ImVec4(1, 1, 1, 1),
+						ImVec4(1, 0, 0, 1),
+						ImVec2(28, 28),
+						text.c_str());
+				}
+				else
+				{
+					ImGui::ImageButton(
+						(void *)(intptr_t)iconTexture->getHandle(),
+						ImVec2(32.f, 32.f),
+						ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+						ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+						2,
+						ImVec4(0, 0, 0, 0),
+						ImVec4(1, 1, 1, 1));
 				}
 
 				ImGuiDragDropFlags srcFlags = 0;
@@ -352,27 +433,54 @@ void Game::renderUI()
 						}
 
 						ImGui::TextColored(color, item->getName().c_str());
-						ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
+
+						if (item->getType() == ItemType::CONSUMABLE)
+						{
+							ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+							ImGui::TextColored(ImVec4{ 0.12f, 1.f, 0.f, 1.0f }, "Use: %s", consumableItem->getUseText().c_str());
+						}
+
+						if (!item->getDescription().empty())
+						{
+							ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
+						}
+						
+						if (item->getMaxStackSize() > 1)
+						{
+							ImGui::Text("%i/%i", itemInstance.getStackSize(), item->getMaxStackSize());
+						}
+
 						ImGui::End();
 					}
 				}
 
 				if (ImGui::BeginPopup("Menu"))
 				{
-					if (ImGui::MenuItem("Use"))
+					if (item->getType() == ItemType::CONSUMABLE)
 					{
-						std::cout << "Use clicked" << std::endl;
+
+						if (ImGui::MenuItem("Use"))
+						{
+							ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+							bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
+							if (ret)
+							{
+								_player.getInventory()->removeItemCountAt(i, 1);
+							}
+							else
+							{
+								std::cout << "Cannot use that item right now" << std::endl;
+							}
+
+							std::cout << "Use clicked" << std::endl;
+						}
 					}
 
 					if (ImGui::MenuItem("Destroy"))
 					{
-						std::cout << "Destroy clicked" << std::endl;
 						playerInventory->removeItemAt(i);
-					}
-
-					if (ImGui::MenuItem("Sell"))
-					{
-						std::cout << "Sell clicked" << std::endl;
 					}
 
 					if (ImGui::MenuItem("Cancel"))
@@ -420,11 +528,12 @@ void Game::renderUI()
 
 		if (moveFrom != -1 && moveTo != -1)
 		{
-			playerInventory->swapItems(moveFrom, moveTo);
+			playerInventory->swapItems(moveTo, moveFrom);
 		}
 
 		ImGui::End();
 	}
+
 	//=========================================================================
 	// Render Enemy Nameplate
 	//=========================================================================
@@ -462,4 +571,42 @@ Player * Game::getPlayer()
 ItemDatabase * Game::getItemDatabase()
 {
 	return &_itemDatabase;
+}
+
+InputManager * Game::getInputManager()
+{
+	return &_inputManager;
+}
+
+unsigned int Game::spawnEnemy(
+	const glm::vec3 &position)
+{
+	Terrain *terrain = _application->getAssetManager()->fetch<Terrain>(_terrainNode->getTerrain());
+
+	// Even for very long games, this have a low chance of running out
+	unsigned int id = _nextEnemyID++;
+
+	_enemies.push_back(new Enemy{ id, this , position, terrain });
+
+	return id;
+}
+
+RandomGenerator<MersenneDevice> * Game::getRandomGenerator()
+{
+	return &_randomGenerator;
+}
+
+void Game::callInFuture(
+	float time,
+	const std::function<void(Game *)>& func)
+{
+	// Emplace the time and the function pointer to the pending functions list.
+	_pendingFunctions.emplace_back(time, func);
+
+	// Heapify the list, placing the funcition with the lowest time first in
+	// the list.
+	std::push_heap(
+		_pendingFunctions.begin(),
+		_pendingFunctions.end(),
+		[](const auto& first, const auto& second) {return first.time > second.time;});
 }

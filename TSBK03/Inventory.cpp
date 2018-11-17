@@ -20,7 +20,7 @@ ItemInstance & Inventory::getItemAt(
 	return _items.at(pos);
 }
 
-bool Inventory::addItem(
+unsigned int Inventory::addItem(
 	const ItemInstance &itemInstance)
 {
 	Item *item = _itemDatabase->getItemById(itemInstance.getID());
@@ -30,17 +30,34 @@ bool Inventory::addItem(
 		throw std::invalid_argument{ "Stack larger than stack size" };
 	}
 
+	unsigned int countLeft = itemInstance.getStackSize();
+
 	// TODO: Handle stacks of items
 	for(auto& it : _items)
 	{
 		if(it.getID() == INVALID_ID)
 		{
-			it = itemInstance;
-			return true;
+			it = ItemInstance(itemInstance.getID(), countLeft);
+			return 0;
+		}
+		
+		if(it.getID() == itemInstance.getID())
+		{
+			unsigned int freeSpots = item->getMaxStackSize() - it.getStackSize();
+
+			if(freeSpots >= countLeft)
+			{
+				it.setStackSize(it.getStackSize() + countLeft);
+				return 0;
+			}
+
+			it.setStackSize(item->getMaxStackSize());
+
+			countLeft -= freeSpots;
 		}
 	}
 
-	return false;
+	return countLeft;
 }
 
 unsigned int Inventory::getItemCount(
@@ -95,13 +112,84 @@ void Inventory::removeItemAt(
 	_items.at(pos).setID(INVALID_ID);
 }
 
+void Inventory::removeItemCountAt(
+	unsigned int pos,
+	unsigned int count)
+{
+	ItemInstance ii = _items.at(pos);
+
+	unsigned int stackSize = ii.getStackSize();
+
+	if(count > stackSize)
+	{
+		throw std::invalid_argument("Removing more items from stack than exists in stack");
+	}
+
+	if(count == stackSize)
+	{
+		_items.at(pos) = ItemInstance(INVALID_ID, 0);
+	}
+	else
+	{
+		ii.setStackSize(stackSize - count);
+		_items.at(pos) = ii;
+	}
+}
+
 void Inventory::swapItems(
 	unsigned int pos1,
 	unsigned int pos2)
 {
-	ItemInstance ii = _items.at(pos1);
-	_items.at(pos1) = _items.at(pos2);
-	_items.at(pos2) = ii;
+	ItemInstance ii1 = _items.at(pos1);
+	ItemInstance ii2 = _items.at(pos2);
+
+	// If the target and the source share the same item id, we fill the target
+	// target stack with items from source instead of swapping
+	if(ii1.getID() == ii2.getID())
+	{
+		Item *item = _itemDatabase->getItemById(ii1.getID());
+
+		// If the target stack has open item slots
+		if(ii1.getStackSize() < item->getMaxStackSize())
+		{
+			// Calculate the number of free slots
+			unsigned int freeslots = item->getMaxStackSize() - ii1.getStackSize();
+
+			// If the items in source fit in target
+			if(ii2.getStackSize() <= freeslots)
+			{
+				// Set the stack size of the target to the sum of the target's
+				// and source's stack sizes
+				ii1.setStackSize(ii1.getStackSize() + ii2.getStackSize());
+
+				// Place that item in the target slot
+				_items.at(pos1) = ii1;
+
+				// Clear the source slot.
+				_items.at(pos2) = ItemInstance(INVALID_ID, 0);
+			}
+			else
+			{
+				// Fill the target slot completely
+				ii1.setStackSize(item->getMaxStackSize());
+
+				// Remove the number of free slots from the source
+				ii2.setStackSize(ii2.getStackSize() - freeslots);
+
+				// Update the target
+				_items.at(pos1) = ii1;
+
+				// Update the source
+				_items.at(pos2) = ii2;
+			}
+		}
+	}
+	else
+	{
+		// Ordinary swapping of the slots
+		_items.at(pos1) = ii2;
+		_items.at(pos2) = ii1;
+	}
 }
 
 unsigned int Inventory::getSize() const
