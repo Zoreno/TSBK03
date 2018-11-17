@@ -10,6 +10,7 @@
 #include "ItemDatabase.h"
 #include "RandomGenerator.h"
 #include "MersenneDevice.h"
+#include "LootGenerator.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
@@ -138,6 +139,8 @@ public:
 	RandomGenerator<MersenneDevice> *getRandomGenerator();
 
 	void callInFuture(float time, const std::function<void(Game *)>& func);
+
+	LootGenerator *getLootGenerator();
 private:
 	unsigned int _nextEnemyID = 0;
 
@@ -159,4 +162,6 @@ private:
 	RandomGenerator<MersenneDevice> _randomGenerator;
 
 	std::vector<PendingFunction> _pendingFunctions;
+
+	LootGenerator _lootGenerator{};
 };

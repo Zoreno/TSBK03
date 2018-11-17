@@ -13,6 +13,8 @@ PendingFunction::PendingFunction(
 
 }
 
+static auto pendingFunctionHeapPred = [](const auto& first, const auto& second) {return first.time > second.time;};
+
 Game::Game(
 	Application *application)
 	: Frame(application),
@@ -77,7 +79,7 @@ void Game::update(
 		std::pop_heap(
 			_pendingFunctions.begin(),
 			_pendingFunctions.end(),
-			[](const auto& first, const auto& second) {return first.time > second.time;});
+			pendingFunctionHeapPred);
 
 		// Extract the function pointer
 		auto func = _pendingFunctions.back().func;
@@ -407,7 +409,27 @@ void Game::renderUI()
 
 				if (ImGui::IsItemClicked(1))
 				{
-					ImGui::OpenPopup("Menu");
+					if (ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+					{
+						ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+						bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
+
+						if (ret)
+						{
+							_player.getInventory()->removeItemCountAt(i, 1);
+						}
+						else
+						{
+							std::cout << "Cannot use that item right now" << std::endl;
+						}
+
+						std::cout << "Use clicked" << std::endl;
+					}
+					else
+					{
+						ImGui::OpenPopup("Menu");
+					}
 				}
 
 				if (ImGui::IsItemHovered())
@@ -608,5 +630,10 @@ void Game::callInFuture(
 	std::push_heap(
 		_pendingFunctions.begin(),
 		_pendingFunctions.end(),
-		[](const auto& first, const auto& second) {return first.time > second.time;});
+		pendingFunctionHeapPred);
+}
+
+LootGenerator * Game::getLootGenerator()
+{
+	return &_lootGenerator;
 }

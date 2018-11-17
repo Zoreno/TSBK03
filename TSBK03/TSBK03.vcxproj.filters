@@ -166,6 +166,12 @@
     <Filter Include="Source Files\Game\Item">
       <UniqueIdentifier>{eef06b5e-ee65-40b2-bbf5-f2363e082f7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game\Item\LootGenerator">
+      <UniqueIdentifier>{2a8509b2-d7a4-4fce-a11f-9f220063298c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Item\LootGenerator">
+      <UniqueIdentifier>{e3bc4bbe-5812-42d3-b6b0-cdbb76b2bb06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -347,6 +353,21 @@
     </ClCompile>
     <ClCompile Include="ConsumableItem.cpp">
       <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="LootGeneratorTableEntry.cpp">
+      <Filter>Source Files\Game\Item\LootGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="LootGeneratorTableEntryItem.cpp">
+      <Filter>Source Files\Game\Item\LootGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="LootGeneratorTableEntryTable.cpp">
+      <Filter>Source Files\Game\Item\LootGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="LootGeneratorTable.cpp">
+      <Filter>Source Files\Game\Item\LootGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="LootGenerator.cpp">
+      <Filter>Source Files\Game\Item\LootGenerator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -607,6 +628,21 @@
     </ClInclude>
     <ClInclude Include="ConsumableItem.h">
       <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="LootGenerator.h">
+      <Filter>Header Files\Game\Item\LootGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="LootGeneratorTableEntry.h">
+      <Filter>Header Files\Game\Item\LootGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="LootGeneratorTableEntryItem.h">
+      <Filter>Header Files\Game\Item\LootGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="LootGeneratorTableEntryTable.h">
+      <Filter>Header Files\Game\Item\LootGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="LootGeneratorTable.h">
+      <Filter>Header Files\Game\Item\LootGenerator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

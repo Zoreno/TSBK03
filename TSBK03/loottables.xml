@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<table tag="bandit">
+	<entry itemid="2" always="true"/>
+	
+	<entry itemid="1" probability="10"/>
+	<entry itemid="0" probability="10" mincount="1" maxcount="3"/>
+	
+	<entry grouptag="awesome_items" probability="1"/>
+</table>
+
+<table tag="awesome_items">
+	<entry itemid="3" probability="100"/>
+	<entry itemid="4" probability="10"/>
+</table>

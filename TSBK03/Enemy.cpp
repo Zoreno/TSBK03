@@ -173,7 +173,15 @@ void Enemy::onDeath()
 {
 	_game->getPlayer()->addExperience(25);
 
-	_game->getPlayer()->getInventory()->addItem(ItemInstance{ 0, 1 });
+
+	std::vector<ItemInstance> loot;
+
+	_game->getLootGenerator()->generateLoot("bandit", 10, loot);
+
+	for(auto& it : loot)
+	{
+		_game->getPlayer()->getInventory()->addItem(it);
+	}
 
 	glm::vec3 spawnPos = this->_startPosition;
 

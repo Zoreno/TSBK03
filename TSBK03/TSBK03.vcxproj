@@ -50,6 +50,11 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemDatabase.cpp" />
     <ClCompile Include="ItemInstance.cpp" />
+    <ClCompile Include="LootGenerator.cpp" />
+    <ClCompile Include="LootGeneratorTable.cpp" />
+    <ClCompile Include="LootGeneratorTableEntry.cpp" />
+    <ClCompile Include="LootGeneratorTableEntryItem.cpp" />
+    <ClCompile Include="LootGeneratorTableEntryTable.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MersenneDevice.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -125,6 +130,11 @@
     <ClInclude Include="ItemRarity.h" />
     <ClInclude Include="ItemType.h" />
     <ClInclude Include="KeyEvent.h" />
+    <ClInclude Include="LootGenerator.h" />
+    <ClInclude Include="LootGeneratorTable.h" />
+    <ClInclude Include="LootGeneratorTableEntry.h" />
+    <ClInclude Include="LootGeneratorTableEntryItem.h" />
+    <ClInclude Include="LootGeneratorTableEntryTable.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MersenneDevice.h" />
     <ClInclude Include="Mesh.h" />
