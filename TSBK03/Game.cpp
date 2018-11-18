@@ -87,7 +87,7 @@ void Game::update(
 		// Remove the function from the list
 		_pendingFunctions.pop_back();
 
-		// Call the function, passing the game pointer as parameter.
+		// Invoke the function, passing the game pointer as parameter.
 		func(this);
 	}
 
@@ -481,7 +481,6 @@ void Game::renderUI()
 				{
 					if (item->getType() == ItemType::CONSUMABLE)
 					{
-
 						if (ImGui::MenuItem("Use"))
 						{
 							ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);

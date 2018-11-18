@@ -5,7 +5,7 @@
 #include "Utils.h"
 
 LootGenerator::LootGenerator()
-	:_randomDevice{ time(NULL) }
+	:_randomDevice{ time(nullptr) }
 {
 	using namespace rapidxml;
 	xml_document<> doc;

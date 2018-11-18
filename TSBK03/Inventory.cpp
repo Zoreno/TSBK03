@@ -32,7 +32,25 @@ unsigned int Inventory::addItem(
 
 	unsigned int countLeft = itemInstance.getStackSize();
 
-	// TODO: Handle stacks of items
+	// Find all non-empty stacks of this item and try to fill those
+	for(auto& it : _items)
+	{
+		if(it.getID() == itemInstance.getID())
+		{
+			unsigned int freeSpots = item->getMaxStackSize() - it.getStackSize();
+
+			if(freeSpots >= countLeft)
+			{
+				it.setStackSize(it.getStackSize() + countLeft);
+				return 0;
+			}
+
+			it.setStackSize(item->getMaxStackSize());
+			countLeft -= freeSpots;
+		}
+	}
+
+	// Else, find an empty slot and place the item there.
 	for(auto& it : _items)
 	{
 		if(it.getID() == INVALID_ID)
@@ -40,7 +58,7 @@ unsigned int Inventory::addItem(
 			it = ItemInstance(itemInstance.getID(), countLeft);
 			return 0;
 		}
-		
+#if 0
 		if(it.getID() == itemInstance.getID())
 		{
 			unsigned int freeSpots = item->getMaxStackSize() - it.getStackSize();
@@ -55,6 +73,7 @@ unsigned int Inventory::addItem(
 
 			countLeft -= freeSpots;
 		}
+#endif
 	}
 
 	return countLeft;

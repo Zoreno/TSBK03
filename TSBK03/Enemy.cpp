@@ -173,7 +173,6 @@ void Enemy::onDeath()
 {
 	_game->getPlayer()->addExperience(25);
 
-
 	std::vector<ItemInstance> loot;
 
 	_game->getLootGenerator()->generateLoot("bandit", 10, loot);

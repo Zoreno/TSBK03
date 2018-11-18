@@ -159,6 +159,7 @@ void ItemDatabase::loadOnUseFunctions()
 		if (game->getPlayer()->getMissingHealth() > 0)
 		{
 			game->getPlayer()->heal(20);
+
 			return true;
 		}
 
