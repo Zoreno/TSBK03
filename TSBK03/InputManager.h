@@ -7,7 +7,7 @@
 
 enum Keys
 {
-	KEY_A,
+	KEY_A = 0,
 	KEY_B,
 	KEY_C,
 	KEY_D,
@@ -45,7 +45,35 @@ enum Keys
 	KEY_8,
 	KEY_9,
 
+	KEY_F1,
+	KEY_F2,
+	KEY_F3,
+	KEY_F4,
+	KEY_F5,
+	KEY_F6,
+	KEY_F7,
+	KEY_F8,
+	KEY_F9,
+	KEY_F10,
+	KEY_F11,
+	KEY_F12,
+
+	KEY_SPACE,
+	KEY_ESCAPE,
+	KEY_ENTER,
 	KEY_TAB,
+
+	KEY_UP,
+	KEY_DOWN,
+	KEY_RIGHT,
+	KEY_LEFT,
+
+	KEY_INSERT,
+	KEY_DELETE,
+	KEY_HOME,
+	KEY_END,
+	KEY_PAGE_UP,
+	KEY_PAGE_DOWN,
 
 	KEY_COUNT
 };
@@ -69,12 +97,9 @@ public:
 
 	bool keys[KEY_COUNT];
 
-	bool wKey;
-	bool aKey;
-	bool sKey;
-	bool dKey;
-
-	bool eKey;
+	bool shift;
+	bool ctrl;
+	bool alt;
 
 	bool dragging{ false };
 };

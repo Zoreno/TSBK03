@@ -5,7 +5,7 @@
 
 Player::Player(Game *game)
 	:_game{ game },
-	_inventory{ 32, game->getItemDatabase() }
+	_inventory{ 64, game->getItemDatabase() }
 {
 	_sceneNode = new StaticModelSceneNode{ "warrior", "player" };
 	_sceneNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
@@ -14,6 +14,12 @@ Player::Player(Game *game)
 	_sceneNode->setTexture("char");
 
 	game->addToRoot(_sceneNode);
+
+	// Intialize the base stats for the player.
+	_baseStats.agility = 10;
+
+	// Make sure that all the stats are updated
+	recalculateStats();
 }
 
 void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain *terrain)
@@ -75,7 +81,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 
 	_walking = false;
 
-	if (inputManager.wKey || (inputManager.rightClick && inputManager.leftClick))
+	if (inputManager.keys[KEY_W] || (inputManager.rightClick && inputManager.leftClick))
 	{
 		// Move forward
 		deltaPos.x -= glm::cos(_facing);
@@ -83,7 +89,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		_walking = true;
 	}
 
-	if (inputManager.sKey)
+	if (inputManager.keys[KEY_S])
 	{
 		// Move backward
 		deltaPos.x += glm::cos(_facing);
@@ -91,7 +97,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		_walking = true;
 	}
 
-	if (inputManager.aKey)
+	if (inputManager.keys[KEY_A])
 	{
 		if (!_lockFacing)
 		{
@@ -107,7 +113,7 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 		}
 	}
 
-	if (inputManager.dKey)
+	if (inputManager.keys[KEY_D])
 	{
 		if (!_lockFacing)
 		{
@@ -321,6 +327,10 @@ void Player::addExperience(
 	{
 		_maxHealth += 20;
 		_maxMana += 10;
+
+		_baseStats.agility += 10;
+
+		recalculateStats();
 	}
 }
 
@@ -346,7 +356,7 @@ void Player::attack(
 	{
 		if (_cooldown <= 0.f)
 		{
-			int damage = _game->getRandomGenerator()->randInt32Range(35, 45);
+			int damage = _game->getRandomGenerator()->randInt32Range(2*_stats.agility, 4*_stats.agility);
 
 			std::cout << damage << std::endl;
 
@@ -368,6 +378,21 @@ void Player::heal(
 	int value)
 {
 	_health = glm::min(_health + value, _maxHealth);
+}
+
+void Player::recalculateStats()
+{
+	_stats.agility = _baseStats.agility;
+}
+
+const Stats & Player::getBaseStats() const
+{
+	return _baseStats;
+}
+
+const Stats & Player::getStats() const
+{
+	return _stats;
 }
 
 int Player::getExperienceToLevelup(

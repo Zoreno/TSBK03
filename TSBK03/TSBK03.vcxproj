@@ -25,6 +25,7 @@
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EquippableItem.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="Frame.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EquippableItem.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Frame.h" />
@@ -128,6 +130,7 @@
     <ClInclude Include="ItemDatabase.h" />
     <ClInclude Include="ItemInstance.h" />
     <ClInclude Include="ItemRarity.h" />
+    <ClInclude Include="ItemSlot.h" />
     <ClInclude Include="ItemType.h" />
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="LootGenerator.h" />
@@ -157,6 +160,7 @@
     <ClInclude Include="SceneNodeType.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StaticModelSceneNode.h" />
+    <ClInclude Include="Stats.h" />
     <ClInclude Include="STBTextureFile.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Subscriber.h" />

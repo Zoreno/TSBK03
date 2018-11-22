@@ -6,6 +6,8 @@
 
 #include "Game.h"
 #include "Player.h"
+#include "ItemSlot.h"
+#include "EquippableItem.h"
 
 ItemDatabase::ItemDatabase()
 {
@@ -110,11 +112,9 @@ void ItemDatabase::loadItems()
 					type,
 					rarity,
 					description,
-					maxstacksize, 
-					iconX, 
+					maxstacksize,
+					iconX,
 					iconY));
-
-			++items_read;
 		}
 		else if (strcmp(typestring, "CONSUMABLE") == 0)
 		{
@@ -137,10 +137,64 @@ void ItemDatabase::loadItems()
 					iconX,
 					iconY));
 		}
+		else if (strcmp(typestring, "EQUIPPABLE") == 0)
+		{
+			type = ItemType::EQUIPPABLE;
+
+			// Parse stats
+			Stats stats{};
+			xml_node<> *statsNode = itemnode->first_node("stats");
+
+			if(statsNode->first_node("agility") != nullptr)
+			{
+				stats.agility = std::strtol(statsNode->first_node("agility")->value(), nullptr, 10);
+			}
+
+			// Parse item slot
+
+			const char *itemSlotString = itemnode->first_node("itemslot")->value();
+
+			ItemSlot slot;
+
+			if(strcmp(itemSlotString, "HEAD") == 0)
+			{
+				slot = ItemSlot::HEAD;
+			}
+			else
+			{
+				throw std::invalid_argument(std::string{ "Invalid item slot for item " } +std::to_string(id));
+			}
+
+			int requiredLevel = 1;
+
+			xml_node<> *reqlevelNode = itemnode->first_node("requiredlevel");
+
+			if(reqlevelNode != nullptr)
+			{
+				requiredLevel = std::strtol(reqlevelNode->value(), nullptr, 10);
+			}
+
+			_items.emplace(
+				id,
+				new EquippableItem(
+					id,
+					name,
+					type,
+					rarity,
+					description,
+					maxstacksize,
+					iconX,
+					iconY,
+					stats,
+					slot,
+					requiredLevel));
+		}
 		else
 		{
 			throw std::invalid_argument(std::string{ "Invalid type descriptor for item " } +std::to_string(id));
 		}
+
+		++items_read;
 
 		itemnode = itemnode->next_sibling("item");
 	}

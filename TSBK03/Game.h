@@ -28,17 +28,17 @@ struct NPC
 
 struct Zone
 {
-	/* 
+	/*
 	 * std::vector<NPC> _npcs;
 	 * std::vector<Enemy> _enemies;
 	 * std::vector<Container> _containers;
 	 * std::vector<Trigger> _triggers;
-	 *  
+	 *
 	 * // For dynamic loading of terrain from the disk
 	 * TerrainChunkManager _terrainChunkManager;
-	 * 
+	 *
 	 * WeatherEffect _currentWeather;
-	 * 
+	 *
 	 * DirectionalLight _sun; // To be moved to WeatherEffect
 	 */
 };
@@ -47,7 +47,7 @@ struct Buff
 {
 	/*
 	 * int duration;
-	 * 
+	 *
 	 * BuffEffect *effect;
 	 */
 };
@@ -66,20 +66,20 @@ struct Buff
 	 * Reputation _reputation;
 	 * SpellBook _book;
 	 * std::vector<Buff> _buffs;
-	 * 
-	 * 
+	 *
+	 *
 	 * Race _race;
 	 * Class _class;
-	 * 
+	 *
 	 * _book.getSpell("fireball").cast(this, target);
-	 * 
+	 *
 	 * if(_book.have("fireball"))
 	 *		_spellManager.get("fireball").cast(this, target);
-	 *		
+	 *
 	 *	Position _position;
 	 *	Angle _facing;
 	 */
-// };
+	 // };
 
 struct Spell
 {
@@ -97,7 +97,7 @@ struct GameState
 	 * AchievementManager _achievementManager;
 	 * SpellManager _spellManager;
 	 * InputManager _inputManager;
-	 * 
+	 *
 	 * ItemDatabase _itemDatabase{"items.db"};
 	 * NPCDatabase _npcDatabase{"npcs.db"};
 	 * EnemyDatabase _enemyDatabase{"enemies.db"};
@@ -142,12 +142,30 @@ public:
 
 	LootGenerator *getLootGenerator();
 private:
+
+	//=========================================================================
+	// UI Rendering
+	//=========================================================================
+
+	void renderUIInventory();
+	void renderUIInventoryItemFrame(const ItemInstance& itemInstance, int i);
+
+	void renderUICharacterScreen();
+	void renderUICharacterScreenCharacterPanel();
+
+	bool _showInventory{ false };
+	bool _showCharacterScreen{ false };
+	int _currentCharacterScreenTab{ 0 };
+
+	int _moveFrom = -1;
+	int _moveTo = -1;
+
 	unsigned int _nextEnemyID = 0;
 
 	DirectionalLightSceneNode *_directionalLightNode;
 
 	TerrainSceneNode *_terrainNode;
-	Scene *_scene{nullptr};
+	Scene *_scene{ nullptr };
 
 	InputManager _inputManager;
 

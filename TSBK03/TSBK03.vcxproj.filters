@@ -172,6 +172,12 @@
     <Filter Include="Source Files\Game\Item\LootGenerator">
       <UniqueIdentifier>{e3bc4bbe-5812-42d3-b6b0-cdbb76b2bb06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game\Item\Items">
+      <UniqueIdentifier>{2794bf92-1835-4561-a6a4-a087ad06b211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Item\Item">
+      <UniqueIdentifier>{765623af-4ceb-4f93-ab57-7c9c786a389d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -336,9 +342,6 @@
     <ClCompile Include="PerlinNoise.cpp">
       <Filter>Source Files\Engine\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
-      <Filter>Source Files\Game\Item</Filter>
-    </ClCompile>
     <ClCompile Include="ItemDatabase.cpp">
       <Filter>Source Files\Game\Item</Filter>
     </ClCompile>
@@ -350,9 +353,6 @@
     </ClCompile>
     <ClCompile Include="imgui_custom_widget.cpp">
       <Filter>Source Files\Library\IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="ConsumableItem.cpp">
-      <Filter>Source Files\Game\Item</Filter>
     </ClCompile>
     <ClCompile Include="LootGeneratorTableEntry.cpp">
       <Filter>Source Files\Game\Item\LootGenerator</Filter>
@@ -368,6 +368,15 @@
     </ClCompile>
     <ClCompile Include="LootGenerator.cpp">
       <Filter>Source Files\Game\Item\LootGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Source Files\Game\Item\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumableItem.cpp">
+      <Filter>Source Files\Game\Item\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="EquippableItem.cpp">
+      <Filter>Source Files\Game\Item\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -605,9 +614,6 @@
     <ClInclude Include="PerlinNoise.h">
       <Filter>Header Files\Engine\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>Header Files\Game\Item</Filter>
-    </ClInclude>
     <ClInclude Include="ItemRarity.h">
       <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
@@ -626,9 +632,6 @@
     <ClInclude Include="imgui_custom_widgets.h">
       <Filter>Header Files\Library\IMGUI</Filter>
     </ClInclude>
-    <ClInclude Include="ConsumableItem.h">
-      <Filter>Header Files\Game\Item</Filter>
-    </ClInclude>
     <ClInclude Include="LootGenerator.h">
       <Filter>Header Files\Game\Item\LootGenerator</Filter>
     </ClInclude>
@@ -643,6 +646,21 @@
     </ClInclude>
     <ClInclude Include="LootGeneratorTable.h">
       <Filter>Header Files\Game\Item\LootGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsumableItem.h">
+      <Filter>Header Files\Game\Item\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Header Files\Game\Item\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="EquippableItem.h">
+      <Filter>Header Files\Game\Item\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Stats.h">
+      <Filter>Header Files\Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemSlot.h">
+      <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

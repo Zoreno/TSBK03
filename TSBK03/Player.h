@@ -12,6 +12,7 @@
 #include "StaticModelSceneNode.h"
 #include "Inventory.h"
 #include "Enemy.h"
+#include "Stats.h"
 
 class Terrain;
 class Game;
@@ -62,7 +63,16 @@ public:
 
 	void heal(int value);
 
+	void recalculateStats();
+
+	const Stats& getStats() const;
+	const Stats& getBaseStats() const;
+
 private:
+
+	Stats _baseStats;
+	Stats _stats;
+
 	int getExperienceToLevelup(int level) const;
 	bool checkForLevelup();
 

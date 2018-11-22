@@ -52,4 +52,20 @@
 		<iconX>0</iconX>
 		<iconY>4</iconY>
 	</item>
+	
+	<item>
+		<id>5</id>
+		<name>Simple Hat</name>
+		<type>EQUIPPABLE</type>
+		<rarity>EPIC</rarity>
+		<description>"Place this on the head"</description>
+		<maxstacksize>1</maxstacksize>
+		<iconX>0</iconX>
+		<iconY>5</iconY>
+		<stats>
+			<agility>5</agility>
+		</stats>
+		<itemslot>HEAD</itemslot>	
+		<requiredlevel>2</requiredlevel>
+	</item>
 </items>

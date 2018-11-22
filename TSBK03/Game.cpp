@@ -3,6 +3,7 @@
 #include <ctime>
 #include "imgui_custom_widgets.h"
 #include "ConsumableItem.h"
+#include "EquippableItem.h"
 
 PendingFunction::PendingFunction(
 	float time,
@@ -49,10 +50,8 @@ Game::Game(
 	spawnEnemy(glm::vec3{ 200.f, 0.f, 220.f });
 	spawnEnemy(glm::vec3{ 240.f, 0.f, 220.f });
 
-	_player.getInventory()->addItem(ItemInstance(0, 9));
-	_player.getInventory()->addItem(ItemInstance(0, 10));
-	_player.getInventory()->addItem(ItemInstance(1, 1));
-	_player.getInventory()->addItem(ItemInstance(2, 1));
+	_player.getInventory()->addItem(ItemInstance(2, 10));
+	_player.getInventory()->addItem(ItemInstance(5, 1));
 }
 
 Game::~Game()
@@ -94,7 +93,9 @@ void Game::update(
 	Terrain *terrain = _application->getAssetManager()->fetch<Terrain>(_terrainNode->getTerrain());
 
 	static bool lastLClick = _inputManager.leftClick;
-	static bool lastEKey = _inputManager.eKey;
+	static bool lastEKey = _inputManager.keys[KEY_E];
+	static bool lastIKey = _inputManager.keys[KEY_I];
+	static bool lastCKey = _inputManager.keys[KEY_C];
 
 	static float currTime = 0;
 	currTime += dt;
@@ -163,12 +164,22 @@ void Game::update(
 		it->update(dt, terrain);
 	}
 
-	if (_inputManager.eKey && !lastEKey)
+	if (_inputManager.keys[KEY_E] && !lastEKey)
 	{
 		if (_currentTarget != nullptr)
 		{
 			_player.attack(_currentTarget);
 		}
+	}
+
+	if(_inputManager.keys[KEY_I] && !lastIKey)
+	{
+		_showInventory = !_showInventory;
+	}
+
+	if(_inputManager.keys[KEY_C] && !lastCKey)
+	{
+		_showCharacterScreen = !_showCharacterScreen;
 	}
 
 	std::vector<Enemy *> _enemiesPendingRemove;
@@ -207,7 +218,9 @@ void Game::update(
 	_enemiesPendingRemove.clear();
 
 	lastLClick = _inputManager.leftClick;
-	lastEKey = _inputManager.eKey;
+	lastEKey = _inputManager.keys[KEY_E];
+	lastIKey = _inputManager.keys[KEY_I];
+	lastCKey = _inputManager.keys[KEY_C];
 
 	// Handle player death
 	if (_player.getHealth() <= 0)
@@ -325,235 +338,13 @@ void Game::renderUI()
 	// Render Inventory Screen
 	//=========================================================================
 
-	static bool showInventory = true;
-	// TODO: Move all this to a UI Manager
-	if (showInventory)
-	{
-		ImGui::Begin("Inventory", &showInventory, ImVec2(0.f, 0.f), 0.9f,
-			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
+	renderUIInventory();
 
-		Inventory *playerInventory = _player.getInventory();
-		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
+	//=========================================================================
+	// Render Character Screen
+	//=========================================================================
 
-		int moveFrom = -1;
-		int moveTo = -1;
-
-		for (unsigned int i = 0; i < playerInventory->getSize(); ++i)
-		{
-			ImGui::PushID(i);
-
-			float imageWidth = 1.f;
-			float imageHeight = 1.f;
-
-			float iconWidth = imageWidth / 28.f;
-			float iconHeight = imageHeight / 29.f;
-
-			ItemInstance& itemInstance = playerInventory->getItemAt(i);
-			Item *item = _itemDatabase.getItemById(itemInstance.getID());
-
-			if (itemInstance.getID() != INVALID_ID)
-			{
-				int x = item->getIconX();
-				int y = item->getIconY();
-
-				if (itemInstance.getStackSize() > 1)
-				{
-					std::string text = std::to_string(itemInstance.getStackSize());
-
-					ImGui::ImageButtonWithText(
-						(void *)(intptr_t)iconTexture->getHandle(),
-						ImVec2(32.f, 32.f),
-						ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-						ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-						2,
-						ImVec4(0, 0, 0, 0),
-						ImVec4(1, 1, 1, 1),
-						ImVec4(1, 0, 0, 1),
-						ImVec2(28, 28),
-						text.c_str());
-				}
-				else
-				{
-					ImGui::ImageButton(
-						(void *)(intptr_t)iconTexture->getHandle(),
-						ImVec2(32.f, 32.f),
-						ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-						ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-						2,
-						ImVec4(0, 0, 0, 0),
-						ImVec4(1, 1, 1, 1));
-				}
-
-				ImGuiDragDropFlags srcFlags = 0;
-				srcFlags |= ImGuiDragDropFlags_SourceNoDisableHover;
-				srcFlags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
-
-				if (ImGui::BeginDragDropSource(srcFlags))
-				{
-					ImGui::SetDragDropPayload("DND_DEMO_NAME", &i, sizeof(int));
-					ImGui::EndDragDropSource();
-				}
-
-				if (ImGui::BeginDragDropTarget())
-				{
-					ImGuiDragDropFlags targetFlags = 0;
-
-					if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", targetFlags))
-					{
-						moveFrom = *(const int *)payload->Data;
-						moveTo = i;
-					}
-
-					ImGui::EndDragDropTarget();
-				}
-
-				if (ImGui::IsItemClicked(1))
-				{
-					if (ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-					{
-						ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
-
-						bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
-
-						if (ret)
-						{
-							_player.getInventory()->removeItemCountAt(i, 1);
-						}
-						else
-						{
-							std::cout << "Cannot use that item right now" << std::endl;
-						}
-
-						std::cout << "Use clicked" << std::endl;
-					}
-					else
-					{
-						ImGui::OpenPopup("Menu");
-					}
-				}
-
-				if (ImGui::IsItemHovered())
-				{
-					if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
-					{
-						ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
-
-						switch (item->getRarity())
-						{
-						case ItemRarity::UNCOMMON:
-							color = ImVec4{ 0.25f, 0.91f, 0.16f, 1.0f };
-							break;
-						case ItemRarity::SUPERIOR:
-							color = ImVec4{ 0.09f, 0.17f, 0.78f, 1.0f };
-							break;
-						case ItemRarity::EPIC:
-							color = ImVec4{ 0.64f, 0.21f, 0.93f, 1.0f };
-							break;
-						case ItemRarity::LEGENDARY:
-							color = ImVec4{ 0.99f, 0.40f, 0.f, 1.0f };
-							break;
-						}
-
-						ImGui::TextColored(color, item->getName().c_str());
-
-						if (item->getType() == ItemType::CONSUMABLE)
-						{
-							ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
-
-							ImGui::TextColored(ImVec4{ 0.12f, 1.f, 0.f, 1.0f }, "Use: %s", consumableItem->getUseText().c_str());
-						}
-
-						if (!item->getDescription().empty())
-						{
-							ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
-						}
-						
-						if (item->getMaxStackSize() > 1)
-						{
-							ImGui::Text("%i/%i", itemInstance.getStackSize(), item->getMaxStackSize());
-						}
-
-						ImGui::End();
-					}
-				}
-
-				if (ImGui::BeginPopup("Menu"))
-				{
-					if (item->getType() == ItemType::CONSUMABLE)
-					{
-						if (ImGui::MenuItem("Use"))
-						{
-							ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
-
-							bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
-							if (ret)
-							{
-								_player.getInventory()->removeItemCountAt(i, 1);
-							}
-							else
-							{
-								std::cout << "Cannot use that item right now" << std::endl;
-							}
-
-							std::cout << "Use clicked" << std::endl;
-						}
-					}
-
-					if (ImGui::MenuItem("Destroy"))
-					{
-						playerInventory->removeItemAt(i);
-					}
-
-					if (ImGui::MenuItem("Cancel"))
-					{
-						std::cout << "Cancel clicked" << std::endl;
-					}
-
-					ImGui::EndPopup();
-				}
-			}
-			else
-			{
-				int x = 4;
-				int y = 28;
-
-				ImGui::ImageButton(
-					(void *)(intptr_t)iconTexture->getHandle(),
-					ImVec2(32.f, 32.f),
-					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-					2);
-
-				if (ImGui::BeginDragDropTarget())
-				{
-					ImGuiDragDropFlags targetFlags = 0;
-
-					if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", targetFlags))
-					{
-						moveFrom = *(const int *)payload->Data;
-						moveTo = i;
-					}
-
-					ImGui::EndDragDropTarget();
-				}
-
-			}
-
-			if (i % 4 != 3)
-			{
-				ImGui::SameLine();
-			}
-
-			ImGui::PopID();
-		}
-
-		if (moveFrom != -1 && moveTo != -1)
-		{
-			playerInventory->swapItems(moveTo, moveFrom);
-		}
-
-		ImGui::End();
-	}
+	renderUICharacterScreen();
 
 	//=========================================================================
 	// Render Enemy Nameplate
@@ -635,4 +426,450 @@ void Game::callInFuture(
 LootGenerator * Game::getLootGenerator()
 {
 	return &_lootGenerator;
+}
+
+void Game::renderUIInventory()
+{
+	if (_showInventory)
+	{
+		const int itemsPerRow = 8;
+
+		ImGui::SetNextWindowPos(ImVec2(20, 160), ImGuiCond_FirstUseEver);
+		ImGui::Begin("Inventory", &_showInventory, ImVec2(0.f, 0.f), 0.9f,
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
+
+		Inventory *playerInventory = _player.getInventory();
+
+		for (unsigned int i = 0; i < playerInventory->getSize(); ++i)
+		{
+			ImGui::PushID(i);
+
+			ItemInstance& itemInstance = playerInventory->getItemAt(i);
+
+			renderUIInventoryItemFrame(itemInstance, i);
+
+			if ((i % itemsPerRow) != (itemsPerRow - 1))
+			{
+				ImGui::SameLine();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_moveFrom != -1 && _moveTo != -1)
+		{
+			playerInventory->swapItems(_moveTo, _moveFrom);
+			_moveFrom = -1;
+			_moveTo = -1;
+		}
+
+		ImGui::End();
+	}
+}
+
+void Game::renderUIInventoryItemFrame(
+	const ItemInstance &itemInstance,
+	int i)
+{
+	float imageWidth = 1.f;
+	float imageHeight = 1.f;
+
+	float iconWidth = imageWidth / 28.f;
+	float iconHeight = imageHeight / 29.f;
+
+	Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
+
+	Item *item = _itemDatabase.getItemById(itemInstance.getID());
+
+	if (itemInstance.getID() != INVALID_ID)
+	{
+		int x = item->getIconX();
+		int y = item->getIconY();
+
+		if (itemInstance.getStackSize() > 1)
+		{
+			std::string text = std::to_string(itemInstance.getStackSize());
+
+			ImGui::ImageButtonWithText(
+				(void *)(intptr_t)iconTexture->getHandle(),
+				ImVec2(32.f, 32.f),
+				ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+				ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+				2,
+				ImVec4(0, 0, 0, 0),
+				ImVec4(1, 1, 1, 1),
+				ImVec4(1, 0, 0, 1),
+				ImVec2(28, 28),
+				text.c_str());
+		}
+		else
+		{
+			ImGui::ImageButton(
+				(void *)(intptr_t)iconTexture->getHandle(),
+				ImVec2(32.f, 32.f),
+				ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+				ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+				2,
+				ImVec4(0, 0, 0, 0),
+				ImVec4(1, 1, 1, 1));
+		}
+
+		ImGuiDragDropFlags srcFlags = 0;
+		srcFlags |= ImGuiDragDropFlags_SourceNoDisableHover;
+		srcFlags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
+
+		if (ImGui::BeginDragDropSource(srcFlags))
+		{
+			ImGui::SetDragDropPayload("ITEMINSTANCE", &i, sizeof(int));
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			ImGuiDragDropFlags targetFlags = 0;
+
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ITEMINSTANCE", targetFlags))
+			{
+				_moveFrom = *(const int *)payload->Data;
+				_moveTo = i;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		if (ImGui::IsItemClicked(1))
+		{
+			if (ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+			{
+				ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+				bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
+
+				if (ret)
+				{
+					_player.getInventory()->removeItemCountAt(i, 1);
+				}
+				else
+				{
+					std::cout << "Cannot use that item right now" << std::endl;
+				}
+
+				std::cout << "Use clicked" << std::endl;
+			}
+			else
+			{
+				ImGui::OpenPopup("Menu");
+			}
+		}
+
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
+			{
+				ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
+
+				switch (item->getRarity())
+				{
+				case ItemRarity::UNCOMMON:
+					color = ImVec4{ 0.25f, 0.91f, 0.16f, 1.0f };
+					break;
+				case ItemRarity::SUPERIOR:
+					color = ImVec4{ 0.09f, 0.17f, 0.78f, 1.0f };
+					break;
+				case ItemRarity::EPIC:
+					color = ImVec4{ 0.64f, 0.21f, 0.93f, 1.0f };
+					break;
+				case ItemRarity::LEGENDARY:
+					color = ImVec4{ 0.99f, 0.40f, 0.f, 1.0f };
+					break;
+				}
+
+				ImGui::TextColored(color, item->getName().c_str());
+
+				if (item->getType() == ItemType::CONSUMABLE)
+				{
+					ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+					ImGui::TextColored(ImVec4{ 0.12f, 1.f, 0.f, 1.0f }, "Use: %s", consumableItem->getUseText().c_str());
+				}
+				else if (item->getType() == ItemType::EQUIPPABLE)
+				{
+					EquippableItem *equippableItem = static_cast<EquippableItem *>(item);
+
+					std::string slotString = "INVALID";
+
+					switch (equippableItem->getItemSlot())
+					{
+					case ItemSlot::HEAD:
+						slotString = "Head";
+						break;
+					}
+
+					ImGui::Text("%s", slotString.c_str());
+
+					if (equippableItem->getStats().agility != 0)
+					{
+						ImGui::Text("%+i Agility", equippableItem->getStats().agility);
+					}
+
+					unsigned int requiredLevel = equippableItem->getRequiredLevel();
+
+					if (requiredLevel > 1)
+					{
+						ImVec4 color{ 1.f, 1.f, 1.f, 1.f };
+
+						if (_player.getLevel() < requiredLevel)
+						{
+							color = ImVec4{ 1.f, 0.f, 0.f, 1.f };
+						}
+
+						ImGui::TextColored(color, "Required level: %i", requiredLevel);
+					}
+				}
+
+				if (!item->getDescription().empty())
+				{
+					ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
+				}
+
+				if (item->getMaxStackSize() > 1)
+				{
+					ImGui::Text("%i/%i", itemInstance.getStackSize(), item->getMaxStackSize());
+				}
+
+				ImGui::End();
+			}
+		}
+
+		if (ImGui::BeginPopup("Menu"))
+		{
+			if (item->getType() == ItemType::CONSUMABLE)
+			{
+				if (ImGui::MenuItem("Use"))
+				{
+					ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+					bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
+					if (ret)
+					{
+						_player.getInventory()->removeItemCountAt(i, 1);
+					}
+					else
+					{
+						std::cout << "Cannot use that item right now" << std::endl;
+					}
+
+					std::cout << "Use clicked" << std::endl;
+				}
+			}
+
+			if (ImGui::MenuItem("Destroy"))
+			{
+				getPlayer()->getInventory()->removeItemAt(i);
+			}
+
+			if (ImGui::MenuItem("Cancel"))
+			{
+				std::cout << "Cancel clicked" << std::endl;
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+	else
+	{
+		int x = 4;
+		int y = 28;
+
+		ImGui::ImageButton(
+			(void *)(intptr_t)iconTexture->getHandle(),
+			ImVec2(32.f, 32.f),
+			ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+			ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+			2);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			ImGuiDragDropFlags targetFlags = 0;
+
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ITEMINSTANCE", targetFlags))
+			{
+				_moveFrom = *(const int *)payload->Data;
+				_moveTo = i;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+	}
+}
+
+void Game::renderUICharacterScreen()
+{
+	if (_showCharacterScreen)
+	{
+		const int itemsPerRow = 8;
+
+		ImGui::SetNextWindowPos(ImVec2(400, 160), ImGuiCond_FirstUseEver);
+		ImGui::Begin("Character", &_showCharacterScreen, ImVec2(0.f, 0.f), 0.9f,
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
+
+		const int numButtons = 3;
+		const char *tabButtons[3] = { "Character", "Reputation", "Currency"};
+		for(int i = 0; i < numButtons; ++i)
+		{
+			bool pushedColor = false;
+
+			if(i == _currentCharacterScreenTab)
+			{
+				ImVec4 col = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, col);
+
+				pushedColor = true;
+			}
+
+			if(ImGui::Button(tabButtons[i]))
+			{
+				_currentCharacterScreenTab = i;
+			}
+
+			if(pushedColor == true)
+			{
+				ImGui::PopStyleColor();
+			}
+
+			if(i != (numButtons - 1))
+			{
+				ImGui::SameLine();
+			}
+		}
+
+		switch (_currentCharacterScreenTab)
+		{
+		case 0:
+			renderUICharacterScreenCharacterPanel();
+			break;
+		case 1:
+			// Reputation Tab
+			break;
+		case 2:
+			// Currency Tab
+			break;
+		}
+
+		
+
+		ImGui::End();
+	}
+}
+
+void Game::renderUICharacterScreenCharacterPanel()
+{
+	//=====================================================================
+	// Render left panel of items
+	//=====================================================================
+
+	ImGui::BeginGroup();
+
+	for (unsigned int i = 0; i < 8; ++i)
+	{
+		int x = 4;
+		int y = 28;
+
+		float imageWidth = 1.f;
+		float imageHeight = 1.f;
+
+		float iconWidth = imageWidth / 28.f;
+		float iconHeight = imageHeight / 29.f;
+
+		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
+
+		ImGui::ImageButton(
+			(void *)(intptr_t)iconTexture->getHandle(),
+			ImVec2(32.f, 32.f),
+			ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+			ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+			2);
+	}
+
+	ImGui::EndGroup();
+
+	//=====================================================================
+	// Render middle part with stats
+	//=====================================================================
+
+	ImGui::SameLine();
+
+	ImGui::BeginGroup();
+
+	ImGui::Text("Name: %s", _player.getName().c_str());
+	ImGui::Text("Level %i", _player.getLevel());
+
+	ImGui::Text("");
+
+	ImGui::Text("Health: %i/%i", _player.getHealth(), _player.getMaxHealth());
+	ImGui::Text("Mana: %i/%i", _player.getMana(), _player.getMaxMana());
+	ImGui::Text("");
+
+	const char *listItems[2] = { "Primary Stats", "Secondary Stats" };
+
+	static int currentItem = 0;
+
+	ImGui::Combo("", &currentItem, listItems, 2);
+
+	switch(currentItem)
+	{
+	case 0:
+		ImGui::Text("Agility: %i", _player.getStats().agility);
+		ImGui::Text("Strength: %i", 10);
+		ImGui::Text("Stamina: %i", 10);
+		ImGui::Text("Intellect: %i", 10);
+		ImGui::Text("Spirit: %i", 10);
+		break;
+	case 1:
+		ImGui::Text("Critical Strike Chance: %i%%", 10);
+		ImGui::Text("Attack Power: %i", 10);
+		ImGui::Text("Spell Power: %i", 10);
+		ImGui::Text("Haste: %i%%", 10);
+		ImGui::Text("Dodge Chance: %i%%", 10);
+		ImGui::Text("Evade Chance: %i%%", 10);
+		ImGui::Text("Block Chance: %i%%", 10);
+		ImGui::Text("Parry Chance: %i%%", 10);
+		ImGui::Text("Armor: %i", 1000);
+		break;
+	}
+
+	ImGui::EndGroup();
+
+	//=====================================================================
+	// Render right panel of items
+	//=====================================================================
+
+	ImGui::SameLine();
+
+	ImGui::BeginGroup();
+
+	for (unsigned int i = 0; i < 8; ++i)
+	{
+		int x = 4;
+		int y = 28;
+
+		float imageWidth = 1.f;
+		float imageHeight = 1.f;
+
+		float iconWidth = imageWidth / 28.f;
+		float iconHeight = imageHeight / 29.f;
+
+		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
+
+		ImGui::ImageButton(
+			(void *)(intptr_t)iconTexture->getHandle(),
+			ImVec2(32.f, 32.f),
+			ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+			ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+			2);
+	}
+
+	ImGui::EndGroup();
 }

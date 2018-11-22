@@ -2,6 +2,7 @@
 
 <table tag="bandit">
 	<entry itemid="2" always="true"/>
+	<entry itemid="5" always="true"/>
 	
 	<entry itemid="1" probability="10"/>
 	<entry itemid="0" probability="10" mincount="1" maxcount="3"/>
