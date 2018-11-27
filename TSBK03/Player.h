@@ -13,6 +13,7 @@
 #include "Inventory.h"
 #include "Enemy.h"
 #include "Stats.h"
+#include "EquipmentManager.h"
 
 class Terrain;
 class Game;
@@ -57,6 +58,7 @@ public:
 	void takeDamage(int value);
 
 	Inventory *getInventory();
+	EquipmentManager *getEquipmentManager();
 
 	void attack(
 		Enemy * enemy);
@@ -112,4 +114,5 @@ private:
 	StaticModelSceneNode *_sceneNode;
 
 	Inventory _inventory;
+	EquipmentManager _equipmentManager;
 };

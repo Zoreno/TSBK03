@@ -22,7 +22,6 @@ public:
 	const Stats& getStats() const;
 	ItemSlot getItemSlot() const;
 	unsigned int getRequiredLevel() const;
-
 private:
 
 	Stats _stats;

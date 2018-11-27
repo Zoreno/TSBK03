@@ -64,8 +64,28 @@
 		<iconY>5</iconY>
 		<stats>
 			<agility>5</agility>
+			<strength>5</strength>
+			<stamina>10</stamina>
+			<intellect>2</intellect>
+			<spirit>2</spirit>
 		</stats>
 		<itemslot>HEAD</itemslot>	
-		<requiredlevel>2</requiredlevel>
+		<requiredlevel>1</requiredlevel>
+	</item>
+	
+	<item>
+		<id>6</id>
+		<name>Boots</name>
+		<type>EQUIPPABLE</type>
+		<rarity>UNCOMMON</rarity>
+		<description>"Simple Boots"</description>
+		<maxstacksize>1</maxstacksize>
+		<iconX>0</iconX>
+		<iconY>6</iconY>
+		<stats>
+			<agility>1</agility>
+		</stats>
+		<itemslot>FEET</itemslot>	
+		<requiredlevel>1</requiredlevel>
 	</item>
 </items>

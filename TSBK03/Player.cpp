@@ -2,10 +2,12 @@
 
 #include "Game.h"
 #include "Terrain.h"
+#include <numeric>
 
 Player::Player(Game *game)
 	:_game{ game },
-	_inventory{ 64, game->getItemDatabase() }
+	_inventory{ 64, game->getItemDatabase() },
+	_equipmentManager{ game }
 {
 	_sceneNode = new StaticModelSceneNode{ "warrior", "player" };
 	_sceneNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
@@ -17,6 +19,10 @@ Player::Player(Game *game)
 
 	// Intialize the base stats for the player.
 	_baseStats.agility = 10;
+	_baseStats.strength = 12;
+	_baseStats.stamina = 17;
+	_baseStats.intellect = 9;
+	_baseStats.spirit = 14;
 
 	// Make sure that all the stats are updated
 	recalculateStats();
@@ -349,6 +355,11 @@ Inventory * Player::getInventory()
 	return &_inventory;
 }
 
+EquipmentManager * Player::getEquipmentManager()
+{
+	return &_equipmentManager;
+}
+
 void Player::attack(
 	Enemy *enemy)
 {
@@ -382,7 +393,16 @@ void Player::heal(
 
 void Player::recalculateStats()
 {
-	_stats.agility = _baseStats.agility;
+	Stats itemStats = getEquipmentManager()->getStats();
+
+	_stats = _baseStats + itemStats;
+
+	_maxHealth = _stats.stamina * 10;
+
+	if(_health > _maxHealth)
+	{
+		_health = _maxHealth;
+	}
 }
 
 const Stats & Player::getBaseStats() const

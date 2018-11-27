@@ -378,6 +378,12 @@
     <ClCompile Include="EquippableItem.cpp">
       <Filter>Source Files\Game\Item\Item</Filter>
     </ClCompile>
+    <ClCompile Include="EquipmentManager.cpp">
+      <Filter>Source Files\Game\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Stats.cpp">
+      <Filter>Source Files\Game\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -660,6 +666,9 @@
       <Filter>Header Files\Game\Entity</Filter>
     </ClInclude>
     <ClInclude Include="ItemSlot.h">
+      <Filter>Header Files\Game\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="EquipmentManager.h">
       <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
   </ItemGroup>

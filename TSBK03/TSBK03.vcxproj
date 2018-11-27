@@ -25,6 +25,7 @@
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EquipmentManager.cpp" />
     <ClCompile Include="EquippableItem.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -69,6 +70,7 @@
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="StaticModelSceneNode.cpp" />
+    <ClCompile Include="Stats.cpp" />
     <ClCompile Include="STBTextureFile.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainChunk.cpp" />
@@ -99,6 +101,7 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EquipmentManager.h" />
     <ClInclude Include="EquippableItem.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />

@@ -150,6 +150,26 @@ void ItemDatabase::loadItems()
 				stats.agility = std::strtol(statsNode->first_node("agility")->value(), nullptr, 10);
 			}
 
+			if (statsNode->first_node("strength") != nullptr)
+			{
+				stats.strength = std::strtol(statsNode->first_node("strength")->value(), nullptr, 10);
+			}
+
+			if (statsNode->first_node("stamina") != nullptr)
+			{
+				stats.stamina = std::strtol(statsNode->first_node("stamina")->value(), nullptr, 10);
+			}
+
+			if (statsNode->first_node("intellect") != nullptr)
+			{
+				stats.intellect = std::strtol(statsNode->first_node("intellect")->value(), nullptr, 10);
+			}
+
+			if (statsNode->first_node("spirit") != nullptr)
+			{
+				stats.spirit = std::strtol(statsNode->first_node("spirit")->value(), nullptr, 10);
+			}
+
 			// Parse item slot
 
 			const char *itemSlotString = itemnode->first_node("itemslot")->value();
@@ -159,6 +179,58 @@ void ItemDatabase::loadItems()
 			if(strcmp(itemSlotString, "HEAD") == 0)
 			{
 				slot = ItemSlot::HEAD;
+			}
+			else if (strcmp(itemSlotString, "NECK") == 0)
+			{
+				slot = ItemSlot::NECK;
+			}
+			else if (strcmp(itemSlotString, "SHOULDER") == 0)
+			{
+				slot = ItemSlot::SHOULDER;
+			}
+			else if (strcmp(itemSlotString, "BACK") == 0)
+			{
+				slot = ItemSlot::BACK;
+			}
+			else if (strcmp(itemSlotString, "CHEST") == 0)
+			{
+				slot = ItemSlot::CHEST;
+			}
+			else if (strcmp(itemSlotString, "WRIST") == 0)
+			{
+				slot = ItemSlot::WRIST;
+			}
+			else if (strcmp(itemSlotString, "GLOVES") == 0)
+			{
+				slot = ItemSlot::GLOVES;
+			}
+			else if (strcmp(itemSlotString, "WAIST") == 0)
+			{
+				slot = ItemSlot::WAIST;
+			}
+			else if (strcmp(itemSlotString, "LEGS") == 0)
+			{
+				slot = ItemSlot::LEGS;
+			}
+			else if (strcmp(itemSlotString, "FEET") == 0)
+			{
+				slot = ItemSlot::FEET;
+			}
+			else if (strcmp(itemSlotString, "RING") == 0)
+			{
+				slot = ItemSlot::RING;
+			}
+			else if (strcmp(itemSlotString, "WEAPON") == 0)
+			{
+				slot = ItemSlot::WEAPON;
+			}
+			else if (strcmp(itemSlotString, "SHILED") == 0)
+			{
+				slot = ItemSlot::SHIELD;
+			}
+			else if (strcmp(itemSlotString, "RANGEDWEAPON") == 0)
+			{
+				slot = ItemSlot::RANGEDWEAPON;
 			}
 			else
 			{

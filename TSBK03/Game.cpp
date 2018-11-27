@@ -5,6 +5,24 @@
 #include "ConsumableItem.h"
 #include "EquippableItem.h"
 
+const std::string slotStrings[(unsigned int)ItemSlot::COUNT] =
+{
+	"Head",
+	"Neck",
+	"Shoulder",
+	"Back",
+	"Chest",
+	"Wrist",
+	"Gloves",
+	"Waist",
+	"Legs",
+	"Feet",
+	"Ring",
+	"Weapon",
+	"Shield",
+	"Ranged Weapon"
+};
+
 PendingFunction::PendingFunction(
 	float time,
 	const std::function<void(Game *)> &func)
@@ -52,6 +70,7 @@ Game::Game(
 
 	_player.getInventory()->addItem(ItemInstance(2, 10));
 	_player.getInventory()->addItem(ItemInstance(5, 1));
+	_player.getInventory()->addItem(ItemInstance(6, 1));
 }
 
 Game::~Game()
@@ -172,12 +191,12 @@ void Game::update(
 		}
 	}
 
-	if(_inputManager.keys[KEY_I] && !lastIKey)
+	if (_inputManager.keys[KEY_I] && !lastIKey)
 	{
 		_showInventory = !_showInventory;
 	}
 
-	if(_inputManager.keys[KEY_C] && !lastCKey)
+	if (_inputManager.keys[KEY_C] && !lastCKey)
 	{
 		_showCharacterScreen = !_showCharacterScreen;
 	}
@@ -541,20 +560,28 @@ void Game::renderUIInventoryItemFrame(
 		{
 			if (ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT))
 			{
-				ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
-
-				bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
-
-				if (ret)
+				if (item->getType() == ItemType::CONSUMABLE)
 				{
-					_player.getInventory()->removeItemCountAt(i, 1);
-				}
-				else
-				{
-					std::cout << "Cannot use that item right now" << std::endl;
-				}
+					ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
 
-				std::cout << "Use clicked" << std::endl;
+					bool ret = _itemDatabase.invokeOnUseFunction(consumableItem->getUseFunction(), this);
+
+					if (ret)
+					{
+						_player.getInventory()->removeItemCountAt(i, 1);
+					}
+					else
+					{
+						std::cout << "Cannot use that item right now" << std::endl;
+					}
+				}
+				else if(item->getType() == ItemType::EQUIPPABLE)
+				{
+					if (!getPlayer()->getEquipmentManager()->equip(itemInstance, i))
+					{
+						std::cout << "You do not meet the requirements for that item" << std::endl;
+					}
+				}
 			}
 			else
 			{
@@ -564,81 +591,7 @@ void Game::renderUIInventoryItemFrame(
 
 		if (ImGui::IsItemHovered())
 		{
-			if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
-			{
-				ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
-
-				switch (item->getRarity())
-				{
-				case ItemRarity::UNCOMMON:
-					color = ImVec4{ 0.25f, 0.91f, 0.16f, 1.0f };
-					break;
-				case ItemRarity::SUPERIOR:
-					color = ImVec4{ 0.09f, 0.17f, 0.78f, 1.0f };
-					break;
-				case ItemRarity::EPIC:
-					color = ImVec4{ 0.64f, 0.21f, 0.93f, 1.0f };
-					break;
-				case ItemRarity::LEGENDARY:
-					color = ImVec4{ 0.99f, 0.40f, 0.f, 1.0f };
-					break;
-				}
-
-				ImGui::TextColored(color, item->getName().c_str());
-
-				if (item->getType() == ItemType::CONSUMABLE)
-				{
-					ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
-
-					ImGui::TextColored(ImVec4{ 0.12f, 1.f, 0.f, 1.0f }, "Use: %s", consumableItem->getUseText().c_str());
-				}
-				else if (item->getType() == ItemType::EQUIPPABLE)
-				{
-					EquippableItem *equippableItem = static_cast<EquippableItem *>(item);
-
-					std::string slotString = "INVALID";
-
-					switch (equippableItem->getItemSlot())
-					{
-					case ItemSlot::HEAD:
-						slotString = "Head";
-						break;
-					}
-
-					ImGui::Text("%s", slotString.c_str());
-
-					if (equippableItem->getStats().agility != 0)
-					{
-						ImGui::Text("%+i Agility", equippableItem->getStats().agility);
-					}
-
-					unsigned int requiredLevel = equippableItem->getRequiredLevel();
-
-					if (requiredLevel > 1)
-					{
-						ImVec4 color{ 1.f, 1.f, 1.f, 1.f };
-
-						if (_player.getLevel() < requiredLevel)
-						{
-							color = ImVec4{ 1.f, 0.f, 0.f, 1.f };
-						}
-
-						ImGui::TextColored(color, "Required level: %i", requiredLevel);
-					}
-				}
-
-				if (!item->getDescription().empty())
-				{
-					ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
-				}
-
-				if (item->getMaxStackSize() > 1)
-				{
-					ImGui::Text("%i/%i", itemInstance.getStackSize(), item->getMaxStackSize());
-				}
-
-				ImGui::End();
-			}
+			renderUIItemTooltip(item, itemInstance.getStackSize());
 		}
 
 		if (ImGui::BeginPopup("Menu"))
@@ -663,6 +616,17 @@ void Game::renderUIInventoryItemFrame(
 				}
 			}
 
+			if (item->getType() == ItemType::EQUIPPABLE)
+			{
+				if (ImGui::MenuItem("Equip"))
+				{
+					if (!getPlayer()->getEquipmentManager()->equip(itemInstance, i))
+					{
+						std::cout << "You do not meet the requirements for that item" << std::endl;
+					}
+				}
+			}
+
 			if (ImGui::MenuItem("Destroy"))
 			{
 				getPlayer()->getInventory()->removeItemAt(i);
@@ -670,7 +634,7 @@ void Game::renderUIInventoryItemFrame(
 
 			if (ImGui::MenuItem("Cancel"))
 			{
-				std::cout << "Cancel clicked" << std::endl;
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
@@ -708,19 +672,17 @@ void Game::renderUICharacterScreen()
 {
 	if (_showCharacterScreen)
 	{
-		const int itemsPerRow = 8;
-
 		ImGui::SetNextWindowPos(ImVec2(400, 160), ImGuiCond_FirstUseEver);
 		ImGui::Begin("Character", &_showCharacterScreen, ImVec2(0.f, 0.f), 0.9f,
 			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 
 		const int numButtons = 3;
-		const char *tabButtons[3] = { "Character", "Reputation", "Currency"};
-		for(int i = 0; i < numButtons; ++i)
+		const char *tabButtons[3] = { "Character", "Reputation", "Currency" };
+		for (int i = 0; i < numButtons; ++i)
 		{
 			bool pushedColor = false;
 
-			if(i == _currentCharacterScreenTab)
+			if (i == _currentCharacterScreenTab)
 			{
 				ImVec4 col = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
 
@@ -729,17 +691,17 @@ void Game::renderUICharacterScreen()
 				pushedColor = true;
 			}
 
-			if(ImGui::Button(tabButtons[i]))
+			if (ImGui::Button(tabButtons[i]))
 			{
 				_currentCharacterScreenTab = i;
 			}
 
-			if(pushedColor == true)
+			if (pushedColor == true)
 			{
 				ImGui::PopStyleColor();
 			}
 
-			if(i != (numButtons - 1))
+			if (i != (numButtons - 1))
 			{
 				ImGui::SameLine();
 			}
@@ -758,8 +720,6 @@ void Game::renderUICharacterScreen()
 			break;
 		}
 
-		
-
 		ImGui::End();
 	}
 }
@@ -772,26 +732,7 @@ void Game::renderUICharacterScreenCharacterPanel()
 
 	ImGui::BeginGroup();
 
-	for (unsigned int i = 0; i < 8; ++i)
-	{
-		int x = 4;
-		int y = 28;
-
-		float imageWidth = 1.f;
-		float imageHeight = 1.f;
-
-		float iconWidth = imageWidth / 28.f;
-		float iconHeight = imageHeight / 29.f;
-
-		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
-
-		ImGui::ImageButton(
-			(void *)(intptr_t)iconTexture->getHandle(),
-			ImVec2(32.f, 32.f),
-			ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-			ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-			2);
-	}
+	renderUICharacterScreenCharacterPanelItemPanel(0);
 
 	ImGui::EndGroup();
 
@@ -818,14 +759,14 @@ void Game::renderUICharacterScreenCharacterPanel()
 
 	ImGui::Combo("", &currentItem, listItems, 2);
 
-	switch(currentItem)
+	switch (currentItem)
 	{
 	case 0:
 		ImGui::Text("Agility: %i", _player.getStats().agility);
-		ImGui::Text("Strength: %i", 10);
-		ImGui::Text("Stamina: %i", 10);
-		ImGui::Text("Intellect: %i", 10);
-		ImGui::Text("Spirit: %i", 10);
+		ImGui::Text("Strength: %i", _player.getStats().strength);
+		ImGui::Text("Stamina: %i", _player.getStats().stamina);
+		ImGui::Text("Intellect: %i", _player.getStats().intellect);
+		ImGui::Text("Spirit: %i", _player.getStats().spirit);
 		break;
 	case 1:
 		ImGui::Text("Critical Strike Chance: %i%%", 10);
@@ -850,7 +791,14 @@ void Game::renderUICharacterScreenCharacterPanel()
 
 	ImGui::BeginGroup();
 
-	for (unsigned int i = 0; i < 8; ++i)
+	renderUICharacterScreenCharacterPanelItemPanel(7);
+
+	ImGui::EndGroup();
+}
+
+void Game::renderUICharacterScreenCharacterPanelItemPanel(unsigned int offset)
+{
+	for (unsigned int i = offset; i < 7 + offset; ++i)
 	{
 		int x = 4;
 		int y = 28;
@@ -863,13 +811,168 @@ void Game::renderUICharacterScreenCharacterPanel()
 
 		Texture2D *iconTexture = _application->getAssetManager()->fetch<Texture2D>("icons");
 
-		ImGui::ImageButton(
-			(void *)(intptr_t)iconTexture->getHandle(),
-			ImVec2(32.f, 32.f),
-			ImVec2(iconWidth * x, imageHeight - y * iconHeight),
-			ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
-			2);
-	}
+		if (i < static_cast<unsigned int>(ItemSlot::COUNT))
+		{
+			ItemSlot slot = (ItemSlot)((unsigned int)ItemSlot::HEAD + i);
 
-	ImGui::EndGroup();
+			const ItemInstance &itemInstance =
+				getPlayer()->getEquipmentManager()->getItemAt(slot);
+
+			if (itemInstance.getID() != INVALID_ID)
+			{
+				EquippableItem *item = static_cast<EquippableItem *>(
+					_itemDatabase.getItemById(itemInstance.getID()));
+
+				x = item->getIconX();
+				y = item->getIconY();
+
+				ImGui::ImageButton(
+					(void *)(intptr_t)iconTexture->getHandle(),
+					ImVec2(32.f, 32.f),
+					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+					2);
+
+				if (ImGui::IsItemHovered())
+				{
+					renderUIItemTooltip(item, itemInstance.getStackSize());
+				}
+
+				ImGui::PushID(i);
+				if (ImGui::IsItemClicked(1))
+				{
+					if (ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+					{
+						getPlayer()->getEquipmentManager()->unequip(slot);
+					}
+					else
+					{
+						ImGui::OpenPopup("Menu");
+					}
+				}
+
+				if (ImGui::BeginPopup("Menu"))
+				{
+					if (ImGui::MenuItem("Unequip"))
+					{
+						getPlayer()->getEquipmentManager()->unequip(slot);
+					}
+
+					ImGui::EndPopup();
+				}
+				ImGui::PopID();
+			}
+			else
+			{
+				ImGui::ImageButton(
+					(void *)(intptr_t)iconTexture->getHandle(),
+					ImVec2(32.f, 32.f),
+					ImVec2(iconWidth * x, imageHeight - y * iconHeight),
+					ImVec2(iconWidth * (x + 1), imageHeight - (y + 1) * iconHeight),
+					2);
+
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+
+					ImGui::Text("%s", slotStrings[i].c_str());
+
+					ImGui::EndTooltip();
+				}
+			}
+		}
+	}
+}
+
+void Game::renderUIItemTooltip(
+	Item *item, unsigned int count)
+{
+	if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
+	{
+		ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
+
+		switch (item->getRarity())
+		{
+		case ItemRarity::UNCOMMON:
+			color = ImVec4{ 0.25f, 0.91f, 0.16f, 1.0f };
+			break;
+		case ItemRarity::SUPERIOR:
+			color = ImVec4{ 0.09f, 0.17f, 0.78f, 1.0f };
+			break;
+		case ItemRarity::EPIC:
+			color = ImVec4{ 0.64f, 0.21f, 0.93f, 1.0f };
+			break;
+		case ItemRarity::LEGENDARY:
+			color = ImVec4{ 0.99f, 0.40f, 0.f, 1.0f };
+			break;
+		}
+
+		ImGui::TextColored(color, item->getName().c_str());
+
+		if (item->getType() == ItemType::CONSUMABLE)
+		{
+			ConsumableItem *consumableItem = static_cast<ConsumableItem *>(item);
+
+			ImGui::TextColored(ImVec4{ 0.12f, 1.f, 0.f, 1.0f }, "Use: %s", consumableItem->getUseText().c_str());
+		}
+		else if (item->getType() == ItemType::EQUIPPABLE)
+		{
+			EquippableItem *equippableItem = static_cast<EquippableItem *>(item);
+
+			std::string slotString = slotStrings[(unsigned int)equippableItem->getItemSlot()];
+
+			ImGui::Text("%s", slotString.c_str());
+
+			if (equippableItem->getStats().agility != 0)
+			{
+				ImGui::Text("%+i Agility", equippableItem->getStats().agility);
+			}
+
+			if (equippableItem->getStats().strength != 0)
+			{
+				ImGui::Text("%+i Strength", equippableItem->getStats().strength);
+			}
+
+			if (equippableItem->getStats().stamina != 0)
+			{
+				ImGui::Text("%+i Stamina", equippableItem->getStats().stamina);
+			}
+
+			if (equippableItem->getStats().intellect != 0)
+			{
+				ImGui::Text("%+i Intellect", equippableItem->getStats().intellect);
+			}
+
+			if (equippableItem->getStats().spirit != 0)
+			{
+				ImGui::Text("%+i Spirit", equippableItem->getStats().spirit);
+			}
+
+			unsigned int requiredLevel = equippableItem->getRequiredLevel();
+
+			if (requiredLevel > 1)
+			{
+				ImVec4 color{ 1.f, 1.f, 1.f, 1.f };
+
+				if (_player.getLevel() < requiredLevel)
+				{
+					color = ImVec4{ 1.f, 0.f, 0.f, 1.f };
+				}
+
+				ImGui::TextColored(color, "Required level: %i", requiredLevel);
+			}
+		}
+
+		if (!item->getDescription().empty())
+		{
+			ImGui::TextColored(ImVec4{ 1.f, 0.82f, 0.07f, 1.0f }, item->getDescription().c_str());
+		}
+
+		if (item->getMaxStackSize() > 1)
+		{
+			ImGui::Text("%i/%i", count, item->getMaxStackSize());
+		}
+
+		ImGui::End();
+	}
 }

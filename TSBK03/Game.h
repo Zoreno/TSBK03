@@ -152,6 +152,8 @@ private:
 
 	void renderUICharacterScreen();
 	void renderUICharacterScreenCharacterPanel();
+	void renderUICharacterScreenCharacterPanelItemPanel(unsigned int offset);
+	void renderUIItemTooltip(Item *item, unsigned int count);
 
 	bool _showInventory{ false };
 	bool _showCharacterScreen{ false };
