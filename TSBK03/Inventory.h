@@ -15,6 +15,7 @@ public:
 	ItemInstance& getItemAt(unsigned int pos);
 
 	unsigned int addItem(const ItemInstance& itemInstance);
+	unsigned int addItemCount(unsigned int id, unsigned int count);
 	unsigned int getItemCount(unsigned int id) const;
 
 	void removeItem(unsigned int id, unsigned int count);

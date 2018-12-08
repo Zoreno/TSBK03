@@ -96,6 +96,17 @@ void Enemy::renderUI(bool isTarget)
 	}
 }
 
+const glm::vec3 & Enemy::getPosition() const
+{
+	return _position;
+}
+
+void Enemy::setPosition(
+	const glm::vec3 &newPos)
+{
+	_position = newPos;
+}
+
 void Enemy::update(
 	float dt,
 	Terrain *terrain)

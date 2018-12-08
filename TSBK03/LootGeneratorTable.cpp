@@ -14,7 +14,7 @@ LootGeneratorTable::LootGeneratorTable(
 
 	const char *tag = tableNode->first_attribute("tag")->value();
 
-	std::cout << "Parsing table " << tag << std::endl;
+	//std::cout << "Parsing table " << tag << std::endl;
 
 	int entriesRead = 0;
 
@@ -109,8 +109,8 @@ LootGeneratorTable::LootGeneratorTable(
 
 	_sum = std::accumulate(_table.begin(), _table.end(), 0, [](const auto& init, const auto& elem) -> int { return init + elem->getProbability();});
 
-	std::cout << _sum << std::endl;
-	std::cout << "Read " << entriesRead << " entries" << std::endl;
+	//std::cout << _sum << std::endl;
+	//std::cout << "Read " << entriesRead << " entries" << std::endl;
 }
 
 void LootGeneratorTable::generateLoot(

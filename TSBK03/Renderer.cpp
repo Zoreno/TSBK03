@@ -206,7 +206,7 @@ Renderer::Renderer(
 
 	// TODO: This may be optimized in many ways:
 	// 
-	// * Use Texture2DArrays instead and use a geometry shader to depermine
+	// * Use Texture2DArrays instead and use a geometry shader to determine
 	//   which layer is used.
 
 	glGenFramebuffers(MAX_LIGHTS, _csmFBO);
@@ -337,7 +337,7 @@ Renderer::Renderer(
 
 	GLint MaxPatchVertices = 0;
 	glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
-	printf("Max supported patch vertices %d\n", MaxPatchVertices);
+	//printf("Max supported patch vertices %d\n", MaxPatchVertices);
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 }
 
@@ -615,7 +615,7 @@ void Renderer::calculateOrthoProjections(int lightIndex)
 		}
 
 		// Round the radius to the next 16th of an unit.
-		radius = std::ceil(radius * 16.f) / 16.f;
+		radius = glm::ceil(radius * 16.f) / 16.f;
 
 		// Create a max and min extents AABB that contains the radius
 		// in all directions.
@@ -699,9 +699,6 @@ void Renderer::render(
 	// TODO: This should only be done when the scene has changed.
 	extractLights(scene);
 
-	//std::cout << pointLights.size() << std::endl;
-	//std::cout << directionalLights.size() << std::endl;
-
 	// Do Render Pass
 
 	doPickingRenderPass(scene);
@@ -763,6 +760,16 @@ void Renderer::setCameraDirection(
 	const glm::vec3 &newDirection)
 {
 	_cameraDirection = newDirection;
+}
+
+const glm::vec3 & Renderer::getCameraPosition() const
+{
+	return _cameraPosition;
+}
+
+const glm::vec3 & Renderer::getCameraDirection() const
+{
+	return _cameraDirection;
 }
 
 float Renderer::getLastGPURenderTime() const

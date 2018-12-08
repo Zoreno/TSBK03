@@ -389,7 +389,7 @@ Mesh *Model::processMesh(
 
 	std::string name{ mesh->mName.C_Str() };
 
-	std::cout << name << std::endl;
+	//std::cout << name << std::endl;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{

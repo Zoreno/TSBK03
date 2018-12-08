@@ -26,6 +26,9 @@ Player::Player(Game *game)
 
 	// Make sure that all the stats are updated
 	recalculateStats();
+
+	_health = _maxHealth;
+	_mana = _maxMana;
 }
 
 void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain *terrain)
@@ -217,17 +220,16 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 	_game->getApplication()->getRenderer()->setCameraPosition(eye);
 	_game->getApplication()->getRenderer()->setCameraDirection(glm::normalize(eye - cameraCenter));
 
-	if(_cooldown > 0.f)
+	if (_cooldown > 0.f)
 	{
 		_cooldown -= dt;
 	}
 
-	// TODO: Mana reg
-	if(_health < _maxHealth)
+	if (_health < _maxHealth)
 	{
 		_healthRegenCounter += dt;
 
-		if(_healthRegenCounter >= 5.f)
+		if (_healthRegenCounter >= 5.f)
 		{
 			_healthRegenCounter = 0;
 			_health += _healthPer5;
@@ -238,6 +240,23 @@ void Player::handlePlayerMovement(InputManager& inputManager, float dt, Terrain 
 	else
 	{
 		_healthRegenCounter = 0.f;
+	}
+
+	if (_mana < _maxMana)
+	{
+		_manaRegenCounter += dt;
+
+		if (_manaRegenCounter >= 5.f)
+		{
+			_manaRegenCounter = 0;
+			_mana += _manaPer5;
+
+			_mana = glm::min(_mana, _maxMana);
+		}
+	}
+	else
+	{
+		_manaRegenCounter = 0.f;
 	}
 }
 
@@ -299,6 +318,12 @@ int Player::getExperience() const
 	return _experience;
 }
 
+void Player::setHealth(
+	int value)
+{
+	_health = value;
+}
+
 int Player::getHealth() const
 {
 	return _health;
@@ -329,14 +354,18 @@ void Player::addExperience(
 {
 	_experience += value;
 
-	while(checkForLevelup())
+	while (checkForLevelup())
 	{
-		_maxHealth += 20;
-		_maxMana += 10;
-
 		_baseStats.agility += 10;
+		_baseStats.strength += 10;
+		_baseStats.stamina += 10;
+		_baseStats.intellect += 10;
+		_baseStats.spirit += 10;
 
 		recalculateStats();
+
+		_health = _maxHealth;
+		_mana = _maxMana;
 	}
 }
 
@@ -367,9 +396,18 @@ void Player::attack(
 	{
 		if (_cooldown <= 0.f)
 		{
-			int damage = _game->getRandomGenerator()->randInt32Range(2*_stats.agility, 4*_stats.agility);
+			int damage = 0;
 
-			std::cout << damage << std::endl;
+			if (_game->getRandomGenerator()->randBool(_critChance))
+			{
+				damage = _game->getRandomGenerator()->randInt32Range(3 * _stats.agility, 6 * _stats.agility);
+				std::cout << damage << " (Crit)" << std::endl;
+			}
+			else
+			{
+				damage = _game->getRandomGenerator()->randInt32Range(2 * _stats.agility, 4 * _stats.agility);
+				std::cout << damage << std::endl;
+			}
 
 			enemy->takeDamage(damage);
 			_cooldown += 1.f;
@@ -398,16 +436,42 @@ void Player::recalculateStats()
 	_stats = _baseStats + itemStats;
 
 	_maxHealth = _stats.stamina * 10;
+	_maxMana = _stats.intellect * 10;
 
-	if(_health > _maxHealth)
+	if (_health > _maxHealth)
 	{
 		_health = _maxHealth;
 	}
+
+	if (_mana > _maxMana)
+	{
+		_mana = _maxMana;
+	}
+
+	_healthPer5 = _stats.spirit / 2;
+	_manaPer5 = _stats.spirit / 4;
+
+	_critChance = static_cast<float>(_stats.agility) / static_cast<float>(_level * 57);
 }
 
 const Stats & Player::getBaseStats() const
 {
 	return _baseStats;
+}
+
+int Player::getHealthPer5() const
+{
+	return _healthPer5;
+}
+
+int Player::getManaPer5() const
+{
+	return _manaPer5;
+}
+
+float Player::getCritChance() const
+{
+	return _critChance;
 }
 
 const Stats & Player::getStats() const
@@ -425,7 +489,7 @@ bool Player::checkForLevelup()
 {
 	int expToLevel = getExperienceToLevelup(_level);
 
-	if(_experience >= expToLevel)
+	if (_experience >= expToLevel)
 	{
 		_experience -= expToLevel;
 		++_level;

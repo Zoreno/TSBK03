@@ -252,7 +252,7 @@ TerrainChunk::TerrainChunk(
 		int x_offset;
 		int z_offset;
 
-		std::cout << "Processing chunk " << i << " of " << _hilbertDimension * _hilbertDimension << std::endl;
+		//std::cout << "Processing chunk " << i << " of " << _hilbertDimension * _hilbertDimension << std::endl;
 
 		hilbert_d2xy(_hilbertDimension, i, &x_offset, &z_offset);
 

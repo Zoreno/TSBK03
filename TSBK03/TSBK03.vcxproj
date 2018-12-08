@@ -19,9 +19,14 @@
     <ClCompile Include="AnimationChannel.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="AudioBuffer.cpp" />
+    <ClCompile Include="AudioListener.cpp" />
+    <ClCompile Include="AudioManager.cpp" />
+    <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="ConsumableItem.cpp" />
+    <ClCompile Include="DebugWindow.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightSceneNode.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -68,6 +73,7 @@
     <ClCompile Include="PointLightSceneNode.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="ScriptManager.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="StaticModelSceneNode.cpp" />
     <ClCompile Include="Stats.cpp" />
@@ -83,6 +89,7 @@
     <ClCompile Include="VertexArrayObject.cpp" />
     <ClCompile Include="VertexBoneData.cpp" />
     <ClCompile Include="VertexBufferObject.cpp" />
+    <ClCompile Include="WaveFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
@@ -94,10 +101,16 @@
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="AssetPool.h" />
+    <ClInclude Include="AudioBuffer.h" />
+    <ClInclude Include="AudioException.h" />
+    <ClInclude Include="AudioListener.h" />
+    <ClInclude Include="AudioManager.h" />
+    <ClInclude Include="AudioSource.h" />
     <ClInclude Include="BMP.h" />
     <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="ConsumableItem.h" />
+    <ClInclude Include="DebugWindow.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightSceneNode.h" />
     <ClInclude Include="Enemy.h" />
@@ -161,7 +174,11 @@
     <ClInclude Include="RendererPickingInfo.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SceneNodeType.h" />
+    <ClInclude Include="ScriptExecutionException.h" />
+    <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="sol.hpp" />
+    <ClInclude Include="sol_forward.hpp" />
     <ClInclude Include="StaticModelSceneNode.h" />
     <ClInclude Include="Stats.h" />
     <ClInclude Include="STBTextureFile.h" />
@@ -180,6 +197,7 @@
     <ClInclude Include="VertexArrayObject.h" />
     <ClInclude Include="VertexBoneData.h" />
     <ClInclude Include="VertexBufferObject.h" />
+    <ClInclude Include="WaveFile.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AssetManager.inl" />
@@ -208,6 +226,7 @@
     <None Include="skinnedshader.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
+    <None Include="testscript.lua" />
     <None Include="water.frag" />
     <None Include="water.tctl" />
     <None Include="water.tevl" />
@@ -295,7 +314,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenAL32.lib;opengl32.lib;glfw3.lib;glew32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua5.3.4.lib;OpenAL32.lib;opengl32.lib;glfw3.lib;glew32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AssemblyDebug>true</AssemblyDebug>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>

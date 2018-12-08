@@ -14,6 +14,9 @@ public:
 	virtual ~Enemy();
 	void renderUI(bool isTarget);
 
+	const glm::vec3& getPosition() const;
+	void setPosition(const glm::vec3& newPos);
+
 	virtual void update(float dt, Terrain *terrain);
 
 	void setShowNamePlate(bool val);

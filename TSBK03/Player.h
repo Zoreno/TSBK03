@@ -43,6 +43,7 @@ public:
 	int getLevel() const;
 	int getExperience() const;
 
+	void setHealth(int value);
 	int getHealth() const;
 	int getMaxHealth() const;
 
@@ -70,6 +71,11 @@ public:
 	const Stats& getStats() const;
 	const Stats& getBaseStats() const;
 
+	int getHealthPer5() const;
+	int getManaPer5() const;
+
+	float getCritChance() const;
+
 private:
 
 	Stats _baseStats;
@@ -83,7 +89,12 @@ private:
 	float _healthRegenCounter{ 0.f };
 	int _healthPer5{ 5 };
 
-	std::string _name{ "Kalle Storfiskare" };
+	float _manaRegenCounter{ 0.f };
+	int _manaPer5{ 5 };
+
+	float _critChance{ 0 };
+
+	std::string _name{ "Player Name" };
 
 	int _level{ 1 };
 	int _experience{ 0 };

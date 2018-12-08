@@ -11,6 +11,10 @@
 #include "RandomGenerator.h"
 #include "MersenneDevice.h"
 #include "LootGenerator.h"
+#include "AudioListener.h"
+#include "AudioSource.h"
+#include "ScriptManager.h"
+#include "DebugWindow.h"
 
 // For collision handling of objects
 // http://www.codercorner.com/SAP.pdf
@@ -126,7 +130,6 @@ public:
 	void render(Renderer *renderer) override;
 
 	// Game API
-	// TODO: Make these functions accessible through scripting
 	void addToRoot(SceneNode *sceneNode);
 	void removeFromRoot(SceneNode *sceneNode);
 	Player *getPlayer();
@@ -141,6 +144,15 @@ public:
 	void callInFuture(float time, const std::function<void(Game *)>& func);
 
 	LootGenerator *getLootGenerator();
+
+	Scene *getScene() override;
+
+	ScriptManager *getScriptManager();
+
+	DebugWindow *getDebugWindow();
+
+	std::vector<Enemy *>& getEnemies();
+	Enemy *getCurrentTarget();
 private:
 
 	//=========================================================================
@@ -155,9 +167,12 @@ private:
 	void renderUICharacterScreenCharacterPanelItemPanel(unsigned int offset);
 	void renderUIItemTooltip(Item *item, unsigned int count);
 
+	void renderUIDebugWindow();
+
 	bool _showInventory{ false };
 	bool _showCharacterScreen{ false };
 	int _currentCharacterScreenTab{ 0 };
+	bool _showDebugWindow{ true };
 
 	int _moveFrom = -1;
 	int _moveTo = -1;
@@ -184,4 +199,11 @@ private:
 	std::vector<PendingFunction> _pendingFunctions;
 
 	LootGenerator _lootGenerator{};
+
+	AudioSource _backgroundMusic;
+	AudioSource _attackSound;
+
+	ScriptManager _scriptManager;
+
+	DebugWindow _debugWindow;
 };

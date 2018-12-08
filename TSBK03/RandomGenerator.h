@@ -37,6 +37,8 @@ public:
 	float randFloat();
 	float randFloatRange(float min, float max);
 	float randFloatSigned();
+
+	bool randBool(float probability = 0.5f);
 private:
 	Device device;
 
@@ -192,6 +194,15 @@ template <typename Device>
 float RandomGenerator<Device>::randFloatSigned()
 {
 	return randFloatRange(-1.f, 1.f);
+}
+
+template <typename Device>
+bool RandomGenerator<Device>::randBool(
+	float probability)
+{
+	float rand = static_cast<float>(randUint32Range(0, 100));
+
+	return 100.f * probability > rand;
 }
 
 template <typename Device>

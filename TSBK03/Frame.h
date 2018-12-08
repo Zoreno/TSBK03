@@ -16,6 +16,8 @@ public:
 	virtual ~Frame();
 
 	Application *getApplication() const;
+
+	virtual Scene *getScene() = 0;
 protected:
 
 	Application *_application;

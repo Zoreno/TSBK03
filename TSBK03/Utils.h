@@ -8,6 +8,8 @@
 #include <iostream>
 #include <iterator>
 
+#include <glm/glm.hpp>
+
 std::string getStringFromFile(const std::string& file);
 
 template <class ForwardIt>
@@ -66,3 +68,7 @@ void selectionSort(ForwardIt first, ForwardIt last)
 		std::swap(*it, *std::min_element(it, last));
 	}
 }
+
+std::ostream& operator<<(std::ostream& stream, const glm::vec2& rhs);
+std::ostream& operator<<(std::ostream& stream, const glm::vec3& rhs);
+std::ostream& operator<<(std::ostream& stream, const glm::vec4& rhs);

@@ -4,6 +4,11 @@
 #include "imgui_custom_widgets.h"
 #include "ConsumableItem.h"
 #include "EquippableItem.h"
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#include "sol.hpp"
+#include "ScriptExecutionException.h"
 
 const std::string slotStrings[(unsigned int)ItemSlot::COUNT] =
 {
@@ -39,7 +44,11 @@ Game::Game(
 	: Frame(application),
 	_scene{ new Scene{ SceneNodeType::ROOT, "ROOT" } },
 	_player{ this },
-	_randomGenerator{ static_cast<uint32_t>(time(nullptr)) }
+	_randomGenerator{ static_cast<uint32_t>(time(nullptr)) },
+	_backgroundMusic{ "Music.wav", true },
+	_attackSound{ "Blip_Select.wav", false },
+	_scriptManager{ this },
+	_debugWindow{ this }
 {
 	_terrainNode = new TerrainSceneNode("terrain", "terrain");
 	_terrainNode->setPosition(glm::vec3{ 0.f, 0.f, 0.f });
@@ -71,11 +80,36 @@ Game::Game(
 	_player.getInventory()->addItem(ItemInstance(2, 10));
 	_player.getInventory()->addItem(ItemInstance(5, 1));
 	_player.getInventory()->addItem(ItemInstance(6, 1));
+
+	_backgroundMusic.play();
+	_backgroundMusic.setPosition(_application->getRenderer()->getCameraPosition());
+
+	AudioListener& audioListener = getApplication()->getAudioManager()->getAudioListener();
+
+	audioListener.setVelocity(glm::vec3{ 0.f, 0.f, 0.f });
+	audioListener.setPosition(_application->getRenderer()->getCameraPosition());
+	audioListener.setOrientationAt(_application->getRenderer()->getCameraDirection());
+
+	try
+	{
+		_scriptManager.doFile("testscript.lua");
+	}
+	catch (const ScriptExecutionException& ex)
+	{
+		std::cerr << ex.what() << std::endl;
+	}
 }
 
 Game::~Game()
 {
 	// TODO: Cleanup
+
+	for (auto it : _enemies)
+	{
+		delete it;
+	}
+
+	free(_scene);
 }
 
 void Game::update(
@@ -115,6 +149,7 @@ void Game::update(
 	static bool lastEKey = _inputManager.keys[KEY_E];
 	static bool lastIKey = _inputManager.keys[KEY_I];
 	static bool lastCKey = _inputManager.keys[KEY_C];
+	static bool lastF10Key = _inputManager.keys[KEY_F10];
 
 	static float currTime = 0;
 	currTime += dt;
@@ -201,6 +236,11 @@ void Game::update(
 		_showCharacterScreen = !_showCharacterScreen;
 	}
 
+	if(_inputManager.keys[KEY_F10] && !lastF10Key)
+	{
+		_showDebugWindow = !_showDebugWindow;
+	}
+
 	std::vector<Enemy *> _enemiesPendingRemove;
 
 	for (auto it = _enemies.begin(); it != _enemies.end();)
@@ -240,6 +280,7 @@ void Game::update(
 	lastEKey = _inputManager.keys[KEY_E];
 	lastIKey = _inputManager.keys[KEY_I];
 	lastCKey = _inputManager.keys[KEY_C];
+	lastF10Key = _inputManager.keys[KEY_F10];
 
 	// Handle player death
 	if (_player.getHealth() <= 0)
@@ -249,6 +290,13 @@ void Game::update(
 		// the player
 		_application->shutDown();
 	}
+
+	AudioListener& audioListener = getApplication()->getAudioManager()->getAudioListener();
+
+	audioListener.setPosition(_application->getRenderer()->getCameraPosition());
+	audioListener.setOrientationAt(_application->getRenderer()->getCameraDirection());
+
+	_backgroundMusic.setPosition(_application->getRenderer()->getCameraPosition());
 }
 
 void Game::renderUI()
@@ -374,6 +422,12 @@ void Game::renderUI()
 	{
 		it->renderUI(_currentTarget == it);
 	}
+
+	//=========================================================================
+	// Render the debug window
+	//=========================================================================
+
+	renderUIDebugWindow();
 }
 
 void Game::render(
@@ -445,6 +499,31 @@ void Game::callInFuture(
 LootGenerator * Game::getLootGenerator()
 {
 	return &_lootGenerator;
+}
+
+Scene * Game::getScene()
+{
+	return _scene;
+}
+
+ScriptManager * Game::getScriptManager()
+{
+	return &_scriptManager;
+}
+
+DebugWindow * Game::getDebugWindow()
+{
+	return &_debugWindow;
+}
+
+std::vector<Enemy *> & Game::getEnemies()
+{
+	return _enemies;
+}
+
+Enemy * Game::getCurrentTarget()
+{
+	return _currentTarget;
 }
 
 void Game::renderUIInventory()
@@ -575,7 +654,7 @@ void Game::renderUIInventoryItemFrame(
 						std::cout << "Cannot use that item right now" << std::endl;
 					}
 				}
-				else if(item->getType() == ItemType::EQUIPPABLE)
+				else if (item->getType() == ItemType::EQUIPPABLE)
 				{
 					if (!getPlayer()->getEquipmentManager()->equip(itemInstance, i))
 					{
@@ -753,11 +832,11 @@ void Game::renderUICharacterScreenCharacterPanel()
 	ImGui::Text("Mana: %i/%i", _player.getMana(), _player.getMaxMana());
 	ImGui::Text("");
 
-	const char *listItems[2] = { "Primary Stats", "Secondary Stats" };
+	const char *listItems[3] = { "Primary Stats", "Secondary Stats", "Regen" };
 
 	static int currentItem = 0;
 
-	ImGui::Combo("", &currentItem, listItems, 2);
+	ImGui::Combo("", &currentItem, listItems, 3);
 
 	switch (currentItem)
 	{
@@ -769,7 +848,7 @@ void Game::renderUICharacterScreenCharacterPanel()
 		ImGui::Text("Spirit: %i", _player.getStats().spirit);
 		break;
 	case 1:
-		ImGui::Text("Critical Strike Chance: %i%%", 10);
+		ImGui::Text("Critical Strike Chance: %.1f%%", _player.getCritChance() * 100.f);
 		ImGui::Text("Attack Power: %i", 10);
 		ImGui::Text("Spell Power: %i", 10);
 		ImGui::Text("Haste: %i%%", 10);
@@ -778,6 +857,10 @@ void Game::renderUICharacterScreenCharacterPanel()
 		ImGui::Text("Block Chance: %i%%", 10);
 		ImGui::Text("Parry Chance: %i%%", 10);
 		ImGui::Text("Armor: %i", 1000);
+		break;
+	case 2:
+		ImGui::Text("Health per 5s: %i", _player.getHealthPer5());
+		ImGui::Text("Mana per 5s: %i", _player.getManaPer5());
 		break;
 	}
 
@@ -889,6 +972,8 @@ void Game::renderUIItemTooltip(
 {
 	if (ImGui::Begin("1", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
 	{
+		ImGui::PushTextWrapPos(200.f);
+
 		ImVec4 color = ImVec4{ 1.f, 1.f, 1.f, 1.f };
 
 		switch (item->getRarity())
@@ -973,6 +1058,16 @@ void Game::renderUIItemTooltip(
 			ImGui::Text("%i/%i", count, item->getMaxStackSize());
 		}
 
+		ImGui::PopTextWrapPos();
+
 		ImGui::End();
+	}
+}
+
+void Game::renderUIDebugWindow()
+{
+	if (_showDebugWindow)
+	{
+		_debugWindow.render(&_showDebugWindow);
 	}
 }

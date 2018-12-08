@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "EventManager.h"
 #include "KeyEvent.h"
+#include "AudioManager.h"
 
 class Frame;
 
@@ -48,6 +49,8 @@ public:
 
 	void shutDown();
 
+	AudioManager *getAudioManager();
+
 private:
 
 	bool _appShouldClose{false};
@@ -61,4 +64,6 @@ private:
 	Timer _timer;
 
 	Frame *_currentFrame;
+
+	AudioManager _audioManager{};
 };

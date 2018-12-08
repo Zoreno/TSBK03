@@ -41,6 +41,9 @@ public:
 	void setCameraPosition(const glm::vec3& cameraPos);
 	void setCameraDirection(const glm::vec3& newDirection);
 
+	const glm::vec3& getCameraPosition() const;
+	const glm::vec3& getCameraDirection() const;
+
 	float getLastGPURenderTime() const;
 
 	glm::vec3 _celThresholds{ 0.1f, 0.3f, 0.6f };

@@ -178,6 +178,30 @@
     <Filter Include="Source Files\Game\Item\Item">
       <UniqueIdentifier>{765623af-4ceb-4f93-ab57-7c9c786a389d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\Audio">
+      <UniqueIdentifier>{9643fad7-8445-4e96-997f-fd18ae28358c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Audio">
+      <UniqueIdentifier>{7f99b6ba-1578-4ff6-9483-c0947ed9f75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Library\SOL2">
+      <UniqueIdentifier>{0a06986d-d824-4eac-8a29-69e289276226}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Script">
+      <UniqueIdentifier>{fc586812-8503-452f-aa8e-ac9394716b35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Script">
+      <UniqueIdentifier>{738b6914-b125-4550-b6ef-a44f28777267}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{9889909c-c962-4510-9e3c-ebc24faa2588}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\UI">
+      <UniqueIdentifier>{fb90db75-7463-4404-a3cb-64b2577d3300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\UI">
+      <UniqueIdentifier>{e4e375c3-e3f2-4492-a930-5139f0b06f0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -383,6 +407,27 @@
     </ClCompile>
     <ClCompile Include="Stats.cpp">
       <Filter>Source Files\Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveFile.cpp">
+      <Filter>Source Files\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioBuffer.cpp">
+      <Filter>Source Files\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSource.cpp">
+      <Filter>Source Files\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioListener.cpp">
+      <Filter>Source Files\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>Source Files\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptManager.cpp">
+      <Filter>Source Files\Game\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugWindow.cpp">
+      <Filter>Source Files\Game\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -671,6 +716,39 @@
     <ClInclude Include="EquipmentManager.h">
       <Filter>Header Files\Game\Item</Filter>
     </ClInclude>
+    <ClInclude Include="AudioException.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioBuffer.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFile.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSource.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioListener.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>Header Files\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="sol.hpp">
+      <Filter>Header Files\Library\SOL2</Filter>
+    </ClInclude>
+    <ClInclude Include="sol_forward.hpp">
+      <Filter>Header Files\Library\SOL2</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptManager.h">
+      <Filter>Header Files\Game\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptExecutionException.h">
+      <Filter>Header Files\Game\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugWindow.h">
+      <Filter>Header Files\Game\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="AssetPool.inl">
@@ -762,6 +840,9 @@
     </None>
     <None Include="grass.frag">
       <Filter>Shaders\Grass</Filter>
+    </None>
+    <None Include="testscript.lua">
+      <Filter>Scripts</Filter>
     </None>
   </ItemGroup>
 </Project>

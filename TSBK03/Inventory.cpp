@@ -79,6 +79,13 @@ unsigned int Inventory::addItem(
 	return countLeft;
 }
 
+unsigned int Inventory::addItemCount(
+	unsigned int id,
+	unsigned int count)
+{
+	return addItem(ItemInstance{ id, count });
+}
+
 unsigned int Inventory::getItemCount(
 	unsigned int id) const
 {

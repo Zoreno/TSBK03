@@ -31,6 +31,8 @@
 #include "MouseButtonEvent.h"
 #include "Game.h"
 
+#include <sstream>
+
 float FOV = 70.f;
 float nearPlane = 0.1f;
 float farPlane = 200.f;
@@ -105,7 +107,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 
-	if(!ImGui::GetIO().WantCaptureKeyboard)
+	if (!ImGui::GetIO().WantCaptureKeyboard)
 	{
 		Application *app = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
 
@@ -128,6 +130,12 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 
 void drawSceneNode(SceneNode *scene, AssetManager *assetManager)
 {
+	// Make sure that we do not iterate through invalid trees
+	if (!scene)
+	{
+		return;
+	}
+
 	static int i = 0;
 	ImGui::PushID(scene->getID());
 	if (ImGui::Button("Add"))
@@ -645,21 +653,6 @@ Application::Application()
 
 	glfwInit();
 
-	int monitorCount;
-	GLFWmonitor **monitors = glfwGetMonitors(&monitorCount);
-	for (int i = 0; i < monitorCount; ++i)
-	{
-		GLFWmonitor *monitor = monitors[i];
-		std::cout << glfwGetMonitorName(monitor) << std::endl;
-
-		int videoModeCount;
-		const GLFWvidmode *modes = glfwGetVideoModes(monitor, &videoModeCount);
-
-		for (int j = 0; j < videoModeCount; ++j)
-		{
-			//std::cout << "[Mode " << j << "] Width: " << modes[j].width << " Height: " << modes[j].height << std::end
-		}
-	}
 	const char* glsl_version = "#version 430 core";
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -668,7 +661,7 @@ Application::Application()
 
 	_window = glfwCreateWindow(1280, 768, "Title", NULL, NULL);
 
-	if (!_window)
+	if (_window == nullptr)
 	{
 		std::cerr << "Could not create window" << std::endl;
 
@@ -678,7 +671,7 @@ Application::Application()
 
 	glfwMakeContextCurrent(_window);
 	glfwSwapInterval(1);
-	glewExperimental = true;
+	glewExperimental = GL_TRUE;
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -764,6 +757,11 @@ Application::Application()
 
 Application::~Application()
 {
+	if(_currentFrame)
+	{
+		delete _currentFrame;
+	}
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -811,7 +809,7 @@ void Application::run()
 		{
 			ImGui::Begin("Debug", &debugWindowActive, ImGuiWindowFlags_MenuBar);
 
-			if (ImGui::Button("OpenGL Info"))
+			if (ImGui::Button("Sound"))
 			{
 				currentTab = 0;
 			}
@@ -841,6 +839,18 @@ void Application::run()
 
 			if (currentTab == 0)
 			{
+				float gain = _audioManager.getGain();
+				bool muted = _audioManager.getMuted();
+
+				if(ImGui::SliderFloat("Gain", &gain, 0, 1, "%.3f", 2))
+				{
+					_audioManager.setGain(gain);
+				}
+
+				if(ImGui::Checkbox("Mute", &muted))
+				{
+					_audioManager.setMuted(muted);
+				}
 
 			}
 			else if (currentTab == 1)
@@ -881,7 +891,7 @@ void Application::run()
 
 				ImGui::Text("Extension count: %i", n);
 
-				if(ImGui::TreeNode("Extensions"))
+				if (ImGui::TreeNode("Extensions"))
 				{
 					for (GLint i = 0; i < n; ++i)
 					{
@@ -891,6 +901,58 @@ void Application::run()
 					}
 
 					ImGui::TreePop();
+				}
+
+				ImGui::Separator();
+
+				int monitorCount;
+				GLFWmonitor **monitors = glfwGetMonitors(&monitorCount);
+				for (int i = 0; i < monitorCount; ++i)
+				{
+					GLFWmonitor *monitor = monitors[i];
+
+					const char *monitorName = glfwGetMonitorName(monitor);
+
+					ImGui::PushID(i);
+					if (ImGui::TreeNode("monitor", "%s", monitorName))
+					{
+						int videoModeCount;
+						const GLFWvidmode *modes = glfwGetVideoModes(monitor, &videoModeCount);
+
+						static std::string currentItem = "fisk";
+
+						if (ImGui::BeginCombo("Modes", currentItem.c_str()))
+						{
+							for (int j = 0; j < videoModeCount; ++j)
+							{
+								std::stringstream ss{};
+
+								ss << "[Mode " << j << "] W:" << modes[j].width << " H:" << modes[j].height << "Hz:" << modes[j].refreshRate;
+
+								std::string str = ss.str();
+
+								bool is_selected = (currentItem == str);
+
+								if (ImGui::Selectable(str.c_str(), is_selected))
+								{
+									currentItem = str;
+
+									glfwSetWindowMonitor(_window, monitor, 0, 0, modes[j].width, modes[j].height, modes[j].refreshRate);
+								}
+
+								if (is_selected)
+								{
+									ImGui::SetItemDefaultFocus();
+								}
+							}
+
+							ImGui::EndCombo();
+						}
+
+						ImGui::TreePop();
+
+					}
+					ImGui::PopID();
 				}
 
 				ImGui::Separator();
@@ -1072,7 +1134,7 @@ void Application::run()
 
 				bool drawNormals = _renderer->getDrawNormals();
 
-				if(ImGui::Checkbox("Draw Normals", &drawNormals))
+				if (ImGui::Checkbox("Draw Normals", &drawNormals))
 				{
 					_renderer->setDrawNormals(drawNormals);
 				}
@@ -1080,7 +1142,7 @@ void Application::run()
 			}
 			else if (currentTab == 2)
 			{
-				//drawSceneNode(_scene, &_assetManager);
+				drawSceneNode(_currentFrame->getScene(), &_assetManager);
 			}
 			else if (currentTab == 3)
 			{
@@ -1410,4 +1472,9 @@ GLFWwindow * Application::getWindow() const
 void Application::shutDown()
 {
 	_appShouldClose = true;
+}
+
+AudioManager * Application::getAudioManager()
+{
+	return &_audioManager;
 }

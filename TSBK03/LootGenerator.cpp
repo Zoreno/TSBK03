@@ -36,7 +36,7 @@ LootGenerator::LootGenerator()
 		tablenode = tablenode->next_sibling("table");
 	}
 
-	std::cout << "Read " << tablesRead << " tables" << std::endl;
+	//std::cout << "Read " << tablesRead << " tables" << std::endl;
 }
 
 void LootGenerator::generateLoot(

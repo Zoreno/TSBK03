@@ -271,7 +271,7 @@ void ItemDatabase::loadItems()
 		itemnode = itemnode->next_sibling("item");
 	}
 
-	std::cout << "Parsed " << items_read << " items" << std::endl;
+	//std::cout << "Parsed " << items_read << " items" << std::endl;
 }
 
 void ItemDatabase::loadOnUseFunctions()
