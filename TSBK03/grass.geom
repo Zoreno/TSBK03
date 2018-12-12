@@ -2,7 +2,7 @@
 
 #define NUM_BLADES 4
 
-layout (triangles, invocations = 12) in;
+layout (triangles, invocations = 6) in;
 
 layout (triangle_strip, max_vertices = 24) out;
 
